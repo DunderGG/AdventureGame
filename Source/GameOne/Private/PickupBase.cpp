@@ -78,7 +78,10 @@ void APickupBase::initializePickup()
 				return;
 			}
 
-			UItemDefinition* tempItemDefinition = itemDataRow->itemBase.Get();
+			// Resolve the Data reference by this table row. If not available, load it now.
+			UItemDefinition* tempItemDefinition = itemDataRow->itemBase.IsValid()
+				? itemDataRow->itemBase.Get()
+				: itemDataRow->itemBase.LoadSynchronous();
 			if (!tempItemDefinition)
 			{
 				UE_LOG(LogTemp, Error, TEXT("APickupBase::%hs():%d: Failed getting Item Definition for row '%s'"), __func__, __LINE__, *pickupItemId.ToString());
@@ -86,19 +89,20 @@ void APickupBase::initializePickup()
 			}
 
 			// Create a copy of the item with the class type
+			//  TODO It's never explained why we make this referenceItem, needs some investigation.
 			referenceItem = tempItemDefinition->createItemCopy();
 			
 			// Before applying the WorldMesh to the pickup’s mesh component, 
 			// we need to check that the mesh is loaded since we defined it with a TSoftObjectPtr.
 			if (referenceItem->worldMesh.IsValid())
 			{
-				pickupMeshComponent->SetSkeletalMesh(tempItemDefinition->worldMesh.Get());
+				pickupMeshComponent->SetSkeletalMesh(referenceItem->worldMesh.Get());
 			}
 			else
 			{
 				UE_LOG(LogTemp, Warning, TEXT("APickupBase::initializePickup(): Loading mesh synchronously..."));
 				// If the mesh isn't loaded, load it by calling LoadSynchronous().
-				USkeletalMesh* worldMesh = tempItemDefinition->worldMesh.LoadSynchronous();
+				USkeletalMesh* worldMesh = referenceItem->worldMesh.LoadSynchronous();
 				pickupMeshComponent->SetSkeletalMesh(worldMesh);
 			}
 

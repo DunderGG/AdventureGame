@@ -79,8 +79,8 @@ public:
 	//TObjectPtr<UCameraComponent> thirdPersonCameraComponent;
 
 	// First-person mesh, visible only to the owning player
-	UPROPERTY(VisibleAnywhere, Category = "Mesh")
-	TObjectPtr<USkeletalMeshComponent> firstPersonMeshComponent;
+	//UPROPERTY(VisibleAnywhere, Category = "Mesh")
+	//TObjectPtr<USkeletalMeshComponent> firstPersonMeshComponent;
 
 	// The Character Inventory Component
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")

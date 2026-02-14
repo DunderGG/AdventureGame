@@ -4,10 +4,8 @@
 
 #include "Components/SphereComponent.h"
 #include "CoreMinimal.h"
-#include "Engine/World.h"
 #include "GameFramework/Actor.h"
 #include "MainCharacter.h"
-#include "TimerManager.h"
 #include "PickupBase.generated.h"
 
 class UItemDefinition;

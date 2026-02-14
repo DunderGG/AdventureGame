@@ -5,6 +5,12 @@
 #include "MainCharacter.h"
 #include "projectile.h"
 
+APistol::APistol()
+{
+	shootAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("shootAudioComponent"));
+	shootAudioComponent->SetupAttachment(RootComponent);
+}
+
 // Called every frame
 void APistol::Tick(float DeltaTime)
 {
@@ -40,6 +46,9 @@ void APistol::use()
 		// Finally spawn the projectile at the muzzle
 		AProjectile* spawned = world->SpawnActor<AProjectile>(projectileClass, spawnLocation, spawnRotation, actorSpawnParams);
 		
+		// Play the sound effect of shooting
+		shootAudioComponent->Play();
+
 		//UE_LOG(LogTemp, Display, TEXT("APistol::use(): Spawned projectile at = %s"), *spawned->GetActorLocation().ToString());
 	}
 	else
