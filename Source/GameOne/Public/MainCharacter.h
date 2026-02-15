@@ -49,7 +49,7 @@ public:
 
 	// Returns the location in the world the character is looking at
 	UFUNCTION()
-	FVector getCameraTargetLocation();
+	FVector getCameraTargetLocation() const;
 
 	// Public function that other classes can call to attempt to give an item to the player
 	UFUNCTION()

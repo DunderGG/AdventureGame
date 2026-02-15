@@ -242,7 +242,7 @@ void AMainCharacter::giveItem(UItemDefinition* itemDefinition)
 *	along the vector the character is looking down to some distant point. 
 *	If the line trace collides with an object, you know where in the world your character is looking.
 */
-FVector AMainCharacter::getCameraTargetLocation()
+FVector AMainCharacter::getCameraTargetLocation() const
 {
 	FVector targetResult(0,0,0);
 
