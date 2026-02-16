@@ -73,9 +73,16 @@ Plugins/**/Intermediate/*
 # Cache files for the editor to use
 DerivedDataCache/*
 
-# DO NOT PUSH THESE FILES
+# DO NOT PUSH THESE FILES UNTIL WE KNOW WHAT IS NEEDED
 .vsconfig
 Config/*
 Content/*
 *.uproject
 *.cs
+Plugins/*
+*AdventureGame.cpp
+*AdventureGame.h
+*AdventureGameCharacter.cpp
+*AdventureGameCharacter.h
+*AdventureGamePlayerController.cpp
+*AdventureGamePlayerController.h
