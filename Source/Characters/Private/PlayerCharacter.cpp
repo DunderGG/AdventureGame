@@ -14,7 +14,7 @@ APlayerCharacter::APlayerCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bTickEvenWhenPaused = false;
 
-	GetCapsuleComponent()->InitCapsuleSize(42.0f, 96.0f);
+	GetCapsuleComponent()->InitCapsuleSize(45.0f, 100.0f);
 
 	bUseControllerRotationPitch = true;
 	bUseControllerRotationYaw = true;
@@ -29,6 +29,19 @@ APlayerCharacter::APlayerCharacter()
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.0f;
 
+
+	// Tried adding components to add the metahuman assets to,
+	//	but it's probably easier to add the cameras and control to the
+	//	metahuman character blueprint???
+	// Create and attach all body components  -  Can't get stuff to line up...
+	//body = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("body"));
+	//body->SetupAttachment(GetMesh());
+	//face = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("face"));
+	//face->SetupAttachment(GetMesh());
+	//torso = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("torso"));
+	//torso->SetupAttachment(GetMesh());
+
+
 	cameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("cameraBoom"));
 	cameraBoom->SetupAttachment(RootComponent);
 	cameraBoom->TargetArmLength = 400.0f;
@@ -36,7 +49,6 @@ APlayerCharacter::APlayerCharacter()
 
 	thirdPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("thirdPersonCamera"));
 	thirdPersonCamera->SetupAttachment(cameraBoom);
-	thirdPersonCamera->Deactivate();
 	thirdPersonCamera->bAutoActivate = false;
 
 	firstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("firstPersonCamera"));
@@ -44,7 +56,11 @@ APlayerCharacter::APlayerCharacter()
 	firstPersonCamera->SetRelativeRotation(FRotator(0, -90, 90));
 	firstPersonCamera->SetRelativeLocation(FVector(15, 20, 2.5));
 	firstPersonCamera->bUsePawnControlRotation = true;
-	firstPersonCamera->Activate();
+	
+	// Start in first or third person view?
+	firstPersonCamera->Deactivate();
+	thirdPersonCamera->Activate();
+	isInFirstPersonView = false;
 
 }
 
@@ -56,6 +72,20 @@ void APlayerCharacter::Tick(float DeltaTime)
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	/* Tried making a metahuman character, failed successfully...
+	TArray<USkeletalMeshComponent*> skellies;
+	GetComponents<USkeletalMeshComponent>(skellies, true);
+
+	for (USkeletalMeshComponent* skelly : skellies)
+	{
+		if (skelly->GetFName() == "Face")
+		{
+			UE_LOG(LogTemp, Warning, TEXT("FOUND THE FACE"));
+			firstPersonCamera->SetupAttachment(skelly, "head");
+		}
+	}
+	*/
 }
 
 void APlayerCharacter::move(const FInputActionValue& value)
@@ -64,7 +94,7 @@ void APlayerCharacter::move(const FInputActionValue& value)
 
 	if (Controller != nullptr)
 	{
-		// This way of adding movement removes head bobbing
+		// This way of adding movement removes head bobbing...
 		const FRotator rotation = Controller->GetControlRotation();
 		const FRotator yawRotation(0, rotation.Yaw, 0);
 		const FVector forwardDirection = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::X);
@@ -147,7 +177,7 @@ void APlayerCharacter::togglePerspective()
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = true;
 	UE_LOG(LogTemp, Display, TEXT("APlayerCharacter::togglePerspective(): Now playing First Person"));
-	return;
+	return;		// Not necessary, but makes it clear that the function ends here
 }
 
 

@@ -20,6 +20,15 @@ class CHARACTERS_API APlayerCharacter : public ACharacterBase
 	GENERATED_BODY()
 
 private:
+	//UPROPERTY(EditAnywhere, Category = "Body Components")
+	//TObjectPtr<USkeletalMeshComponent> body;
+	//UPROPERTY(EditAnywhere, Category = "Body Components")
+	//TObjectPtr<USkeletalMeshComponent> face;
+	//UPROPERTY(EditAnywhere, Category = "Body Components")
+	//TObjectPtr<USkeletalMeshComponent> torso;
+
+
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USpringArmComponent> cameraBoom;
 
