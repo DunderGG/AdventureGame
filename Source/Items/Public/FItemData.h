@@ -1,7 +1,11 @@
 #pragma once
+
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
 #include "FItemData.generated.h"
+
+// By default, items do not use durability.
+const float DEFAULT_DURABILITY = -1.0f;
 
 USTRUCT(BlueprintType)
 struct FItemData : public FTableRowBase
@@ -18,7 +22,7 @@ struct FItemData : public FTableRowBase
 	float weight = 1.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float maxDurability = -1.0f; // 0-1 as percentile, <0 does not use durability
+	float maxDurability = DEFAULT_DURABILITY; // 0-1 as percentile, <0 does not use durability
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 quality;
@@ -45,7 +49,7 @@ struct FItemData : public FTableRowBase
 		id{NAME_None},
 		maxStackSize{0},
 		weight{1.0f},
-		maxDurability{-1.0f},
+		maxDurability{ DEFAULT_DURABILITY },
 		quality{0},
 		icon{nullptr},
 		mesh{nullptr},
@@ -66,7 +70,7 @@ struct FItemData : public FTableRowBase
 	{
 		id = NAME_None;
 		maxStackSize = 0;
-		maxDurability = 0;
+		maxDurability = DEFAULT_DURABILITY;
 		icon = nullptr;
 		mesh = nullptr;
 		skeletalMesh = nullptr;

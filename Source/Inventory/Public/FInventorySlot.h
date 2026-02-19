@@ -1,7 +1,14 @@
 #pragma once
+
 #include "CoreMinimal.h"
+#include "FItemData.h"
 #include "FInventorySlot.generated.h"
 
+/*
+* We have this struct to represent an item slot, intead of just directly
+*	using the ItemData struct, because there is a lot of information there
+*	we don't need to store in the inventory.
+*/
 USTRUCT(BlueprintType)
 struct FInventorySlot
 {
@@ -15,13 +22,26 @@ struct FInventorySlot
 	int itemQuantity = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	float itemCurrentDurability = -1.0f;
+	float itemCurrentDurability = DEFAULT_DURABILITY;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float itemWeight = 0.0f;
 
 	FInventorySlot() : 
 		itemId{ NAME_None },
 		itemQuantity{ 0 }, 
-		itemCurrentDurability{ -1.0f }
+		itemCurrentDurability{ DEFAULT_DURABILITY },
+		itemWeight{ 0.0f }
 	{
+	}
+
+	// Put an item in this slot.
+	void setItemData(const FName id, const int quantity, const float durability, const float weight)
+	{
+		itemId = id;
+		itemQuantity = quantity;
+		itemCurrentDurability = durability;
+		itemWeight = weight;
 	}
 
 	// ***** HELPERS *****
@@ -34,6 +54,7 @@ struct FInventorySlot
 	{
 		itemId = NAME_None;
 		itemQuantity = 0;
-		itemCurrentDurability = -1.0f;
+		itemCurrentDurability = DEFAULT_DURABILITY;
+		itemWeight = 0.0f;
 	}
 };
