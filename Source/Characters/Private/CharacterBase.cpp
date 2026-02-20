@@ -1,14 +1,16 @@
 // Copyright dunder.gg. All Rights Reserved.
 
 #include "CharacterBase.h"
-
+#include "AGAbilitySystemComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "AGCharacterAttributeSet.h"
 
 // Sets default values
 ACharacterBase::ACharacterBase()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
+
 }
 
 // Called when the game starts or when spawned
@@ -17,6 +19,11 @@ void ACharacterBase::BeginPlay()
 	Super::BeginPlay();
 
 	GetCharacterMovement()->MaxWalkSpeed = getWalkSpeed();
+}
+
+UAbilitySystemComponent* ACharacterBase::GetAbilitySystemComponent() const
+{
+	return abilitySystemComponent.Get();
 }
 
 bool ACharacterBase::canCharacterJump() const
@@ -90,12 +97,6 @@ void ACharacterBase::setSneaking(const bool newIsSneaking)
 	isSneaking = false;
 	GetCharacterMovement()->MaxWalkSpeed = getWalkSpeed();
 	return;
-}
-
-// Called every frame
-void ACharacterBase::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 }
 
 // Called to bind functionality to input

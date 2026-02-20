@@ -8,6 +8,9 @@
 #include "InputActionValue.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "AGAbilitySystemComponent.h"
+#include "Components/WidgetComponent.h"
+#include "AGPlayerState.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -62,7 +65,20 @@ APlayerCharacter::APlayerCharacter()
 	thirdPersonCamera->Activate();
 	isInFirstPersonView = false;
 
+	// Weapon
+	weaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("weaponMesh"));
+	weaponMesh->SetupAttachment(GetMesh(), TEXT("hand_rSocket"));
+
+	// Widget
+	hpBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("hpBar"));
+	hpBar->SetupAttachment(GetMesh());
+	hpBar->SetRelativeLocation(FVector(0.0f, 0.0f, 180.0f));
+	hpBar->SetWidgetSpace(EWidgetSpace::Screen);
+	hpBar->SetDrawSize(FVector2D(150.0f, 20.f));
+	hpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
+
+
 
 void APlayerCharacter::Tick(float DeltaTime)
 {
@@ -218,5 +234,42 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("APlayerCharacter::SetupPlayerInputComponent(): Failed finding Controller"));
+	}
+}
+
+
+/*
+* GAS stuff
+* TODO: Dunno what this does...
+*/
+void APlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	
+	// Initialize the player's ability system component and attributes here
+	// This is where you would typically set up the player's abilities and attributes
+	AAGPlayerState* playerState = GetPlayerState<AAGPlayerState>();
+	if (playerState)
+	{
+		abilitySystemComponent = Cast<UAGAbilitySystemComponent>(playerState->GetAbilitySystemComponent());
+
+		playerState->GetAbilitySystemComponent()->InitAbilityActorInfo(playerState, this);
+	}
+
+}
+
+/*
+* TODO: Dunno what this is for...
+*/
+void APlayerCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	AAGPlayerState* playerState = GetPlayerState<AAGPlayerState>();
+	if (playerState)
+	{
+		abilitySystemComponent = Cast<UAGAbilitySystemComponent>(playerState->GetAbilitySystemComponent());
+
+		playerState->GetAbilitySystemComponent()->InitAbilityActorInfo(playerState, this);
 	}
 }

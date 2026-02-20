@@ -14,7 +14,7 @@ class UInputAction;
 struct FInputActionValue;
 
 // The classes we do want to create blueprints for need to be Blueprintable
-UCLASS(Blueprintable)
+UCLASS(Blueprintable, config=Game)
 class CHARACTERS_API APlayerCharacter : public ACharacterBase
 {
 	GENERATED_BODY()
@@ -79,6 +79,13 @@ protected:
 	TObjectPtr<UInputAction> toggleCameraPerspective;
 #pragma endregion
 
+	/*
+	* GAS stuff
+	*/
+	virtual void OnRep_PlayerState() override;
+
+
+
 public:
 	FORCEINLINE TObjectPtr<USpringArmComponent> getCameraBoom() const { return cameraBoom; }
 	FORCEINLINE TObjectPtr<UCameraComponent> getThirdPersonCamera() const { return thirdPersonCamera; }
@@ -88,4 +95,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
+	/*
+	* GAS stuff
+	*/
+	virtual void PossessedBy(AController* NewController) override;
+	
 };
