@@ -27,7 +27,10 @@ private:
 	//UPROPERTY(EditAnywhere, Category = "Body Components")
 	//TObjectPtr<USkeletalMeshComponent> torso;
 
+	// GAS function to initialise our ASC.
+	void initAbilitySystemComponent();
 
+	void initHUD() const;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USpringArmComponent> cameraBoom;
@@ -79,13 +82,6 @@ protected:
 	TObjectPtr<UInputAction> toggleCameraPerspective;
 #pragma endregion
 
-	/*
-	* GAS stuff
-	*/
-	virtual void OnRep_PlayerState() override;
-
-
-
 public:
 	FORCEINLINE TObjectPtr<USpringArmComponent> getCameraBoom() const { return cameraBoom; }
 	FORCEINLINE TObjectPtr<UCameraComponent> getThirdPersonCamera() const { return thirdPersonCamera; }
@@ -97,7 +93,11 @@ public:
 
 	/*
 	* GAS stuff
+	* TODO: figure out what these do.
+	* Supposedly meant to initialise the ASC on the client.
 	*/
 	virtual void PossessedBy(AController* NewController) override;
+	virtual void OnRep_PlayerState() override;
+
 	
 };

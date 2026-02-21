@@ -26,6 +26,60 @@ UAbilitySystemComponent* ACharacterBase::GetAbilitySystemComponent() const
 	return abilitySystemComponent.Get();
 }
 
+UAGCharacterAttributeSet* ACharacterBase::GetAttributeSet() const
+{
+	return attributeSet.Get();
+}
+
+void ACharacterBase::giveDefaultAbilities()
+{
+	// Make sure the ASC has been initialised.
+	if (abilitySystemComponent)
+	{
+		// Before giving abilities, make sure the local role of the actor is to have network authority???
+		// TODO: No idea what that means, look it up.
+		if (HasAuthority())
+		{
+			// Loop through all the default abilities
+			for (TSubclassOf<UGameplayAbility>& startupAbility : defaultAbilities)
+			{
+				// Create a gameplay ability at level 1 and use the ASC to give that to the actor.
+				const FGameplayAbilitySpec abilitySpec(startupAbility, 1);
+				abilitySystemComponent->GiveAbility(abilitySpec);
+			}
+		}
+	}
+}
+
+/*
+* Use a gameplay effect to initialise default attribute values.
+*/
+void ACharacterBase::initDefaultAttributes() const
+{
+	// Check that ASC and default values exist
+	if (abilitySystemComponent)
+	{
+		if (defaultAttributeEffect)
+		{
+			// This is a wrapper that holds an FGameplayEffectContext,
+			//	which holds the instigator of the gameplay effect, and related data like positions and targets.
+			FGameplayEffectContextHandle effectContext = abilitySystemComponent->MakeEffectContext();
+			// The source here is this character.
+			effectContext.AddSourceObject(this);
+
+			// We also need an outgoing effect specification.
+			//	This holds a data pointer that can be used to reference the effect specification.
+			const FGameplayEffectSpecHandle specHandle = abilitySystemComponent->MakeOutgoingSpec(defaultAttributeEffect, 1, effectContext);
+
+			// Finally, if valid, apply the gameplay effect to the character
+			if (specHandle.IsValid())
+			{
+				abilitySystemComponent->ApplyGameplayEffectSpecToSelf(*specHandle.Data.Get());
+			}
+		}
+	}
+}
+
 bool ACharacterBase::canCharacterJump() const
 {
 	// CanJump() is an UE ACharacter function, may want to override it

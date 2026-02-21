@@ -7,6 +7,11 @@
 #include "AbilitySystemInterface.h"
 #include "CharacterBase.generated.h"
 
+class UGameplayAbility;
+class UAGAbilitySystemComponent;
+class UAGCharacterAttributeSet;
+class UGameplayEffect;
+
 // We make it abstract so we don't make new blueprints from the base class
 UCLASS(Abstract, NotBlueprintable)
 class CHARACTERS_API ACharacterBase : public ACharacter,
@@ -48,22 +53,35 @@ protected:
 	void setSneaking(const bool newIsSneaking);
 #pragma endregion
 
-	/*
-	* GAS stuff
-	*/
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
+#pragma region GAS stuff
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS | ASC")
 	TObjectPtr<class UAGAbilitySystemComponent> abilitySystemComponent;
-	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS | Weapon")
-	TObjectPtr<class USkeletalMeshComponent> weaponMesh;
+	UPROPERTY()
+	TObjectPtr<UAGCharacterAttributeSet> attributeSet;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS | UI")
 	TObjectPtr<class UWidgetComponent> hpBar;
 
+
+	// We put abilities into this array in the editor, using Gameplay Ability blueprints, like GA_Kick.
+	void giveDefaultAbilities();
+	UPROPERTY(EditDefaultsOnly, Category = "GAS | Ability")
+	TArray<TSubclassOf<UGameplayAbility>> defaultAbilities;
+
+	void initDefaultAttributes() const;
+	// Epic recommends to initialise attributes through a gameplay effect.
+	UPROPERTY(EditDefaultsOnly, Category = "GAS | Ability")
+	TSubclassOf<UGameplayEffect> defaultAttributeEffect;
+
+#pragma endregion
 public:
 	// Sets default values for this character's properties
 	ACharacterBase();
 
+	// Implement the GetAbilitySystemComponent function from the IAbilitySystemInterface
+	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	virtual UAGCharacterAttributeSet* GetAttributeSet() const;
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 

@@ -12,4 +12,9 @@ class CHARACTERS_API ANPC : public ACharacterBase
 {
 	GENERATED_BODY()
 	
+public:
+	ANPC();
+
+protected:
+	virtual void BeginPlay() override;
 };

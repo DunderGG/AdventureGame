@@ -9,8 +9,10 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "AGAbilitySystemComponent.h"
-#include "Components/WidgetComponent.h"
 #include "AGPlayerState.h"
+#include "AGCharacterAttributeSet.h"
+#include "Components/WidgetComponent.h"
+#include "AGHud.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -64,10 +66,6 @@ APlayerCharacter::APlayerCharacter()
 	firstPersonCamera->Deactivate();
 	thirdPersonCamera->Activate();
 	isInFirstPersonView = false;
-
-	// Weapon
-	weaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("weaponMesh"));
-	weaponMesh->SetupAttachment(GetMesh(), TEXT("hand_rSocket"));
 
 	// Widget
 	hpBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("hpBar"));
@@ -240,36 +238,65 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 /*
 * GAS stuff
+*/
+void APlayerCharacter::initAbilitySystemComponent()
+{
+	AAGPlayerState* playerState = GetPlayerState<AAGPlayerState>();
+	if (playerState)
+	{
+		// TODO: Should we use CastChecked or have an if-else to not crash the game?
+		abilitySystemComponent = CastChecked<UAGAbilitySystemComponent>(playerState->GetAbilitySystemComponent());
+
+		abilitySystemComponent->InitAbilityActorInfo(playerState, this);
+
+		// TOOD: Should this really be inside initASC()?
+		attributeSet = playerState->GetAttributeSet();
+	}
+}
+void APlayerCharacter::initHUD() const
+{
+	if (const APlayerController* playerController = Cast<APlayerController>(GetController()))
+	{
+		if (AAGHud* hud = Cast<AAGHud>(playerController->GetHUD()))
+		{
+			hud->init();
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("APlayerCharacter::initHUD(): Failed cast of HUD"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("APlayerCharacter::initHUD(): Failed finding Controller"));
+	}
+}
+
+/*
 * TODO: Dunno what this does...
+* Initialises the ASC and default abilities on the server???
 */
 void APlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	
-	// Initialize the player's ability system component and attributes here
-	// This is where you would typically set up the player's abilities and attributes
-	AAGPlayerState* playerState = GetPlayerState<AAGPlayerState>();
-	if (playerState)
-	{
-		abilitySystemComponent = Cast<UAGAbilitySystemComponent>(playerState->GetAbilitySystemComponent());
+	initAbilitySystemComponent();
 
-		playerState->GetAbilitySystemComponent()->InitAbilityActorInfo(playerState, this);
-	}
-
+	// We only do this here and not in OnRep_PlayerState, because
+	//   we only want to give abilities on the server???
+	giveDefaultAbilities();
+	initDefaultAttributes();
+	initHUD();
 }
-
 /*
 * TODO: Dunno what this is for...
+* Initialises the ASC on the client???
 */
 void APlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
-	AAGPlayerState* playerState = GetPlayerState<AAGPlayerState>();
-	if (playerState)
-	{
-		abilitySystemComponent = Cast<UAGAbilitySystemComponent>(playerState->GetAbilitySystemComponent());
-
-		playerState->GetAbilitySystemComponent()->InitAbilityActorInfo(playerState, this);
-	}
+	initAbilitySystemComponent();
+	initDefaultAttributes();
+	initHUD();
 }
