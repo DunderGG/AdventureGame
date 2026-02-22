@@ -61,6 +61,7 @@ public:
 	void OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth) const;
 	ATTRIBUTE_ACCESSORS_BASIC(ThisClass, MaxHealth);
 #pragma endregion
+
 #pragma region  ATTRIBUTE STAMINA
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Stamina, Category = "Ability | Gameplay Attribute")
 	FGameplayAttributeData Stamina;
@@ -74,6 +75,7 @@ public:
 	void OnRep_MaxStamina(const FGameplayAttributeData& OldMaxStamina) const;
 	ATTRIBUTE_ACCESSORS_BASIC(ThisClass, MaxStamina);
 #pragma endregion
+
 #pragma region  ATTRIBUTE STRENGTH
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Strength, Category = "Ability | Gameplay Attribute")
 	FGameplayAttributeData Strength;
@@ -87,4 +89,20 @@ public:
 	void OnRep_MaxStrength(const FGameplayAttributeData& OldMaxStrength) const;
 	ATTRIBUTE_ACCESSORS_BASIC(ThisClass, MaxStrength);
 #pragma endregion
+
+#pragma region  ATTRIBUTE LEVEL
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_CharacterLevel, Category = "Ability | Gameplay Attribute")
+	FGameplayAttributeData CharacterLevel;
+	UFUNCTION()
+	void OnRep_CharacterLevel(const FGameplayAttributeData& OldCharacterLevel) const;
+	ATTRIBUTE_ACCESSORS_BASIC(ThisClass, CharacterLevel);
+#pragma endregion
+
+/* ADD NEW ATTRIBUTES HERE 
+*
+*	When adding new attributes, also update relevant functions in .cpp file, such as:
+*		GetLifetimeReplicatedProps
+*		OnRep_<attribute>
+*		getters in CharacterBase
+*/
 };

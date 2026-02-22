@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
+#include "Effects/BaseStaminaRecovery.h"
+#include "Effects/BaseHealthRecovery.h"
 #include "CharacterBase.generated.h"
 
 class UGameplayAbility;
@@ -37,6 +39,9 @@ private:
 	bool isSneaking = false;
 #pragma endregion
 
+	virtual void initStartupEffects();
+	virtual void initDefaultAttributes();
+	//virtual void initDefaultAbilities();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -63,16 +68,21 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS | UI")
 	TObjectPtr<class UWidgetComponent> hpBar;
 
-
 	// We put abilities into this array in the editor, using Gameplay Ability blueprints, like GA_Kick.
-	void giveDefaultAbilities();
+	//   TODO: This can't be const for some reason? I guess because we are setting the value in the editor?
+	virtual void giveDefaultAbilities();
 	UPROPERTY(EditDefaultsOnly, Category = "GAS | Ability")
 	TArray<TSubclassOf<UGameplayAbility>> defaultAbilities;
-
-	void initDefaultAttributes() const;
+	
 	// Epic recommends to initialise attributes through a gameplay effect.
-	UPROPERTY(EditDefaultsOnly, Category = "GAS | Ability")
+	UPROPERTY(EditDefaultsOnly, Category = "GAS | Attribute")
 	TSubclassOf<UGameplayEffect> defaultAttributeEffect;
+	virtual void giveDefaultAttributes() const;
+
+	// A list of effects that we apply to the character once at startup.
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GAS | Effect")
+	TArray<TSubclassOf<class UGameplayEffect>> startupEffects;
+	virtual void giveStartupEffects() const;
 
 #pragma endregion
 public:
@@ -85,4 +95,27 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+
+#pragma region Attribute Set Getters
+	UFUNCTION(BlueprintCallable, Category = "GAS | CharacterBase | Attributes")
+	int32 getCharacterLevel() const;
+
+	UFUNCTION(BlueprintCallable, Category = "GAS | CharacterBase | Attributes")
+	float getHealth() const;
+
+	UFUNCTION(BlueprintCallable, Category = "GAS | CharacterBase | Attributes")
+	float getMaxHealth() const;
+
+	UFUNCTION(BlueprintCallable, Category = "GAS | CharacterBase | Attributes")
+	float getStamina() const;
+
+	UFUNCTION(BlueprintCallable, Category = "GASDocumentation|GDCharacter|Attributes")
+	float getMaxStamina() const;
+
+	UFUNCTION(BlueprintCallable, Category = "GAS | CharacterBase | Attributes")
+	float getStrength() const;
+
+	UFUNCTION(BlueprintCallable, Category = "GAS | CharacterBase | Attributes")
+	float getMaxStrength() const;
+#pragma endregion
 };

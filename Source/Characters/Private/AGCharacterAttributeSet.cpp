@@ -9,16 +9,18 @@
 * These default values should be overriden by a Gameplay Effect blueprint that sets Default Attribute values.
 */
 UAGCharacterAttributeSet::UAGCharacterAttributeSet() :
-	Health(100.f),
+	Health(1.f),
 	MaxHealth(100.f),
-	Stamina(100.f),
+	Stamina(1.f),
 	MaxStamina(100.f),
-	Strength(10.f),
-	MaxStrength(10.f)
+	Strength(1.f),
+	MaxStrength(10.f),
+	CharacterLevel(1)
 {
 	InitHealth(GetMaxHealth());
 	InitStamina(GetMaxStamina());
 	InitStrength(GetMaxStrength());
+	InitCharacterLevel(1);
 }
 
 // This is used to "clean up" values for attribute changes.
@@ -37,19 +39,46 @@ void UAGCharacterAttributeSet::PreAttributeChange(const FGameplayAttribute& attr
 		// Max health is often used as a divisor for calculating health percentages (in the UI for example), so we want to make sure it is never 0 or negative.
 		newValue = FMath::Max<float>(1.0f, newValue);
 	}
+	else if (attribute == GetStaminaAttribute())
+	{
+		newValue = FMath::Clamp<float>(newValue, 0.0f, GetMaxStamina());
+	}
+	else if (attribute == GetMaxStaminaAttribute())
+	{
+		newValue = FMath::Max<float>(1.0f, newValue);
+	}
+	else if (attribute == GetStrengthAttribute())
+	{
+		newValue = FMath::Clamp<float>(newValue, 0.0f, GetMaxStrength());
+	}
+	else if (attribute == GetMaxStrengthAttribute())
+	{
+		newValue = FMath::Max<float>(1.0f, newValue);
+	}
+
+	// TODO: It has been suggested to add a tag when attributes are "full" or "empty",
+	//         so it doesn't pointlessly try to add more when already full.
+
 }
 
 // We trigger in-game reactions to attribute changes here 
+// Apparently, sometimes periodic gameplay effects can skip the PreAttributeChange() function,
+//	so we have to make sure to clamp the values here as well.
+//     TODO: Is there even any point in clamping in PreAttributeChange() if we have to do it here anyway???
 void UAGCharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& data)
 {
 	Super::PostGameplayEffectExecute(data);
-		// If health reaches 0, then we die.
+
+	// TODO: If health reaches 0, then we die.
 	if (data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		// Set our new health value, but make sure it is between 0 and max health.
 		SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
 	}
-
+	else if (data.EvaluatedData.Attribute == GetStaminaAttribute())
+	{
+		SetStamina(FMath::Clamp(GetStamina(), 0.0f, GetMaxStamina()));
+	}
 	/*
 	* The data reference also gives us access to the target effect spec.
 	* Through the data reference, 
@@ -75,6 +104,7 @@ void UAGCharacterAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	DOREPLIFETIME_CONDITION_NOTIFY(UAGCharacterAttributeSet, MaxStamina, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAGCharacterAttributeSet, Strength, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAGCharacterAttributeSet, MaxStrength, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UAGCharacterAttributeSet, CharacterLevel, COND_None, REPNOTIFY_Always);
 }
 
 void UAGCharacterAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth) const
@@ -106,3 +136,9 @@ void UAGCharacterAttributeSet::OnRep_MaxStrength(const FGameplayAttributeData& O
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAGCharacterAttributeSet, MaxStrength, OldMaxStrength);
 }
+
+void UAGCharacterAttributeSet::OnRep_CharacterLevel(const FGameplayAttributeData& OldCharacterLevel) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAGCharacterAttributeSet, CharacterLevel, OldCharacterLevel);
+}
+

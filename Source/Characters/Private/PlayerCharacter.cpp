@@ -285,8 +285,9 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 	// We only do this here and not in OnRep_PlayerState, because
 	//   we only want to give abilities on the server???
 	giveDefaultAbilities();
-	initDefaultAttributes();
+	giveDefaultAttributes();
 	initHUD();
+	giveStartupEffects();
 }
 /*
 * TODO: Dunno what this is for...
@@ -297,6 +298,7 @@ void APlayerCharacter::OnRep_PlayerState()
 	Super::OnRep_PlayerState();
 
 	initAbilitySystemComponent();
-	initDefaultAttributes();
+	giveDefaultAttributes();
 	initHUD();
+	giveStartupEffects();
 }

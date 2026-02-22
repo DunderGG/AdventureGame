@@ -23,5 +23,5 @@ void ANPC::BeginPlay()
 	abilitySystemComponent->InitAbilityActorInfo(this, this);
 	// Give the default abilities as specified in the CharacterBase.
 	giveDefaultAbilities();
-	initDefaultAttributes();
+	giveDefaultAttributes();
 }

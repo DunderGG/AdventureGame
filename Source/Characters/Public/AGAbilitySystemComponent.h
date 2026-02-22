@@ -17,6 +17,8 @@ class CHARACTERS_API UAGAbilitySystemComponent : public UAbilitySystemComponent
 public:
 	UAGAbilitySystemComponent();
 
+	bool areStartupEffectsApplied = false;
+
 protected:
 	virtual void BeginPlay() override;
 };
