@@ -15,9 +15,10 @@
 #define NUMERIC_VALUE(AttributeSetName, PropertyName) \
 	AttributeSetName->Get##PropertyName##Attribute().GetNumericValue(AttributeSetName)
 
-
 /**
  *	I'm forced to do pascal case here, or the generated code from the macros get ugly... Sadge.
+ * 
+ * AttributeSet default values should be overriden by a Gameplay Effect that sets default values at startup.
  */
 UCLASS()
 class CHARACTERS_API UAGCharacterAttributeSet : public UAttributeSet
@@ -29,8 +30,6 @@ private:
 protected:
 
 public:
-	UAGCharacterAttributeSet();
-
 	// Called whenever an attribute is about to be modified.
 	//	It's meant to enforce things like "Health = Clamp(Health, 0, MaxHealth)" and NOT things like "trigger this extra thing if damage is applied, etc".
 	virtual void PreAttributeChange(const FGameplayAttribute& attribute, float& newValue) override;

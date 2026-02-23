@@ -8,8 +8,8 @@
 void UBaseStaminaRecovery::PostInitProperties()
 {
 	Super::PostInitProperties();
-	const FName staminaRecoveryTag = TEXT("Gameplay.State.IsBaseRecoveringStamina");
 
+	const FName staminaRecoveryTag = TEXT("Gameplay.State.IsBaseRecoveringStamina");
 	FInheritedTagContainer TagContainer = FInheritedTagContainer();
 	UTargetTagsGameplayEffectComponent& component = this->FindOrAddComponent<UTargetTagsGameplayEffectComponent>();
 	const auto& tag = FGameplayTag::RequestGameplayTag(staminaRecoveryTag);
@@ -25,7 +25,5 @@ void UBaseStaminaRecovery::PostInitProperties()
 	mod.ModifierOp = EGameplayModOp::Additive;
 	mod.ModifierMagnitude = FScalableFloat(recoveryRate);
 	Modifiers.Add(mod);
-
-	UE_LOG(LogTemp, Display, TEXT("********* Created a stamina regen startup effect"));
 }
 

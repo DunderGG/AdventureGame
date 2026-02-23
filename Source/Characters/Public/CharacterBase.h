@@ -7,6 +7,7 @@
 #include "AbilitySystemInterface.h"
 #include "Effects/BaseStaminaRecovery.h"
 #include "Effects/BaseHealthRecovery.h"
+#include "Effects/SetDefaultAttributes.h"
 #include "CharacterBase.generated.h"
 
 class UGameplayAbility;
@@ -39,9 +40,6 @@ private:
 	bool isSneaking = false;
 #pragma endregion
 
-	virtual void initStartupEffects();
-	virtual void initDefaultAttributes();
-	//virtual void initDefaultAbilities();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -76,13 +74,17 @@ protected:
 	
 	// Epic recommends to initialise attributes through a gameplay effect.
 	UPROPERTY(EditDefaultsOnly, Category = "GAS | Attribute")
-	TSubclassOf<UGameplayEffect> defaultAttributeEffect;
-	virtual void giveDefaultAttributes() const;
+	TSubclassOf<UGameplayEffect> defaultAttributesEffect;
+	virtual void giveDefaultAttributes();
 
 	// A list of effects that we apply to the character once at startup.
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GAS | Effect")
 	TArray<TSubclassOf<class UGameplayEffect>> startupEffects;
-	virtual void giveStartupEffects() const;
+	virtual void giveStartupEffects();
+
+	virtual void initStartupEffects();
+	virtual void initDefaultAttributes();
+	//virtual void initDefaultAbilities();
 
 #pragma endregion
 public:

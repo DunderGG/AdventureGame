@@ -10,12 +10,6 @@ ACharacterBase::ACharacterBase()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
-
-	// This is crashing the editor...
-	//initDefaultAttributes();
-
-	initStartupEffects();
-	
 }
 
 // Called when the game starts or when spawned
@@ -24,21 +18,13 @@ void ACharacterBase::BeginPlay()
 	Super::BeginPlay();
 
 	GetCharacterMovement()->MaxWalkSpeed = getWalkSpeed();
-
 }
 
 UAbilitySystemComponent* ACharacterBase::GetAbilitySystemComponent() const
-{
-	return abilitySystemComponent.Get();
-}
+{ return abilitySystemComponent.Get(); }
 
 UAGCharacterAttributeSet* ACharacterBase::GetAttributeSet() const
-{
-	return attributeSet.Get();
-}
-
-
-
+{ return attributeSet.Get(); }
 
 
 bool ACharacterBase::canCharacterJump() const
@@ -195,15 +181,19 @@ float ACharacterBase::getMaxStrength() const
 
 /*
 * Apply the list of starting effects to the character once at startup.
-* 
-* TODO: Can't seem to get this to work, maybe just use the editor for this?
 */
-void ACharacterBase::giveStartupEffects() const
+void ACharacterBase::giveStartupEffects()
 {
 	if (abilitySystemComponent)
 	{
-		if (GetLocalRole() != ROLE_Authority || abilitySystemComponent->areStartupEffectsApplied)
+		if (abilitySystemComponent->areStartupEffectsApplied)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("ACharacterBase::giveStartupEffects(): Startup effects have already been applied"));
+			return;
+		}
+		if (GetLocalRole() != ROLE_Authority)
+		{
+			UE_LOG(LogTemp, Error, TEXT("ACharacterBase::giveStartupEffects(): Don't have ROLE_Authority"));
 			return;
 		}
 
@@ -215,17 +205,25 @@ void ACharacterBase::giveStartupEffects() const
 			FGameplayEffectSpecHandle newEffect = abilitySystemComponent->MakeOutgoingSpec(gameplayEffect, getCharacterLevel(), effectContext);
 			if (newEffect.IsValid())
 			{
-				UE_LOG(LogTemp, Display, TEXT("********* Added new startup effect"));
 				FActiveGameplayEffectHandle activeGE = abilitySystemComponent->ApplyGameplayEffectSpecToSelf(*newEffect.Data.Get());
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("ACharacterBase::giveStartupEffects(): New effect not valid"));
 			}
 		}
 		abilitySystemComponent->areStartupEffectsApplied = true;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("ACharacterBase::giveStartupEffects(): AbilitySystemComponent not yet initialized"));
 	}
 }
 
 void ACharacterBase::initStartupEffects()
 {
 	// TODO: This is ugly... Maybe we shouldn't have separate classes and just combine them.
+	//	 Would also remove the for-loop in giveStartupEffects().
 	startupEffects.Add(UBaseStaminaRecovery::StaticClass());
 	startupEffects.Add(UBaseHealthRecovery::StaticClass());
 }
@@ -233,12 +231,12 @@ void ACharacterBase::initStartupEffects()
 /*
 * Use a gameplay effect to initialise default attribute values.
 */
-void ACharacterBase::giveDefaultAttributes() const
+void ACharacterBase::giveDefaultAttributes()
 {
 	// Check that ASC and default values exist
 	if (abilitySystemComponent)
 	{
-		if (defaultAttributeEffect)
+		if (defaultAttributesEffect)
 		{
 			// This is a wrapper that holds an FGameplayEffectContext,
 			//	which holds the instigator of the gameplay effect, and related data like positions and targets.
@@ -248,63 +246,37 @@ void ACharacterBase::giveDefaultAttributes() const
 
 			// We also need an outgoing effect specification.
 			//	This holds a data pointer that can be used to reference the effect specification.
-			const FGameplayEffectSpecHandle specHandle = abilitySystemComponent->MakeOutgoingSpec(defaultAttributeEffect, 1, effectContext);
+			const FGameplayEffectSpecHandle specHandle = abilitySystemComponent->MakeOutgoingSpec(defaultAttributesEffect, 1, effectContext);
 
 			// Finally, if valid, apply the gameplay effect to the character
 			if (specHandle.IsValid())
 			{
 				abilitySystemComponent->ApplyGameplayEffectSpecToSelf(*specHandle.Data.Get());
 			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("ACharacterBase::giveDefaultAttributes(): specHandle not valid"));
+			}
 		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("ACharacterBase::giveDefaultAttributes(): defaultAttributesEffect not initialized"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("ACharacterBase::giveDefaultAttributes(): AbilitySystemComponent not yet initialized"));
 	}
 }
 
 /*
-* TODO: Maybe break this out into a class?
-* 
 * Defines a gameplay effect that sets all the default attribute values.
 * Recommended by Epic apparently.
+*    Very easy to do in the editor, not as easy to do in code, but it is what it is...
 */
 void ACharacterBase::initDefaultAttributes()
 {
-	UGameplayEffect initHealthEffect;
-	initHealthEffect.DurationPolicy = EGameplayEffectDurationType::Instant;
-
-	FGameplayModifierInfo mod;
-	mod.Attribute = UAGCharacterAttributeSet::GetMaxHealthAttribute();
-	mod.ModifierOp = EGameplayModOp::Override;
-	mod.ModifierMagnitude = FScalableFloat(getMaxHealth());
-	initHealthEffect.Modifiers.Add(mod);
-	
-	mod.Attribute = UAGCharacterAttributeSet::GetHealthAttribute();
-	mod.ModifierOp = EGameplayModOp::Override;
-	mod.ModifierMagnitude = FScalableFloat(20);
-	initHealthEffect.Modifiers.Add(mod);
-
-	mod.Attribute = UAGCharacterAttributeSet::GetMaxStaminaAttribute();
-	mod.ModifierOp = EGameplayModOp::Override;
-	mod.ModifierMagnitude = FScalableFloat(getMaxStamina());
-	initHealthEffect.Modifiers.Add(mod);
-
-	mod.Attribute = UAGCharacterAttributeSet::GetStaminaAttribute();
-	mod.ModifierOp = EGameplayModOp::Override;
-	mod.ModifierMagnitude = FScalableFloat(40);
-	initHealthEffect.Modifiers.Add(mod);
-
-	mod.Attribute = UAGCharacterAttributeSet::GetMaxStrengthAttribute();
-	mod.ModifierOp = EGameplayModOp::Override;
-	mod.ModifierMagnitude = FScalableFloat(getMaxStrength());
-	initHealthEffect.Modifiers.Add(mod);
-
-	mod.Attribute = UAGCharacterAttributeSet::GetStrengthAttribute();
-	mod.ModifierOp = EGameplayModOp::Override;
-	mod.ModifierMagnitude = FScalableFloat(10.0f);
-	initHealthEffect.Modifiers.Add(mod);
-
-	mod.Attribute = UAGCharacterAttributeSet::GetCharacterLevelAttribute();
-	mod.ModifierOp = EGameplayModOp::Override;
-	mod.ModifierMagnitude = FScalableFloat(1.0f);
-	initHealthEffect.Modifiers.Add(mod);
+	defaultAttributesEffect = USetDefaultAttributes::StaticClass();
 }
 
 void ACharacterBase::giveDefaultAbilities()
@@ -324,6 +296,14 @@ void ACharacterBase::giveDefaultAbilities()
 				abilitySystemComponent->GiveAbility(abilitySpec);
 			}
 		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("ACharacterBase::giveDefaultAbilities(): Don't have network authority"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("ACharacterBase::giveDefaultAbilities(): AbilitySystemComponent not yet initialized"));
 	}
 }
 

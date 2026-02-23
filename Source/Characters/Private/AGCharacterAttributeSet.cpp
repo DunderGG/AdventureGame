@@ -5,24 +5,6 @@
 #include "GameplayEffectExtension.h"
 #include "Net/UnrealNetwork.h"
 
-/*
-* These default values should be overriden by a Gameplay Effect blueprint that sets Default Attribute values.
-*/
-UAGCharacterAttributeSet::UAGCharacterAttributeSet() :
-	Health(1.f),
-	MaxHealth(100.f),
-	Stamina(1.f),
-	MaxStamina(100.f),
-	Strength(1.f),
-	MaxStrength(10.f),
-	CharacterLevel(1)
-{
-	InitHealth(GetMaxHealth());
-	InitStamina(GetMaxStamina());
-	InitStrength(GetMaxStrength());
-	InitCharacterLevel(1);
-}
-
 // This is used to "clean up" values for attribute changes.
 // It is not the right place to trigger in-game reactions to attribute changes, that is done in PostGameplayEffectExecute.
 void UAGCharacterAttributeSet::PreAttributeChange(const FGameplayAttribute& attribute, float& newValue)

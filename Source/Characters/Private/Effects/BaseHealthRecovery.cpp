@@ -8,8 +8,9 @@
 void UBaseHealthRecovery::PostInitProperties()
 {
 	Super::PostInitProperties();
-	const FName healthRecoveryTag = TEXT("Gameplay.State.IsBaseRecoveringHealth");
 
+	// TODO: Don't think our tags are working, look into this.
+	const FName healthRecoveryTag = TEXT("Gameplay.State.IsBaseRecoveringHealth");
 	FInheritedTagContainer TagContainer = FInheritedTagContainer();
 	UTargetTagsGameplayEffectComponent& component = this->FindOrAddComponent<UTargetTagsGameplayEffectComponent>();
 	const auto& tag = FGameplayTag::RequestGameplayTag(healthRecoveryTag);
@@ -25,7 +26,5 @@ void UBaseHealthRecovery::PostInitProperties()
 	mod.ModifierOp = EGameplayModOp::Additive;
 	mod.ModifierMagnitude = FScalableFloat(recoveryRate);
 	Modifiers.Add(mod);
-
-	UE_LOG(LogTemp, Display, TEXT("********* Created a health regen startup effect"));
 }
 

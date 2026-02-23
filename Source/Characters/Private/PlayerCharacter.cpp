@@ -74,9 +74,8 @@ APlayerCharacter::APlayerCharacter()
 	hpBar->SetWidgetSpace(EWidgetSpace::Screen);
 	hpBar->SetDrawSize(FVector2D(150.0f, 20.f));
 	hpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 }
-
-
 
 void APlayerCharacter::Tick(float DeltaTime)
 {
@@ -253,6 +252,7 @@ void APlayerCharacter::initAbilitySystemComponent()
 		attributeSet = playerState->GetAttributeSet();
 	}
 }
+
 void APlayerCharacter::initHUD() const
 {
 	if (const APlayerController* playerController = Cast<APlayerController>(GetController()))
@@ -284,10 +284,13 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 
 	// We only do this here and not in OnRep_PlayerState, because
 	//   we only want to give abilities on the server???
+	initDefaultAttributes();
+	initStartupEffects();
 	giveDefaultAbilities();
 	giveDefaultAttributes();
 	initHUD();
 	giveStartupEffects();
+	UE_LOG(LogTemp, Display, TEXT("APlayerCharacter::PossessedBy(): Finished"));
 }
 /*
 * TODO: Dunno what this is for...
@@ -298,7 +301,10 @@ void APlayerCharacter::OnRep_PlayerState()
 	Super::OnRep_PlayerState();
 
 	initAbilitySystemComponent();
+	initStartupEffects();
+	giveDefaultAbilities();
 	giveDefaultAttributes();
 	initHUD();
 	giveStartupEffects();
+	UE_LOG(LogTemp, Display, TEXT("APlayerCharacter::OnRep_PlayerState(): Finished"));
 }
