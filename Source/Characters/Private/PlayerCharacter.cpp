@@ -21,14 +21,14 @@ APlayerCharacter::APlayerCharacter()
 
 	GetCapsuleComponent()->InitCapsuleSize(45.0f, 100.0f);
 
-	bUseControllerRotationPitch = true;
-	bUseControllerRotationYaw = true;
-	bUseControllerRotationRoll = true;
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
-	GetCharacterMovement()->JumpZVelocity = 700.0f;
-	GetCharacterMovement()->AirControl = 0.35f;
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 250.0f, 0.0f);
+	GetCharacterMovement()->JumpZVelocity = 400.0f;
+	GetCharacterMovement()->AirControl = 0.15f;
 	GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.0f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
@@ -53,7 +53,8 @@ APlayerCharacter::APlayerCharacter()
 	cameraBoom->bUsePawnControlRotation = true;
 
 	thirdPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("thirdPersonCamera"));
-	thirdPersonCamera->SetupAttachment(cameraBoom);
+	thirdPersonCamera->SetupAttachment(cameraBoom, USpringArmComponent::SocketName);
+	thirdPersonCamera->bUsePawnControlRotation = false;
 	thirdPersonCamera->bAutoActivate = false;
 
 	firstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("firstPersonCamera"));

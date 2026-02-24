@@ -20,9 +20,13 @@ private:
 protected:
 	UPROPERTY(BlueprintReadOnly)
 	float healthPercent;
-
 	UPROPERTY(BlueprintReadOnly)
 	float staminaPercent;
+
+	UPROPERTY(BlueprintReadOnly)
+	float health;
+	UPROPERTY(BlueprintReadOnly)
+	float stamina;
 
 public:
 	void bindToAttributes();
