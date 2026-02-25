@@ -63,9 +63,6 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UAGCharacterAttributeSet> attributeSet;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS | UI")
-	TObjectPtr<class UWidgetComponent> hpBar;
-
 	// We put abilities into this array in the editor, using Gameplay Ability blueprints, like GA_Kick.
 	//   TODO: This can't be const for some reason? I guess because we are setting the value in the editor?
 	virtual void giveDefaultAbilities();

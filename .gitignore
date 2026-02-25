@@ -80,9 +80,3 @@ Content/*
 *.uproject
 *.cs
 Plugins/*
-*AdventureGame.cpp
-*AdventureGame.h
-*AdventureGameCharacter.cpp
-*AdventureGameCharacter.h
-*AdventureGamePlayerController.cpp
-*AdventureGamePlayerController.h

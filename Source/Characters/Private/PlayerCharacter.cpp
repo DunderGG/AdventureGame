@@ -13,6 +13,7 @@
 #include "AGCharacterAttributeSet.h"
 #include "Components/WidgetComponent.h"
 #include "AGHud.h"
+#include "AdventureGameplayTags.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -68,14 +69,6 @@ APlayerCharacter::APlayerCharacter()
 	thirdPersonCamera->Activate();
 	isInFirstPersonView = false;
 
-	// Widget
-	hpBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("hpBar"));
-	hpBar->SetupAttachment(GetMesh());
-	hpBar->SetRelativeLocation(FVector(0.0f, 0.0f, 180.0f));
-	hpBar->SetWidgetSpace(EWidgetSpace::Screen);
-	hpBar->SetDrawSize(FVector2D(150.0f, 20.f));
-	hpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
@@ -102,14 +95,19 @@ void APlayerCharacter::BeginPlay()
 	*/
 }
 
+/*
+* Not sure why the default character class breaks this out into two functions,
+*    The DoMove function is BlueprintCallable, so I guess it's there to also offer blueprint functionality.
+*/
 void APlayerCharacter::move(const FInputActionValue& value)
 {
 	FVector2D movementVector = value.Get<FVector2D>();
 
-	if (Controller != nullptr)
+	// Use Controller that is initialised somewhere else, or do GetController() every time?
+	if (GetController() != nullptr)
 	{
 		// This way of adding movement removes head bobbing...
-		const FRotator rotation = Controller->GetControlRotation();
+		const FRotator rotation = GetController()->GetControlRotation();
 		const FRotator yawRotation(0, rotation.Yaw, 0);
 		const FVector forwardDirection = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::X);
 		const FVector rightDirection = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::Y);
@@ -120,6 +118,10 @@ void APlayerCharacter::move(const FInputActionValue& value)
 		
 		AddMovementInput(forwardDirection, movementVector.Y);
 		AddMovementInput(rightDirection, movementVector.X);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("APlayerCharacter::move(): Failed finding Controller"));
 	}
 }
 
@@ -147,6 +149,7 @@ void APlayerCharacter::playerJump()
 {
 	if (ACharacterBase::canCharacterJump() && !GetMovementComponent()->IsFalling())
 	{
+		abilitySystemComponent->AddLooseGameplayTag(AdventureGameplayTags::Gameplay_State_IsInAir);
 		ACharacterBase::hasJumped();
 	}
 	else
@@ -161,8 +164,9 @@ void APlayerCharacter::look(const FInputActionValue& value)
 
 	if (Controller != nullptr)
 	{
+		// Y is inverted to get the correct up and down look movement, but not sure why this was suddenly needed? I broke controller somehow.
 		AddControllerYawInput(lookAxisVector.X);
-		AddControllerPitchInput(lookAxisVector.Y);
+		AddControllerPitchInput(-lookAxisVector.Y);
 	}
 }
 
@@ -194,7 +198,14 @@ void APlayerCharacter::togglePerspective()
 	return;		// Not necessary, but makes it clear that the function ends here
 }
 
-
+/*
+* TODO: What's the difference between this and SetupInputComponent() in AAdventureGamePlayerController???
+*			In the Editor, in the Game Mode, we have said to use the blueprint "BP_ThirdPersonPlayerController"
+*			which inherits from "AdventureGamePlayerController". But there we commented everything out, and stuff
+*			still works, so I'm confused. This one still overrides it somehow. I guess through the GetController()?
+* 
+* TODO: Maybe we move all this stuff out into the AdventureGamePlayerController if we need to have that class anyway?
+*/
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	if (APlayerController* playerController = Cast<APlayerController>(GetController()))
@@ -226,7 +237,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("APlayerCharacter::SetupPlayerInputComponent(): Failed cast of Enhanced Input"));
+			UE_LOG(LogTemp, Error, TEXT("APlayerCharacter::SetupPlayerInputComponent(): Failed finding an Enhanced Input Component"));
 		}
 	}
 	else
