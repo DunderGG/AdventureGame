@@ -50,7 +50,7 @@ struct FInventorySlot
 		return !itemId.IsNone() && itemQuantity > 0;
 	}
 
-	FORCEINLINE void clear()
+	FORCEINLINE void resetItemData()
 	{
 		itemId = NAME_None;
 		itemQuantity = 0;
