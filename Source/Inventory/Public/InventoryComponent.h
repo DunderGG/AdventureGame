@@ -7,11 +7,14 @@
 #include "FInventorySlot.h"
 #include "FItemData.h"
 #include "InventoryInterface.h"
-#include "Inventory.generated.h"
+#include "InventoryComponent.generated.h"
+
+// By default, give an invalid index.
+const int DEFAULT_INDEX = -1;
 
 UCLASS()
-class INVENTORY_API AInventory : public AActor, 
-								 public IInventoryInterface
+class INVENTORY_API UInventoryComponent : public UActorComponent, 
+										  public IInventoryInterface
 {
 	GENERATED_BODY()
 	
@@ -42,7 +45,7 @@ protected:
 	//   Will have to find solution if it needs to be BlueprintCallable.
 	int addItemToInventory(const FItemData& itemData, const int quantity, const float durability = DEFAULT_DURABILITY);
 	
-	int addItemToSlot(const FItemData& itemData, const int quantity, const float durability = DEFAULT_DURABILITY, const int index = -1);
+	int addItemToSlot(const FItemData& itemData, const int quantity, const float durability = DEFAULT_DURABILITY, const int index = DEFAULT_INDEX);
 
 	// Can be used to show if we are over weight limit or not, and if so by how much.
 	//   If above 1, divide player speed with this number for example.
@@ -53,18 +56,18 @@ protected:
 
 	bool setNumberOfInventorySlots(const int newNumber);
 
-	void transferItemFromInventory() {};
+	bool transferItemFromInventory(UInventoryComponent* targetInventory, const FName itemId, const int quantity, const int targetIndex = DEFAULT_INDEX);
 
 public:	
 	// Sets default values for this actor's properties
-	AInventory();
+	UInventoryComponent();
 
 	// Override all the Inventory Interface functions, with the internal functionality.
 	int addItem_Impl(const FItemData& itemData, const int quantity, const float durability = DEFAULT_DURABILITY) override
 	{
 		return addItemToInventory(itemData, quantity, durability);
 	}
-	int addItemAtSlot_Impl(const FItemData& itemData, const int quantity, const float durability = DEFAULT_DURABILITY, const int index = -1) override
+	int addItemAtSlot_Impl(const FItemData& itemData, const int quantity, const float durability = DEFAULT_DURABILITY, const int index = DEFAULT_INDEX) override
 	{
 		return addItemToSlot(itemData, quantity, durability, index);
 	}

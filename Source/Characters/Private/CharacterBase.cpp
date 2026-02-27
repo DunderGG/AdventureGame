@@ -4,12 +4,15 @@
 #include "AGAbilitySystemComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AGCharacterAttributeSet.h"
+#include "InventoryComponent.h"
 
 // Sets default values
 ACharacterBase::ACharacterBase()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
+
+	inventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("inventory"));
 }
 
 // Called when the game starts or when spawned
@@ -105,6 +108,11 @@ void ACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+UActorComponent* ACharacterBase::getInventory() const
+{
+	return inventoryComponent;
 }
 
 #pragma region Attribute Set Getters

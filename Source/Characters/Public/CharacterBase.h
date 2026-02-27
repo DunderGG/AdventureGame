@@ -14,6 +14,7 @@ class UGameplayAbility;
 class UAGAbilitySystemComponent;
 class UAGCharacterAttributeSet;
 class UGameplayEffect;
+class UInventoryComponent;
 
 // We make it abstract so we don't make new blueprints from the base class
 UCLASS(Abstract, NotBlueprintable)
@@ -40,9 +41,14 @@ private:
 	bool isSneaking = false;
 #pragma endregion
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInventoryComponent> inventoryComponent;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+
 
 #pragma region MovementFunctions
 	bool canCharacterJump() const;
@@ -94,7 +100,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-
+	UFUNCTION(BlueprintCallable)
+	UActorComponent* getInventory() const;
 #pragma region Attribute Set Getters
 	UFUNCTION(BlueprintCallable, Category = "GAS | CharacterBase | Attributes")
 	int32 getCharacterLevel() const;
