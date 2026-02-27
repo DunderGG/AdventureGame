@@ -12,10 +12,15 @@ AInventory::AInventory()
 }
 
 /*
+* TODO: We don't have functionality to drop items to world yet.
 */
 void AInventory::dropItemAtIndexToWorld(const int index)
 {
 
+}
+
+void AInventory::dropItemFromSlotData(const FInventorySlot& slotData)
+{
 }
 
 /*
@@ -137,7 +142,7 @@ int AInventory::addItemToSlot(const FItemData& itemData, const int quantity, con
 	}
 
 	// 3b. We failed to find an empty slot to move the pre-existing item to, so we drop it instead.
-	dropItemAtIndexToWorld(index);
+	dropItemFromSlotData(inventory[index]);
 	inventory[index].resetItemData();
 
 	// TODO: Make sure the logic is right here after we refactored it into a separate function.
@@ -239,11 +244,11 @@ void AInventory::BeginPlay()
 	updateWeight();
 }
 
-bool AInventory::setNumberOfSlots(const int newNumber)
+bool AInventory::setNumberOfInventorySlots(const int newNumber)
 {
 	if (newNumber < 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("AInventory::setNumberOfSlots(): Cannot set number of slots to a negative value."));
+		UE_LOG(LogTemp, Warning, TEXT("AInventory::setNumberOfInventorySlots(): Cannot set number of slots to a negative value."));
 		return false;
 	}
 	totalNumberOfSlots = newNumber;
@@ -287,7 +292,9 @@ void AInventory::resizeInventoryArray()
 			//	Maybe add a "drop item" function that can be called here?
 			FInventorySlot droppedItem = inventory.Pop();
 			UE_LOG(LogTemp, Warning, TEXT("AInventory::resizeInventory(): Dropping item %s "), *droppedItem.itemId.ToString());
+			dropItemFromSlotData(droppedItem);
 		}
+		updateWeight();
 		return;
 	}
 }
