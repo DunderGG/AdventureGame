@@ -59,9 +59,9 @@ APlayerCharacter::APlayerCharacter()
 	thirdPersonCamera->bAutoActivate = false;
 
 	firstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("firstPersonCamera"));
-	firstPersonCamera->SetupAttachment(GetMesh(), "head");
+	//firstPersonCamera->SetupAttachment(GetMesh(), "head");
+	//firstPersonCamera->SetRelativeLocation(FVector(-15, 20, 2.5));
 	firstPersonCamera->SetRelativeRotation(FRotator(0, -90, 90));
-	firstPersonCamera->SetRelativeLocation(FVector(15, 20, 2.5));
 	firstPersonCamera->bUsePawnControlRotation = true;
 	
 	// Start in first or third person view?
@@ -80,19 +80,23 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	/* Tried making a metahuman character, failed successfully...
-	TArray<USkeletalMeshComponent*> skellies;
-	GetComponents<USkeletalMeshComponent>(skellies, true);
-
-	for (USkeletalMeshComponent* skelly : skellies)
+	
+	/*
+	*	Some real special handling just to set up the first person camera for the metahuman character.
+	*     Must be some better way to do this...
+	*/
+	TArray<USkeletalMeshComponent*> skeletalMeshComponents;
+	GetComponents<USkeletalMeshComponent>(skeletalMeshComponents, true);
+	for (USkeletalMeshComponent* comp : skeletalMeshComponents)
 	{
-		if (skelly->GetFName() == "Face")
+		if (comp->GetFName() == "Face")
 		{
-			UE_LOG(LogTemp, Warning, TEXT("FOUND THE FACE"));
-			firstPersonCamera->SetupAttachment(skelly, "head");
+			firstPersonCamera->AttachToComponent(comp, FAttachmentTransformRules::SnapToTargetNotIncludingScale, "headSocket");
+			firstPersonCamera->SetRelativeLocation(FVector(15, 20, 2.5));
+			break;
 		}
 	}
-	*/
+	
 }
 
 /*
