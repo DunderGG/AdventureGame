@@ -26,7 +26,6 @@ APlayerCharacter::APlayerCharacter()
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
-	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 250.0f, 0.0f);
 	GetCharacterMovement()->JumpZVelocity = 400.0f;
 	GetCharacterMovement()->AirControl = 0.15f;
@@ -34,19 +33,6 @@ APlayerCharacter::APlayerCharacter()
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.0f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.0f;
-
-
-	// Tried adding components to add the metahuman assets to,
-	//	but it's probably easier to add the cameras and control to the
-	//	metahuman character blueprint???
-	// Create and attach all body components  -  Can't get stuff to line up...
-	//body = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("body"));
-	//body->SetupAttachment(GetMesh());
-	//face = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("face"));
-	//face->SetupAttachment(GetMesh());
-	//torso = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("torso"));
-	//torso->SetupAttachment(GetMesh());
-
 
 	cameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("cameraBoom"));
 	cameraBoom->SetupAttachment(RootComponent);
@@ -59,16 +45,42 @@ APlayerCharacter::APlayerCharacter()
 	thirdPersonCamera->bAutoActivate = false;
 
 	firstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("firstPersonCamera"));
-	//firstPersonCamera->SetupAttachment(GetMesh(), "head");
-	//firstPersonCamera->SetRelativeLocation(FVector(-15, 20, 2.5));
-	firstPersonCamera->SetRelativeRotation(FRotator(0, -90, 90));
 	firstPersonCamera->bUsePawnControlRotation = true;
+	firstPersonCamera->bAutoActivate = false;
+	
+	/*
+	* If using metahuman, we need to attach the first person camera to another component.
+	*   GetMesh() works for "regular" characters though.
+	*/
+	if (!isUsingMetahuman)
+	{
+		firstPersonCamera->SetupAttachment(GetMesh(), "head");
+		firstPersonCamera->SetRelativeLocation(FVector(-15, 20, 2.5));
+		// Setting rotation rotates the camera component, but not actually the camera view, when we are using bUsePawnControlRotation = true
+		firstPersonCamera->SetRelativeRotation(FRotator(0, -90, 90));
+	}
 	
 	// Start in first or third person view?
+	// Set bOrientRotationToMovement to false in first person.
+	setToFirstPerson();
+}
+
+void APlayerCharacter::setToFirstPerson()
+{
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+	bUseControllerRotationYaw = true;
+	thirdPersonCamera->Deactivate();
+	firstPersonCamera->Activate();
+	isInFirstPersonView = true;
+}
+void APlayerCharacter::setToThirdPerson()
+{
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	// Character should not spin around in place when rotating camera.
+	bUseControllerRotationYaw = false;
 	firstPersonCamera->Deactivate();
 	thirdPersonCamera->Activate();
 	isInFirstPersonView = false;
-
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
@@ -80,7 +92,14 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
+	if (isUsingMetahuman)
+	{
+		setupMetahuman();
+	}
+}
+
+void APlayerCharacter::setupMetahuman()
+{
 	/*
 	*	Some real special handling just to set up the first person camera for the metahuman character.
 	*     Must be some better way to do this...
@@ -92,7 +111,10 @@ void APlayerCharacter::BeginPlay()
 		if (comp->GetFName() == "Face")
 		{
 			firstPersonCamera->AttachToComponent(comp, FAttachmentTransformRules::SnapToTargetNotIncludingScale, "headSocket");
-			firstPersonCamera->SetRelativeLocation(FVector(15, 20, 2.5));
+			firstPersonCamera->SetRelativeLocation(FVector(15, 20, 0));
+			// Setting rotation rotates the camera component but not actually the camera view, when we are using bUsePawnControlRotation = true
+			firstPersonCamera->SetRelativeRotation(FRotator(metaPitch, metaYaw, metaRoll));
+			UE_LOG(LogTemp, Display, TEXT("APlayerCharacter::setupMetahuman(): Successfully attached first person camera to metahuman head"));
 			break;
 		}
 	}
@@ -181,23 +203,14 @@ void APlayerCharacter::togglePerspective()
 	// Flip to third person camera
 	if (!isInFirstPersonView)
 	{
-		firstPersonCamera->Deactivate();
-		thirdPersonCamera->Activate();
-
-		bUseControllerRotationPitch = false;
-		bUseControllerRotationYaw = false;
-		bUseControllerRotationRoll = false;
+		setToThirdPerson();
 		UE_LOG(LogTemp, Display, TEXT("APlayerCharacter::togglePerspective(): Now playing Third Person"));
 		return;
 	}
 
 	// Flip to first person camera
-	thirdPersonCamera->Deactivate();
-	firstPersonCamera->Activate();
-
-	bUseControllerRotationPitch = true;
-	bUseControllerRotationYaw = true;
-	bUseControllerRotationRoll = true;
+	setToFirstPerson();
+	
 	UE_LOG(LogTemp, Display, TEXT("APlayerCharacter::togglePerspective(): Now playing First Person"));
 	return;		// Not necessary, but makes it clear that the function ends here
 }
@@ -214,6 +227,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	if (APlayerController* playerController = Cast<APlayerController>(GetController()))
 	{
+		playerController->PlayerCameraManager->ViewPitchMin = -80.0f;
+		playerController->PlayerCameraManager->ViewPitchMax = 70.0f;
 		if (UEnhancedInputLocalPlayerSubsystem* subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController->GetLocalPlayer()))
 		{
 			subsystem->AddMappingContext(defaultMappingContext, 0);

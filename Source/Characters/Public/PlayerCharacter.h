@@ -32,6 +32,24 @@ private:
 
 	void initHUD() const;
 
+	void setToFirstPerson();
+	void setToThirdPerson();
+	
+	void setupMetahuman();
+	UPROPERTY(EditAnywhere)
+	bool isUsingMetahuman = true;
+
+	/*
+	* THESE ARE POINTLESS WHEN WE USE bUsePawnControlRotation
+	* and I cannot get it working without it...
+	*/
+	UPROPERTY(EditAnywhere)
+	float metaPitch = 0.0f;
+	UPROPERTY(EditAnywhere)
+	float metaYaw = -90.0f;
+	UPROPERTY(EditAnywhere)
+	float metaRoll = 0.0f;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USpringArmComponent> cameraBoom;
 
@@ -88,6 +106,7 @@ public:
 	FORCEINLINE TObjectPtr<UCameraComponent> getFirstPersonCamera() const { return firstPersonCamera; }
 
 	APlayerCharacter();
+	
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
