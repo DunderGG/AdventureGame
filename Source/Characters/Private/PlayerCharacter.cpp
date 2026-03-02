@@ -61,12 +61,12 @@ APlayerCharacter::APlayerCharacter()
 	}
 	
 	// Start in first or third person view?
-	// Set bOrientRotationToMovement to false in first person.
 	setToFirstPerson();
 }
 
 void APlayerCharacter::setToFirstPerson()
 {
+	// Set bOrientRotationToMovement to false in first person.
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	bUseControllerRotationYaw = true;
 	thirdPersonCamera->Deactivate();
@@ -77,6 +77,7 @@ void APlayerCharacter::setToThirdPerson()
 {
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	// Character should not spin around in place when rotating camera.
+	//   TODO: BUT maybe when having a weapon/tool equipped and holding down right click, this should be true.
 	bUseControllerRotationYaw = false;
 	firstPersonCamera->Deactivate();
 	thirdPersonCamera->Activate();
@@ -118,7 +119,6 @@ void APlayerCharacter::setupMetahuman()
 			break;
 		}
 	}
-	
 }
 
 /*
@@ -212,59 +212,10 @@ void APlayerCharacter::togglePerspective()
 	setToFirstPerson();
 	
 	UE_LOG(LogTemp, Display, TEXT("APlayerCharacter::togglePerspective(): Now playing First Person"));
-	return;		// Not necessary, but makes it clear that the function ends here
+	return;		// Not necessary, but makes it clear that the function ends here and nothing was accidentaly removed.
 }
 
-/*
-* TODO: What's the difference between this and SetupInputComponent() in AAdventureGamePlayerController???
-*			In the Editor, in the Game Mode, we have said to use the blueprint "BP_ThirdPersonPlayerController"
-*			which inherits from "AdventureGamePlayerController". But there we commented everything out, and stuff
-*			still works, so I'm confused. This one still overrides it somehow. I guess through the GetController()?
-* 
-* TODO: Maybe we move all this stuff out into the AdventureGamePlayerController if we need to have that class anyway?
-*/
-void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	if (APlayerController* playerController = Cast<APlayerController>(GetController()))
-	{
-		playerController->PlayerCameraManager->ViewPitchMin = -80.0f;
-		playerController->PlayerCameraManager->ViewPitchMax = 70.0f;
-		if (UEnhancedInputLocalPlayerSubsystem* subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController->GetLocalPlayer()))
-		{
-			subsystem->AddMappingContext(defaultMappingContext, 0);
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("APlayerCharacter::SetupPlayerInputComponent(): Failed finding Subsystem"));
-		}
-
-		if (UEnhancedInputComponent* enhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
-		{
-			// MOVEMENT CONTROLS
-			enhancedInputComponent->BindAction(jumpAction, ETriggerEvent::Started, this, &APlayerCharacter::playerJump);
-			enhancedInputComponent->BindAction(jumpAction, ETriggerEvent::Completed, this, &APlayerCharacter::StopJumping);
-			enhancedInputComponent->BindAction(moveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::move);
-			enhancedInputComponent->BindAction(sprintAction, ETriggerEvent::Started, this, &APlayerCharacter::sprintOn);
-			enhancedInputComponent->BindAction(sprintAction, ETriggerEvent::Completed, this, &APlayerCharacter::sprintOff);
-			enhancedInputComponent->BindAction(sneakAction, ETriggerEvent::Started, this, &APlayerCharacter::sneakOn);
-			enhancedInputComponent->BindAction(sneakAction, ETriggerEvent::Completed, this, &APlayerCharacter::sneakOff);
-
-			// CAMERA CONTROLS
-			enhancedInputComponent->BindAction(lookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::look);
-			enhancedInputComponent->BindAction(mouseLookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::look);
-			enhancedInputComponent->BindAction(toggleCameraPerspective, ETriggerEvent::Started, this, &APlayerCharacter::togglePerspective);
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("APlayerCharacter::SetupPlayerInputComponent(): Failed finding an Enhanced Input Component"));
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("APlayerCharacter::SetupPlayerInputComponent(): Failed finding Controller"));
-	}
-}
-
+void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent){/* This is done in AGPlayerController now. */ }
 
 /*
 * GAS stuff
@@ -284,6 +235,9 @@ void APlayerCharacter::initAbilitySystemComponent()
 	}
 }
 
+/*
+* HUD stuff
+*/
 void APlayerCharacter::initHUD() const
 {
 	if (const APlayerController* playerController = Cast<APlayerController>(GetController()))

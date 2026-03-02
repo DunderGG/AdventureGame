@@ -20,28 +20,24 @@ class CHARACTERS_API APlayerCharacter : public ACharacterBase
 	GENERATED_BODY()
 
 private:
-	//UPROPERTY(EditAnywhere, Category = "Body Components")
-	//TObjectPtr<USkeletalMeshComponent> body;
-	//UPROPERTY(EditAnywhere, Category = "Body Components")
-	//TObjectPtr<USkeletalMeshComponent> face;
-	//UPROPERTY(EditAnywhere, Category = "Body Components")
-	//TObjectPtr<USkeletalMeshComponent> torso;
-
-	// GAS function to initialise our ASC.
 	void initAbilitySystemComponent();
-
 	void initHUD() const;
 
-	void setToFirstPerson();
-	void setToThirdPerson();
-	
+#pragma region MOVEMENT
+	void move(const FInputActionValue& value);
+	void sprintOn();
+	void sprintOff();
+	void sneakOn();
+	void sneakOff();
+	void playerJump();
+#pragma endregion	
+#pragma region METAHUMAN
 	void setupMetahuman();
 	UPROPERTY(EditAnywhere)
 	bool isUsingMetahuman = true;
-
 	/*
 	* THESE ARE POINTLESS WHEN WE USE bUsePawnControlRotation
-	* and I cannot get it working without it...
+	* and I cannot get it working without it, so... Here we are.
 	*/
 	UPROPERTY(EditAnywhere)
 	float metaPitch = 0.0f;
@@ -49,6 +45,12 @@ private:
 	float metaYaw = -90.0f;
 	UPROPERTY(EditAnywhere)
 	float metaRoll = 0.0f;
+#pragma endregion
+#pragma region CAMERA
+	void look(const FInputActionValue& value);
+	void togglePerspective();
+	void setToFirstPerson();
+	void setToThirdPerson();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USpringArmComponent> cameraBoom;
@@ -61,44 +63,10 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	bool isInFirstPersonView;
+#pragma endregion
 
 protected:
 	virtual void BeginPlay() override;
-
-	// MOVEMENT
-	void move(const FInputActionValue& value);
-	void sprintOn();
-	void sprintOff();
-	void sneakOn();
-	void sneakOff();
-	void playerJump();
-
-	// CAMERA
-	void look(const FInputActionValue& value);
-	void togglePerspective();
-
-	// Pragma region lets us organise and hide code
-#pragma region Input
-	// MOVEMENT CONTROLS
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputMappingContext> defaultMappingContext;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> jumpAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> moveAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> sprintAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> sneakAction;
-
-	// CAMERA CONTROLS
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> lookAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> mouseLookAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> toggleCameraPerspective;
-#pragma endregion
 
 public:
 	FORCEINLINE TObjectPtr<USpringArmComponent> getCameraBoom() const { return cameraBoom; }
@@ -108,7 +76,7 @@ public:
 	APlayerCharacter();
 	
 	virtual void Tick(float DeltaTime) override;
-	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+	virtual void SetupPlayerInputComponent(UInputComponent* playerInputComponent) override;
 
 	/*
 	* GAS stuff
@@ -118,5 +86,6 @@ public:
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
 
-	
+	// Make the PlayerController a friend so we can keep movement/look functions private.
+	friend class AAGPlayerController;
 };
