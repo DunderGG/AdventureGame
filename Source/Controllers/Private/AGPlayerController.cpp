@@ -9,7 +9,7 @@
 
 AAGPlayerController::AAGPlayerController()
 {
-	UE_LOG(LogTemp, Display, TEXT("AAGPlayerController::AAGPlayerController(): Constructing new AAGPlayerController"));
+	UE_LOG(LogTemp, Display, TEXT("1. AAGPlayerController::AAGPlayerController(): Constructing new AAGPlayerController"));
 }
 
 void AAGPlayerController::BeginPlay()
@@ -29,13 +29,13 @@ void AAGPlayerController::SetupInputComponent()
 	{
 		if (IsLocalPlayerController())
 		{
-			UE_LOG(LogTemp, Display, TEXT("AAGPlayerController::SetupPlayerInputComponent(): Is local player controller"));
-			UE_LOG(LogTemp, Display, TEXT("AAGPlayerController::SetupPlayerInputComponent(): Clearing mappings and adding the defaults"));
+			//UE_LOG(LogTemp, Display, TEXT("AAGPlayerController::SetupPlayerInputComponent(): Is local player controller"));
+			//UE_LOG(LogTemp, Display, TEXT("AAGPlayerController::SetupPlayerInputComponent(): Clearing mappings and adding the defaults"));
 			subsystem->ClearAllMappings();
 			for (UInputMappingContext* CurrentContext : DefaultMappingContexts)
 			{
 				subsystem->AddMappingContext(CurrentContext, 0);
-				UE_LOG(LogTemp, Display, TEXT("AAGPlayerController::SetupPlayerInputComponent(): Added mapping context %s"), *CurrentContext->GetName());
+				//UE_LOG(LogTemp, Display, TEXT("AAGPlayerController::SetupPlayerInputComponent(): Added mapping context %s"), *CurrentContext->GetName());
 			}
 		}
 		else

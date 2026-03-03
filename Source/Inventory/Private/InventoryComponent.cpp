@@ -6,7 +6,7 @@
 UInventoryComponent::UInventoryComponent()
 	: totalNumberOfSlots{10}
 {
-
+	UE_LOG(LogTemp, Display, TEXT("9. UInventoryComponent::UInventoryComponent(): Constructing new UInventoryComponent"));
 }
 
 /*

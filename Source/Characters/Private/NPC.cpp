@@ -7,6 +7,7 @@
 
 ANPC::ANPC()
 {
+	UE_LOG(LogTemp, Display, TEXT("ANPC::ANPC(): Constructing new ANPC"));
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Each character needs their own ASC

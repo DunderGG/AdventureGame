@@ -4,6 +4,8 @@
 
 AAGPlayerState::AAGPlayerState()
 {
+	UE_LOG(LogTemp, Display, TEXT("2. AAGPlayerState::AAGPlayerState(): Constructing new AAGPlayerState"));
+
 	// TODO: look into this. Player state update frequency = 100 times per second. The default is apparently too low and can cause a perceived lag when updating attributes?
 	SetNetUpdateFrequency(100.0f);
 	// Each character needs their own ASC

@@ -5,6 +5,11 @@
 #include "GameplayEffectExtension.h"
 #include "Net/UnrealNetwork.h"
 
+UAGCharacterAttributeSet::UAGCharacterAttributeSet()
+{
+	UE_LOG(LogTemp, Display, TEXT("4. UAGCharacterAttributeSet::UAGCharacterAttributeSet(): Constructing new UAGCharacterAttributeSet"));
+}
+
 // This is used to "clean up" values for attribute changes.
 // It is not the right place to trigger in-game reactions to attribute changes, that is done in PostGameplayEffectExecute.
 void UAGCharacterAttributeSet::PreAttributeChange(const FGameplayAttribute& attribute, float& newValue)

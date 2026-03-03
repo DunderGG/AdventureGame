@@ -9,6 +9,8 @@
 // Sets default values
 ACharacterBase::ACharacterBase()
 {
+	UE_LOG(LogTemp, Display, TEXT("8. ACharacterBase::ACharacterBase(): Constructing new ACharacterBase"));
+
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 

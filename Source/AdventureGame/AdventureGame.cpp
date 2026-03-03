@@ -7,6 +7,8 @@ IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, AdventureGame, "Adventure
 
 DEFINE_LOG_CATEGORY(LogAdventureGame)
 
+// Dunno about defining it here. Having to include AdventureGame.h everywhere is kinda ugly...
+DEFINE_LOG_CATEGORY(LogConstructors)
 /*
 * TODO: Not sure what goes in here.
 */

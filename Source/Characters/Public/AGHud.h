@@ -25,6 +25,7 @@ protected:
 	TSubclassOf<UAttributesWidget> attributesWidgetClass;
 
 public:
+	AAGHud();
 	void init();
 	
 	

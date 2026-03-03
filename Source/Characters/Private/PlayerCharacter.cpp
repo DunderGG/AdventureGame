@@ -17,6 +17,8 @@
 
 APlayerCharacter::APlayerCharacter()
 {
+	UE_LOG(LogTemp, Display, TEXT("10. APlayerCharacter::APlayerCharacter(): Constructing new APlayerCharacter"));
+
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bTickEvenWhenPaused = false;
 
@@ -115,15 +117,15 @@ void APlayerCharacter::setupMetahuman()
 			firstPersonCamera->SetRelativeLocation(FVector(15, 20, 0));
 			// Setting rotation rotates the camera component but not actually the camera view, when we are using bUsePawnControlRotation = true
 			firstPersonCamera->SetRelativeRotation(FRotator(metaPitch, metaYaw, metaRoll));
-			UE_LOG(LogTemp, Display, TEXT("APlayerCharacter::setupMetahuman(): Successfully attached first person camera to metahuman head"));
+			UE_LOG(LogTemp, Display, TEXT("APlayerCharacter::setupMetahuman(): Successfully setup the Metahuman"));
 			break;
 		}
 	}
 }
 
 /*
-* Not sure why the default character class breaks this out into two functions,
-*    The DoMove function is BlueprintCallable, so I guess it's there to also offer blueprint functionality.
+* The default character class breaks this out into two functions,
+*    where the DoMove function is BlueprintCallable.
 */
 void APlayerCharacter::move(const FInputActionValue& value)
 {
@@ -190,7 +192,6 @@ void APlayerCharacter::look(const FInputActionValue& value)
 
 	if (Controller != nullptr)
 	{
-		// Y is inverted to get the correct up and down look movement, but not sure why this was suddenly needed? I broke controller somehow.
 		AddControllerYawInput(lookAxisVector.X);
 		AddControllerPitchInput(-lookAxisVector.Y);
 	}
@@ -233,6 +234,7 @@ void APlayerCharacter::initAbilitySystemComponent()
 		// TOOD: Should this really be inside initASC()?
 		attributeSet = playerState->GetAttributeSet();
 	}
+	UE_LOG(LogTemp, Display, TEXT("APlayerCharacter::initAbilitySystemComponent(): Finished"));
 }
 
 /*
@@ -255,6 +257,7 @@ void APlayerCharacter::initHUD() const
 	{
 		UE_LOG(LogTemp, Error, TEXT("APlayerCharacter::initHUD(): Failed finding Controller"));
 	}
+	UE_LOG(LogTemp, Display, TEXT("APlayerCharacter::initHUD(): Finished"));
 }
 
 /*
