@@ -2,16 +2,12 @@
 
 #include "PlayerCharacter.h"
 #include "Components/CapsuleComponent.h"
-#include "GameFramework/CharacterMovementComponent.h" 
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "InputActionValue.h"
-#include "EnhancedInputSubsystems.h"
-#include "EnhancedInputComponent.h"
 #include "AGAbilitySystemComponent.h"
 #include "AGPlayerState.h"
-#include "AGCharacterAttributeSet.h"
-#include "Components/WidgetComponent.h"
 #include "AGHud.h"
 #include "AdventureGameplayTags.h"
 
