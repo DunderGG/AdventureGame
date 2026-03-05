@@ -24,16 +24,18 @@ APlayerCharacter::APlayerCharacter()
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 250.0f, 0.0f);
-	GetCharacterMovement()->JumpZVelocity = 400.0f;
-	GetCharacterMovement()->AirControl = 0.15f;
-	GetCharacterMovement()->MaxWalkSpeed = 500.0f;
-	GetCharacterMovement()->MinAnalogWalkSpeed = 20.0f;
-	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
-	GetCharacterMovement()->BrakingDecelerationWalking = 2000.0f;
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, rotationRate, 0.0f);
+	GetCharacterMovement()->JumpZVelocity = jumpZVelocity;
+	GetCharacterMovement()->AirControl = airControl;
+	GetCharacterMovement()->MaxWalkSpeed = maxWalkSpeed;
+	GetCharacterMovement()->MinAnalogWalkSpeed = minAnalogWalkSpeed;
+	GetCharacterMovement()->BrakingDecelerationFalling = brakingDecelerationFalling;
+	GetCharacterMovement()->BrakingDecelerationWalking = brakingDecelerationWalking;
 
 	cameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("cameraBoom"));
 	cameraBoom->SetupAttachment(RootComponent);
+	// TODO: Can we modify cameraBoom->TargetArmLength to make a zoom in and out effect when scrolling the mouse wheel?
+	//			Dont forget to clamp value if we do that.
 	cameraBoom->TargetArmLength = 400.0f;
 	cameraBoom->bUsePawnControlRotation = true;
 
@@ -127,11 +129,11 @@ void APlayerCharacter::move(const FInputActionValue& value)
 {
 	FVector2D movementVector = value.Get<FVector2D>();
 
-	// Use Controller that is initialised somewhere else, or do GetController() every time?
-	if (GetController() != nullptr)
+	// No need for GetController(), Characters already have a built-in Controller pointer.
+	if (Controller != nullptr)
 	{
 		// This way of adding movement removes head bobbing...
-		const FRotator rotation = GetController()->GetControlRotation();
+		const FRotator rotation = Controller->GetControlRotation();
 		const FRotator yawRotation(0, rotation.Yaw, 0);
 		const FVector forwardDirection = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::X);
 		const FVector rightDirection = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::Y);
@@ -265,15 +267,21 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 	
 	initAbilitySystemComponent();
-
-	// We only do this here and not in OnRep_PlayerState, because
-	//   we only want to give abilities on the server???
 	initDefaultAttributes();
 	initStartupEffects();
-	giveDefaultAbilities();
-	giveDefaultAttributes();
+
+	// Grant abilities and effects ONLY on the server
+	// The granted abilities and gameplay effects should automatically replicate to the client.
+	// We can see that this works by changing the default attributes in SetDefaultAttributes.cpp
+	if (HasAuthority())
+	{
+		giveDefaultAbilities();
+		giveDefaultAttributes();
+		giveStartupEffects();
+	}
+
 	initHUD();
-	giveStartupEffects();
+
 	UE_LOG(LogTemp, Display, TEXT("APlayerCharacter::PossessedBy(): Finished"));
 }
 /*
@@ -283,12 +291,10 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 void APlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
-
+	
+	// Client only needs to initialize the ASC info and HUD
 	initAbilitySystemComponent();
-	initStartupEffects();
-	giveDefaultAbilities();
-	giveDefaultAttributes();
 	initHUD();
-	giveStartupEffects();
+
 	UE_LOG(LogTemp, Display, TEXT("APlayerCharacter::OnRep_PlayerState(): Finished"));
 }

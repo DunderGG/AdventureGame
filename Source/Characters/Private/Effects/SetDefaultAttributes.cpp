@@ -22,7 +22,7 @@ void USetDefaultAttributes::PostInitProperties()
 
 	mod.Attribute = UAGCharacterAttributeSet::GetHealthAttribute();
 	mod.ModifierOp = EGameplayModOp::Override;
-	mod.ModifierMagnitude = FScalableFloat(defaultHealth);
+	mod.ModifierMagnitude = FScalableFloat(defaultHealth/2);
 	Modifiers.Add(mod);
 
 	mod.Attribute = UAGCharacterAttributeSet::GetMaxStaminaAttribute();
@@ -32,7 +32,7 @@ void USetDefaultAttributes::PostInitProperties()
 
 	mod.Attribute = UAGCharacterAttributeSet::GetStaminaAttribute();
 	mod.ModifierOp = EGameplayModOp::Override;
-	mod.ModifierMagnitude = FScalableFloat(defaultStamina);
+	mod.ModifierMagnitude = FScalableFloat(defaultStamina/2);
 	Modifiers.Add(mod);
 
 	mod.Attribute = UAGCharacterAttributeSet::GetMaxStrengthAttribute();

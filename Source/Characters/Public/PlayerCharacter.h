@@ -30,6 +30,22 @@ private:
 	void sneakOn();
 	void sneakOff();
 	void playerJump();
+
+	// Expose these to the editor so we can play with the values without having to recompile.
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float jumpZVelocity = 400.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float airControl = 0.15f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float maxWalkSpeed = 500.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float minAnalogWalkSpeed = 20.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float brakingDecelerationFalling = 1500.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float brakingDecelerationWalking = 2000.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float rotationRate = 250.0f;
 #pragma endregion	
 #pragma region METAHUMAN
 	void setupMetahuman();
