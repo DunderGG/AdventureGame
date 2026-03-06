@@ -71,6 +71,7 @@ protected:
 
 	// We put abilities into this array in the editor, using Gameplay Ability blueprints, like GA_Kick.
 	//   TODO: This can't be const for some reason? I guess because we are setting the value in the editor?
+	//	TODO: Maybe the effects and abilities should be defined in editor instead?
 	virtual void giveDefaultAbilities();
 	UPROPERTY(EditDefaultsOnly, Category = "GAS | Ability")
 	TArray<TSubclassOf<UGameplayAbility>> defaultAbilities;
@@ -101,7 +102,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION(BlueprintCallable)
-	UActorComponent* getInventory() const;
+	UInventoryComponent* getInventory() const;
 #pragma region Attribute Set Getters
 	UFUNCTION(BlueprintCallable, Category = "GAS | CharacterBase | Attributes")
 	int32 getCharacterLevel() const;
