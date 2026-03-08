@@ -10,6 +10,7 @@
 #include "AGPlayerState.h"
 #include "AGHud.h"
 #include "AdventureGameplayTags.h"
+#include "Logger.h"
 
 APlayerCharacter::APlayerCharacter()
 {

@@ -6,9 +6,11 @@
 #include "Engine/LocalPlayer.h"
 #include "InputMappingContext.h"
 #include "PlayerCharacter.h"
+#include "Logger.h"
 
 AAGPlayerController::AAGPlayerController()
 {
+	Logger::addMessage(TEXT("********** START OF LOGS **********"), SEVERITY::Info, true, true, false);
 	UE_LOG(LogTemp, Display, TEXT("1. AAGPlayerController::AAGPlayerController(): Constructing new AAGPlayerController"));
 }
 
