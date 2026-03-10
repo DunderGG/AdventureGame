@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
+#include "FTimeData.h"
 #include "EnvironmentManager.generated.h"
 
 /**
@@ -17,6 +18,29 @@ class ENVIRONMENT_API UEnvironmentManager : public UTickableWorldSubsystem
 	
 private:
 	bool shouldTick = true;
+	bool logTick = true;
+	bool useDayNightCycle = true;
+	bool timeWasUpdated = false;
+	FTimeData currentTime;
+	float dayLengthInMinutes = 10;
+	float timeDecay = 0;
+	float minuteLength = 10;
+	float currentTimeOfDay = 0;
+
+	class AMessageManager* messageManager = nullptr;
+
+	void updateTime(const float DeltaTime);
+	void advanceMinute();
+	void advanceHour();
+	void advanceDay();
+	void advanceMonth();
+	void advanceYear();
+	void setDayOfYear();
+	void calculateDayLength();
+	void updateTimeOfDayRef();
+	void updateLighting();
+	void updateLightRotation();
+	void addDayOfYear();
 protected:
 
 public:
