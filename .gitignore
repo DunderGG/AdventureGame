@@ -79,4 +79,5 @@ Config/*
 Content/*
 *.uproject
 *.cs
+*.BAK
 Plugins/*

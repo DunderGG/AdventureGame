@@ -2,7 +2,6 @@
 
 #include "EnvironmentManager.h"
 #include "Logger.h"
-#include "MessageManager.h"
 #include "Misc/DateTime.h"
 
 void UEnvironmentManager::Initialize(FSubsystemCollectionBase& Collection)
@@ -14,6 +13,9 @@ void UEnvironmentManager::Initialize(FSubsystemCollectionBase& Collection)
 	// TODO: Not sure about IsGameWorld().
 	if (IsValid(world) && world->IsGameWorld())
 	{
+		// Cache the messaging subsystem from the World.
+		messageManager = world->GetSubsystem<UMessagingSubsystem>();
+
 		FString mapName = world->GetMapName();
 		mapName = world->RemovePIEPrefix(mapName);
 
@@ -33,6 +35,7 @@ void UEnvironmentManager::Initialize(FSubsystemCollectionBase& Collection)
 void UEnvironmentManager::Deinitialize()
 {
 	Super::Deinitialize();
+	messageManager = nullptr;
 	Logger::addMessage(TEXT("Environment Manager Deinitialized"), SEVERITY::Debug);
 }
 
@@ -42,15 +45,6 @@ bool UEnvironmentManager::IsTickable() const
 	return !IsTemplate() && shouldTick;
 }
 
-void UEnvironmentManager::Tick(float DeltaTime)
-{
-	if (logTick)
-	{
-		logTick = false;
-		Logger::addMessage(TEXT("Environment Manager Tick"), SEVERITY::Debug);
-	}
-}
-
 TStatId UEnvironmentManager::GetStatId() const
 {
 	// This identifies the class in the 'stat cycle' profiler (F9 in-game)
@@ -58,8 +52,22 @@ TStatId UEnvironmentManager::GetStatId() const
 	RETURN_QUICK_DECLARE_CYCLE_STAT(UEnvironmentManager, STATGROUP_Tickables);
 }
 
+void UEnvironmentManager::Tick(float DeltaTime)
+{
+	updateTime(DeltaTime);
+
+	updateTimeOfDayRef();
+
+	if (timeWasUpdated && messageManager)
+	{
+		messageManager->updateTimeOfDay(currentTime);
+		timeWasUpdated = false;
+	}
+}
+
 /*
-* Time management functions. 
+* Called from Tick() every frame
+* The timeDecay prevents time updates from happening too frequently.
 */
 void UEnvironmentManager::updateTime(const float DeltaTime)
 {
@@ -71,6 +79,12 @@ void UEnvironmentManager::updateTime(const float DeltaTime)
 	}
 }
 
+#pragma region Advance Time Functions
+/*
+* A reason for breaking all of these up in to separate functions is to easily be able to advance one of them.
+* For example, if the player sleeps for 8 hours, we can just call advanceHour() 8 times, and it will handle all the necessary rollovers.
+*	Look at many RPGs; You go to sleep, the hours start ticking forward one at a time.
+*/
 void UEnvironmentManager::advanceMinute()
 {
 	timeWasUpdated = true;
@@ -97,12 +111,13 @@ void UEnvironmentManager::advanceHour()
 	{
 		messageManager->updateHourOfDay(currentTime.hour);
 	}
+
+	Logger::addMessage(FString::Printf(TEXT("Hour advanced, now %d"), currentTime.hour), SEVERITY::Debug);
 }
 
 void UEnvironmentManager::advanceDay()
 {
 	timeWasUpdated = true;
-	addDayOfYear();
 	currentTime.dayOfMonth++;
 
 	const bool isLeapYear = FDateTime::IsLeapYear(currentTime.year);
@@ -164,7 +179,7 @@ void UEnvironmentManager::advanceMonth()
 
 	if (messageManager)
 	{
-		// TODO: messageManager->updateMonthOfYear(currentTime.month);
+		messageManager->updateMonth(currentTime.month);
 	}
 }
 
@@ -175,10 +190,14 @@ void UEnvironmentManager::advanceYear()
 
 	if (messageManager)
 	{
-		// TODO: messageManager->updateYear(currentTime.year);
+		messageManager->updateYear(currentTime.year);
 	}
 }
+#pragma endregion
 
+/*
+* The "overall" day of the year.
+*/
 void UEnvironmentManager::setDayOfYear()
 {
 	const bool isLeapYear = FDateTime::IsLeapYear(currentTime.year);
@@ -195,12 +214,13 @@ void UEnvironmentManager::setDayOfYear()
 	currentTime.dayOfYear += currentTime.dayOfMonth;
 }
 
-void UEnvironmentManager::calculateDayLength()
-{
-}
-
+/*
+* A reference point for the current time of day, in minutes. 
+* This can be used for lighting and other time-of-day related calculations.
+*/
 void UEnvironmentManager::updateTimeOfDayRef()
 {
+	currentTimeOfDay = (currentTime.hour * 60) + currentTime.minute;
 }
 
 void UEnvironmentManager::updateLighting()
@@ -211,6 +231,24 @@ void UEnvironmentManager::updateLightRotation()
 {
 }
 
-void UEnvironmentManager::addDayOfYear()
+/* 
+* Used for dynamic day length, i.e.the player decides how long the day should be.
+* 1440 minutes in a day, so we divide the total real-world seconds in a day by 1440 to get the length of each minute.
+*/
+void UEnvironmentManager::calculateDayLength()
 {
+	minuteLength = (gameDayLengthInRealMinutes * 60) / 1440;
+
+	timeDecay = minuteLength;
+}
+
+void UEnvironmentManager::OnWorldBeginPlay(UWorld& InWorld)
+{
+	Super::OnWorldBeginPlay(InWorld);
+
+	calculateDayLength();
+
+	Logger::addMessage(FString::Printf(TEXT(
+		"UEnvironmentManager::OnWorldBeginPlay: Minute length calculated to %f seconds per minute"), 
+		minuteLength), SEVERITY::Debug);
 }

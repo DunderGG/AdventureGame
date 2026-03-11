@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "FTimeData.h"
+#include "MessagingSubsystem.h"
 #include "EnvironmentManager.generated.h"
 
 /**
@@ -17,17 +18,15 @@ class ENVIRONMENT_API UEnvironmentManager : public UTickableWorldSubsystem
 	GENERATED_BODY()
 	
 private:
-	bool shouldTick = true;
-	bool logTick = true;
 	bool useDayNightCycle = true;
 	bool timeWasUpdated = false;
 	FTimeData currentTime;
-	float dayLengthInMinutes = 10;
-	float timeDecay = 0;
 	float minuteLength = 10;
-	float currentTimeOfDay = 0;
+	float timeDecay = 0;
+	int currentTimeOfDay = 0;
 
-	class AMessageManager* messageManager = nullptr;
+	UPROPERTY()
+	TObjectPtr<UMessagingSubsystem> messageManager = nullptr;
 
 	void updateTime(const float DeltaTime);
 	void advanceMinute();
@@ -40,8 +39,14 @@ private:
 	void updateTimeOfDayRef();
 	void updateLighting();
 	void updateLightRotation();
-	void addDayOfYear();
 protected:
+	// Should the time advance? 
+	UPROPERTY(EditAnywhere, Category = "Environment|Time")
+	bool shouldTick = true;
+
+	// Real-world minutes it takes for one full game day.
+	UPROPERTY(EditAnywhere, Category = "Environment | Time")
+	float gameDayLengthInRealMinutes = 5;
 
 public:
 	// UWorldSubsystem / FTickableGameObject overrides
@@ -51,4 +56,6 @@ public:
 	virtual bool IsTickable() const override;
 	virtual void Tick(float DeltaTime) override;
 	virtual TStatId GetStatId() const override;
+
+	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
 };
