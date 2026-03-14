@@ -1,5 +1,5 @@
 ## Sources
-Will try and add all the sources and useful links I've been using in the project. 
+Will try and add all the sources and useful links I've been using for the project. 
 
 ~~Based on the [*Game Animation Sample Project*](https://www.fab.com/listings/880e319a-a59e-4ed2-b268-b32dac7fa016) from Epic Games.~~ Redid the project from start to not have so many dependencies and "blueprinted" parts.
 
@@ -23,7 +23,7 @@ Will try and add all the sources and useful links I've been using in the project
 * https://github.com/jeycopper/playercontroller-to-control-character-and-camera-in-unreal-engine 
 
 ### Animations 
-https://www.youtube.com/watch?v=o23kQRj3zd4
+* https://www.youtube.com/watch?v=o23kQRj3zd4
 
 ## Contributors
 None so far. 
