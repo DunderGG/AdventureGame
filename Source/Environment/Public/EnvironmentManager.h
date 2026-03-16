@@ -46,7 +46,7 @@ protected:
 
 	// Real-world minutes it takes for one full game day.
 	UPROPERTY(EditAnywhere, Category = "Environment | Time")
-	float gameDayLengthInRealMinutes = 5;
+	float gameDayLengthInRealMinutes = 10;
 
 public:
 	// UWorldSubsystem / FTickableGameObject overrides

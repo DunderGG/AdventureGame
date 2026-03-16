@@ -1,0 +1,142 @@
+// Copyright (C) 2026 dunder.gg [GNU GPLv3]
+
+
+#include "SunMoonController.h"
+#include "MessagingSubsystem.h"
+#include "Logger.h"
+#include "Engine/DirectionalLight.h"
+#include "Components/DirectionalLightComponent.h"
+#include "Curves/CurveLinearColor.h"
+#include "Kismet/GameplayStatics.h"
+
+// Sets default values
+ASunMoonController::ASunMoonController()
+{
+	PrimaryActorTick.bCanEverTick = false;
+
+}
+
+void ASunMoonController::timeChangeUpdate(const FTimeData& timeData)
+{
+	updateTimeOfDay(timeData);
+	updateSunLight();
+	updateSkyLight();
+	updateMoonLight();
+}
+
+void ASunMoonController::updateTimeOfDay(const FTimeData& newTime)
+{
+	currentTime = newTime;
+	Logger::addMessage(FString::Printf(TEXT("SunMoonController: Time updated to %d:%d" 
+											" on day %d of month %d, year %d"), 
+		currentTime.hour, currentTime.minute, 
+		currentTime.dayOfMonth, currentTime.month, currentTime.year), 
+		SEVERITY::Info);
+}
+
+/*
+* This runs whenever there is a time change update broadcasted from the EnvironmentManager.
+* Use the time of day to set where the sun is in the sky and how bright it is.
+*/
+void ASunMoonController::updateSunLight()
+{
+	// We set the sunLight variable in the editor.
+	if (!sunLight || !dailySunRotation)
+	{
+		Logger::addMessage(TEXT("SunMoonController: No sun light assigned, skipping sun light update"), 
+			SEVERITY::Warning);
+		return;
+	}
+
+	float currentTimeOfDay = currentTime.getTimeOfDay();
+	float newLightIntensity = dailySunRotation->GetUnadjustedLinearColorValue(currentTimeOfDay).A;
+	FLinearColor colorAsRotation = dailySunRotation->GetUnadjustedLinearColorValue(currentTimeOfDay);
+
+	if (annualSunRotation)
+	{
+		newLightIntensity += annualSunRotation->GetUnadjustedLinearColorValue(currentTimeOfDay).A;
+		colorAsRotation += annualSunRotation->GetLinearColorValue(currentTimeOfDay);
+	}
+	newLightIntensity = FMath::Clamp(newLightIntensity, 0.0f, maxSunIntensity);
+
+	FRotator newLightRotation = FRotator(colorAsRotation.G, colorAsRotation.B, colorAsRotation.R);
+
+	sunLight->GetLightComponent()->SetIntensity(newLightIntensity);
+	sunLight->SetActorRotation(newLightRotation);
+	sunLight->GetLightComponent()->UpdateColorAndBrightness();
+}
+
+/*
+* The same as above, but happens every tick to try and make the movement of the sun more smooth.
+*  TODO: There are probably better ways to do this, 
+*			than broadcasting and doing this logic every tick.
+*/
+void ASunMoonController::updateSunLightPrecise(float preciseTime)
+{
+	// Directly use the float time to calculate rotation
+	if (!sunLight || !dailySunRotation)
+	{
+		Logger::addMessage(TEXT("SunMoonController: No sun light assigned, skipping sun light update"),
+			SEVERITY::Warning);
+		return;
+	}
+
+	float newLightIntensity = dailySunRotation->GetUnadjustedLinearColorValue(preciseTime).A;
+	FLinearColor colorAsRotation = dailySunRotation->GetUnadjustedLinearColorValue(preciseTime);
+
+	if (annualSunRotation)
+	{
+		newLightIntensity += annualSunRotation->GetUnadjustedLinearColorValue(preciseTime).A;
+		colorAsRotation += annualSunRotation->GetLinearColorValue(preciseTime);
+	}
+	newLightIntensity = FMath::Clamp(newLightIntensity, 0.0f, maxSunIntensity);
+
+	FRotator newLightRotation = FRotator(colorAsRotation.G, colorAsRotation.B, colorAsRotation.R);
+	sunLight->SetActorRotation(newLightRotation);
+	sunLight->GetLightComponent()->SetIntensity(newLightIntensity);
+	sunLight->GetLightComponent()->UpdateColorAndBrightness();
+	//Logger::addMessage(FString::Printf(TEXT("SunMoonController: Precise time update - sun light intensity set to %f and rotation to "), newLightIntensity) + newLightRotation.ToString(), SEVERITY::Debug);
+}
+
+void ASunMoonController::updateSkyLight()
+{
+}
+
+void ASunMoonController::updateMoonLight()
+{
+}
+
+// Called when the game starts or when spawned
+void ASunMoonController::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	if (hasDayNightCycle)
+	{
+		Logger::addMessage(TEXT("SunMoonController: Day/Night cycle enabled"), SEVERITY::Info);
+		TObjectPtr<UWorld> world = GetWorld();
+		if (IsValid(world) && world->IsGameWorld())
+		{
+			// Cache the messaging subsystem from the world game instance.
+			messageManager = UMessagingSubsystem::Get(this);
+
+			if (IsValid(messageManager))
+			{
+				//messageManager->onTimeChange.AddDynamic(this, &ASunMoonController::timeChangeUpdate);
+				messageManager->onPreciseTimeChange.AddDynamic(this, &ASunMoonController::updateSunLightPrecise);
+				Logger::addMessage(TEXT("SunMoonController: Subscribed to time change delegate"), SEVERITY::Debug);
+			}
+			else
+			{
+				Logger::addMessage(TEXT("SunMoonController: Failed to get MessagingSubsystem"), SEVERITY::Error);
+			}
+		}
+	}
+	else
+	{
+		Logger::addMessage(TEXT("SunMoonController: Day/Night cycle disabled"), SEVERITY::Info);
+		return;
+	}
+}
+
+

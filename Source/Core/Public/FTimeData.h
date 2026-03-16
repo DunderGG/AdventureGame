@@ -13,7 +13,7 @@ struct FTimeData
 	int year = 2026;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, SaveGame)
-	int dayOfYear = 0;
+	int dayOfYear = 1;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, SaveGame)
 	int month = 1;
@@ -22,8 +22,10 @@ struct FTimeData
 	int dayOfMonth = 1;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, SaveGame)
-	int hour = 0;
+	int hour = 7;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, SaveGame)
-	int minute = 0;
+	int minute = 30;
+
+	float getTimeOfDay() const {return (hour * 60) + minute; };
 };

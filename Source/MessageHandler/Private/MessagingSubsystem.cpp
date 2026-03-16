@@ -3,6 +3,11 @@
 #include "MessagingSubsystem.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 
+void UMessagingSubsystem::updatePreciseTime(float preciseTime)
+{
+	onPreciseTimeChange.Broadcast(preciseTime);
+}
+
 /*
 * These are basically passthrough functions
 *	When the time changes, we want to trigger the delegate, which will notify all subscribers that the time has changed.

@@ -13,8 +13,9 @@ void UEnvironmentManager::Initialize(FSubsystemCollectionBase& Collection)
 	// TODO: Not sure about IsGameWorld().
 	if (IsValid(world) && world->IsGameWorld())
 	{
-		// Cache the messaging subsystem from the World.
-		messageManager = world->GetSubsystem<UMessagingSubsystem>();
+		// Cache the messaging subsystem from the world game instance.
+		// TODO: Should we do this here, or in OnWorldBeginPlay()?
+		messageManager = UMessagingSubsystem::Get(this);
 
 		FString mapName = world->GetMapName();
 		mapName = world->RemovePIEPrefix(mapName);
@@ -54,10 +55,21 @@ TStatId UEnvironmentManager::GetStatId() const
 
 void UEnvironmentManager::Tick(float DeltaTime)
 {
+	// Send a precise time update every tick.
+	// TODO: Dunno if this is too resource intensive.
+	if (messageManager)
+	{
+		//Logger::addMessage(TEXT("Environment Manager: Sending precise time update"), SEVERITY::Debug);
+		// Calculate precise time: (Hours * 60) + Minutes + Fraction of current minute
+		// timeDecay counts down from minuteLength to 0
+		float minuteProgress = FMath::Clamp(1.0f - (timeDecay / minuteLength), 0.0f, 1.0f);
+		float preciseTime = (currentTime.hour * 60) + currentTime.minute + minuteProgress;
+
+		messageManager->updatePreciseTime(preciseTime);
+	}
+
 	updateTime(DeltaTime);
-
 	updateTimeOfDayRef();
-
 	if (timeWasUpdated && messageManager)
 	{
 		messageManager->updateTimeOfDay(currentTime);
@@ -101,6 +113,7 @@ void UEnvironmentManager::advanceHour()
 {
 	timeWasUpdated = true;
 	currentTime.hour++;
+	Logger::addMessage(FString::Printf(TEXT("UEnvironmentManager::advanceHour: Advancing hour to %d"), currentTime.hour), SEVERITY::Debug);
 	if (currentTime.hour > 23)
 	{
 		currentTime.hour = 0;
@@ -112,7 +125,6 @@ void UEnvironmentManager::advanceHour()
 		messageManager->updateHourOfDay(currentTime.hour);
 	}
 
-	Logger::addMessage(FString::Printf(TEXT("Hour advanced, now %d"), currentTime.hour), SEVERITY::Debug);
 }
 
 void UEnvironmentManager::advanceDay()
