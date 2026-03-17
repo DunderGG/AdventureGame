@@ -6,6 +6,8 @@
 #include "Logger.h"
 #include "Engine/DirectionalLight.h"
 #include "Components/DirectionalLightComponent.h"
+#include "Engine/SkyLight.h"
+#include "Components/SkyLightComponent.h"
 #include "Curves/CurveLinearColor.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -19,7 +21,12 @@ ASunMoonController::ASunMoonController()
 void ASunMoonController::timeChangeUpdate(const FTimeData& timeData)
 {
 	updateTimeOfDay(timeData);
-	updateSunLight();
+}
+
+// This is called every tick instead of every in game minute, so that sun movement is less "blocky".
+void ASunMoonController::preciseTimeChangeUpdate(float preciseTime)
+{
+	updateSunLightPrecise(preciseTime);
 	updateSkyLight();
 	updateMoonLight();
 }
@@ -48,7 +55,7 @@ void ASunMoonController::updateSunLight()
 		return;
 	}
 
-	float currentTimeOfDay = currentTime.getTimeOfDay();
+	currentTimeOfDay = currentTime.getTimeOfDay();
 	float newLightIntensity = dailySunRotation->GetUnadjustedLinearColorValue(currentTimeOfDay).A;
 	FLinearColor colorAsRotation = dailySunRotation->GetUnadjustedLinearColorValue(currentTimeOfDay);
 
@@ -81,6 +88,7 @@ void ASunMoonController::updateSunLightPrecise(float preciseTime)
 		return;
 	}
 
+	timeOfDayRef = preciseTime;
 	float newLightIntensity = dailySunRotation->GetUnadjustedLinearColorValue(preciseTime).A;
 	FLinearColor colorAsRotation = dailySunRotation->GetUnadjustedLinearColorValue(preciseTime);
 
@@ -100,6 +108,18 @@ void ASunMoonController::updateSunLightPrecise(float preciseTime)
 
 void ASunMoonController::updateSkyLight()
 {
+	if (!IsValid(skyLight) || !IsValid(skyLightDailyColor))
+	{
+		//Logger::addMessage(TEXT("SunMoonController: No sky light assigned, skipping sky light update"),
+		//	SEVERITY::Warning);
+		return;
+	}
+
+	float newLightIntensity = skyLightDailyColor->GetUnadjustedLinearColorValue(currentTimeOfDay).A;
+	skyLight->GetLightComponent()->SetIntensity(newLightIntensity);
+
+	FLinearColor newSkyColor = skyLightDailyColor->GetUnadjustedLinearColorValue(currentTimeOfDay);
+	skyLight->GetLightComponent()->SetLightColor(newSkyColor);
 }
 
 void ASunMoonController::updateMoonLight()
@@ -122,8 +142,8 @@ void ASunMoonController::BeginPlay()
 
 			if (IsValid(messageManager))
 			{
-				//messageManager->onTimeChange.AddDynamic(this, &ASunMoonController::timeChangeUpdate);
-				messageManager->onPreciseTimeChange.AddDynamic(this, &ASunMoonController::updateSunLightPrecise);
+				messageManager->onTimeChange.AddDynamic(this, &ASunMoonController::timeChangeUpdate);
+				messageManager->onPreciseTimeChange.AddDynamic(this, &ASunMoonController::preciseTimeChangeUpdate);
 				Logger::addMessage(TEXT("SunMoonController: Subscribed to time change delegate"), SEVERITY::Debug);
 			}
 			else

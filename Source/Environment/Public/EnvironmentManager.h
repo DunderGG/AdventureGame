@@ -21,9 +21,12 @@ private:
 	bool useDayNightCycle = true;
 	bool timeWasUpdated = false;
 	FTimeData currentTime;
+	float timeOfDayRef = 0;
 	float minuteLength = 10;
 	float timeDecay = 0;
 	int currentTimeOfDay = 0;
+	int preciseTimeUpdateFrequency = 10;
+	int tickCounter = 0;
 
 	UPROPERTY()
 	TObjectPtr<UMessagingSubsystem> messageManager = nullptr;
@@ -46,7 +49,7 @@ protected:
 
 	// Real-world minutes it takes for one full game day.
 	UPROPERTY(EditAnywhere, Category = "Environment | Time")
-	float gameDayLengthInRealMinutes = 10;
+	float gameDayLengthInRealMinutes = 20;
 
 public:
 	// UWorldSubsystem / FTickableGameObject overrides

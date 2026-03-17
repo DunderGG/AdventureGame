@@ -22,10 +22,10 @@ struct FTimeData
 	int dayOfMonth = 1;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, SaveGame)
-	int hour = 7;
+	int hour = 8;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, SaveGame)
-	int minute = 30;
+	int minute = 0;
 
 	float getTimeOfDay() const {return (hour * 60) + minute; };
 };

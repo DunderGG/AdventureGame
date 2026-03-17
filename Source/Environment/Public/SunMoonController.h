@@ -29,6 +29,12 @@ private:
 	UPROPERTY(VisibleAnywhere, meta=(AllowPrivateAccess="true"))
 	FTimeData currentTime;
 
+	// These two show how far through the day we are, in minutes.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	float timeOfDayRef;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	float currentTimeOfDay;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	bool hasDayNightCycle = true;
 
@@ -65,4 +71,6 @@ public:
 	// causing AddDynamic to fail silently at runtime.
 	UFUNCTION()
 	void timeChangeUpdate(const FTimeData& timeData);
+	UFUNCTION()
+	void preciseTimeChangeUpdate(float preciseTime);
 };

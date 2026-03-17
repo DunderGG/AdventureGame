@@ -56,20 +56,21 @@ TStatId UEnvironmentManager::GetStatId() const
 void UEnvironmentManager::Tick(float DeltaTime)
 {
 	// Send a precise time update every tick.
-	// TODO: Dunno if this is too resource intensive.
-	if (messageManager)
+	// TODO: Maybe this is too resource intensive, sending updates every tick.
+	// This tickCounter is just a cheap way of "fixing" this... Must investigate better solutions.
+	++tickCounter;
+	if (tickCounter == preciseTimeUpdateFrequency)
 	{
-		//Logger::addMessage(TEXT("Environment Manager: Sending precise time update"), SEVERITY::Debug);
-		// Calculate precise time: (Hours * 60) + Minutes + Fraction of current minute
-		// timeDecay counts down from minuteLength to 0
-		float minuteProgress = FMath::Clamp(1.0f - (timeDecay / minuteLength), 0.0f, 1.0f);
-		float preciseTime = (currentTime.hour * 60) + currentTime.minute + minuteProgress;
-
-		messageManager->updatePreciseTime(preciseTime);
+		tickCounter = 0;
+		updateTimeOfDayRef();
+		if (messageManager)
+		{
+			//Logger::addMessage(TEXT("Environment Manager: Sending precise time update"), SEVERITY::Debug);
+			messageManager->updatePreciseTime(timeOfDayRef);
+		}
 	}
 
 	updateTime(DeltaTime);
-	updateTimeOfDayRef();
 	if (timeWasUpdated && messageManager)
 	{
 		messageManager->updateTimeOfDay(currentTime);
@@ -131,6 +132,7 @@ void UEnvironmentManager::advanceDay()
 {
 	timeWasUpdated = true;
 	currentTime.dayOfMonth++;
+	currentTime.dayOfYear++;
 
 	const bool isLeapYear = FDateTime::IsLeapYear(currentTime.year);
 
@@ -199,6 +201,7 @@ void UEnvironmentManager::advanceYear()
 {
 	timeWasUpdated = true;
 	currentTime.year++;
+	currentTime.dayOfYear = 1; // Reset day of year to 1 at the start of a new year.
 
 	if (messageManager)
 	{
@@ -232,7 +235,10 @@ void UEnvironmentManager::setDayOfYear()
 */
 void UEnvironmentManager::updateTimeOfDayRef()
 {
-	currentTimeOfDay = (currentTime.hour * 60) + currentTime.minute;
+	// Calculate precise time: (Hours * 60) + Minutes + Fraction of current minute
+	// timeDecay counts down from minuteLength to 0
+	float minuteProgress = FMath::Clamp(1.0f - (timeDecay / minuteLength), 0.0f, 1.0f);
+	timeOfDayRef = (currentTime.hour * 60) + currentTime.minute + minuteProgress;
 }
 
 void UEnvironmentManager::updateLighting()
