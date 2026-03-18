@@ -26,11 +26,19 @@ void ASunMoonController::timeChangeUpdate(const FTimeData& timeData)
 // This is called every tick instead of every in game minute, so that sun movement is less "blocky".
 void ASunMoonController::preciseTimeChangeUpdate(float preciseTime)
 {
-	updateSunLightPrecise(preciseTime);
+	timeOfDayRef = preciseTime;
+
+	updateSunLightPrecise();
 	updateSkyLight();
 	updateMoonLight();
 }
 
+/*
+* This is called every in - game minute instead.
+* currentTime is currently not used, as we are using the more precise timeOfDayRef instead.
+* 
+* TODO: Maybe just delete this function and move the contents to timeChangeUpdate() instead.
+*/ 
 void ASunMoonController::updateTimeOfDay(const FTimeData& newTime)
 {
 	currentTime = newTime;
@@ -39,12 +47,14 @@ void ASunMoonController::updateTimeOfDay(const FTimeData& newTime)
 		currentTime.hour, currentTime.minute, 
 		currentTime.dayOfMonth, currentTime.month, currentTime.year), 
 		SEVERITY::Info);
+	Logger::addMessage(FString::Printf(TEXT("SunMoonController: Time of day ref is now %f"), timeOfDayRef), SEVERITY::Info);
 }
 
 /*
 * This runs whenever there is a time change update broadcasted from the EnvironmentManager.
 * Use the time of day to set where the sun is in the sky and how bright it is.
 */
+/*
 void ASunMoonController::updateSunLight()
 {
 	// We set the sunLight variable in the editor.
@@ -68,17 +78,17 @@ void ASunMoonController::updateSunLight()
 
 	FRotator newLightRotation = FRotator(colorAsRotation.G, colorAsRotation.B, colorAsRotation.R);
 
-	sunLight->GetLightComponent()->SetIntensity(newLightIntensity);
+	sunComponent->SetIntensity(newLightIntensity);
 	sunLight->SetActorRotation(newLightRotation);
-	sunLight->GetLightComponent()->UpdateColorAndBrightness();
+	sunComponent->UpdateColorAndBrightness();
 }
-
+*/
 /*
 * The same as above, but happens every tick to try and make the movement of the sun more smooth.
 *  TODO: There are probably better ways to do this, 
 *			than broadcasting and doing this logic every tick.
 */
-void ASunMoonController::updateSunLightPrecise(float preciseTime)
+void ASunMoonController::updateSunLightPrecise()
 {
 	// Directly use the float time to calculate rotation
 	if (!sunLight || !dailySunRotation)
@@ -88,21 +98,20 @@ void ASunMoonController::updateSunLightPrecise(float preciseTime)
 		return;
 	}
 
-	timeOfDayRef = preciseTime;
-	float newLightIntensity = dailySunRotation->GetUnadjustedLinearColorValue(preciseTime).A;
-	FLinearColor colorAsRotation = dailySunRotation->GetUnadjustedLinearColorValue(preciseTime);
+	float newLightIntensity = dailySunRotation->GetUnadjustedLinearColorValue(timeOfDayRef).A;
+	FLinearColor colorAsRotation = dailySunRotation->GetUnadjustedLinearColorValue(timeOfDayRef);
 
 	if (annualSunRotation)
 	{
-		newLightIntensity += annualSunRotation->GetUnadjustedLinearColorValue(preciseTime).A;
-		colorAsRotation += annualSunRotation->GetLinearColorValue(preciseTime);
+		newLightIntensity += annualSunRotation->GetUnadjustedLinearColorValue(timeOfDayRef).A;
+		colorAsRotation += annualSunRotation->GetLinearColorValue(timeOfDayRef);
 	}
 	newLightIntensity = FMath::Clamp(newLightIntensity, 0.0f, maxSunIntensity);
 
 	FRotator newLightRotation = FRotator(colorAsRotation.G, colorAsRotation.B, colorAsRotation.R);
 	sunLight->SetActorRotation(newLightRotation);
-	sunLight->GetLightComponent()->SetIntensity(newLightIntensity);
-	sunLight->GetLightComponent()->UpdateColorAndBrightness();
+	sunComponent->SetIntensity(newLightIntensity);
+	sunComponent->UpdateColorAndBrightness();
 	//Logger::addMessage(FString::Printf(TEXT("SunMoonController: Precise time update - sun light intensity set to %f and rotation to "), newLightIntensity) + newLightRotation.ToString(), SEVERITY::Debug);
 }
 
@@ -115,11 +124,11 @@ void ASunMoonController::updateSkyLight()
 		return;
 	}
 
-	float newLightIntensity = skyLightDailyColor->GetUnadjustedLinearColorValue(currentTimeOfDay).A;
-	skyLight->GetLightComponent()->SetIntensity(newLightIntensity);
+	float newLightIntensity = skyLightDailyColor->GetUnadjustedLinearColorValue(timeOfDayRef).A;
+	skyLightComponent->SetIntensity(newLightIntensity);
 
-	FLinearColor newSkyColor = skyLightDailyColor->GetUnadjustedLinearColorValue(currentTimeOfDay);
-	skyLight->GetLightComponent()->SetLightColor(newSkyColor);
+	FLinearColor newSkyColor = skyLightDailyColor->GetUnadjustedLinearColorValue(timeOfDayRef);
+	skyLightComponent->SetLightColor(newSkyColor);
 }
 
 void ASunMoonController::updateMoonLight()
@@ -131,6 +140,16 @@ void ASunMoonController::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	// Cache the components so we don't need to fetch them every tick.
+	if (sunLight)
+	{
+		sunComponent = sunLight->GetLightComponent();
+	}
+	if (skyLight)
+	{
+		skyLightComponent = skyLight->GetLightComponent();
+	}
+
 	if (hasDayNightCycle)
 	{
 		Logger::addMessage(TEXT("SunMoonController: Day/Night cycle enabled"), SEVERITY::Info);
@@ -159,4 +178,15 @@ void ASunMoonController::BeginPlay()
 	}
 }
 
-
+/*
+* Clean up subscriptions to prevent any edge-case issues during level transitions.
+*/
+void ASunMoonController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (messageManager)
+	{
+		messageManager->onTimeChange.RemoveDynamic(this, &ASunMoonController::timeChangeUpdate);
+		messageManager->onPreciseTimeChange.RemoveDynamic(this, &ASunMoonController::preciseTimeChangeUpdate);
+	}
+	Super::EndPlay(EndPlayReason);
+}

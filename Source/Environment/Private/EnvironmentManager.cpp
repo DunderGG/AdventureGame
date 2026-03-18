@@ -95,7 +95,8 @@ void UEnvironmentManager::updateTime(const float DeltaTime)
 #pragma region Advance Time Functions
 /*
 * A reason for breaking all of these up in to separate functions is to easily be able to advance one of them.
-* For example, if the player sleeps for 8 hours, we can just call advanceHour() 8 times, and it will handle all the necessary rollovers.
+* For example, if the player sleeps for 8 hours, we can just call advanceHour() 8 times, 
+*		and it will handle all the necessary rollovers.
 *	Look at many RPGs; You go to sleep, the hours start ticking forward one at a time.
 */
 void UEnvironmentManager::advanceMinute()

@@ -17,48 +17,55 @@ class ENVIRONMENT_API ASunMoonController : public AActor
 	
 private:
 	UFUNCTION()
-	void updateSunLightPrecise(float preciseTime);
+	void updateSunLightPrecise();
 	UFUNCTION()
 	void updateTimeOfDay(const FTimeData& newTime);
-	void updateSunLight();
+	//void updateSunLight();
+	UFUNCTION()
 	void updateSkyLight();
+	UFUNCTION()
 	void updateMoonLight();
 
 	TObjectPtr<UMessagingSubsystem> messageManager;
 
-	UPROPERTY(VisibleAnywhere, meta=(AllowPrivateAccess="true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Time", meta = (AllowPrivateAccess = "true"))
 	FTimeData currentTime;
 
 	// These two show how far through the day we are, in minutes.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Time", meta = (AllowPrivateAccess = "true"))
 	float timeOfDayRef;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float currentTimeOfDay;
+	// TODO: We probably don't need this if we stick to the more precise time reporting instead.
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Time", meta = (AllowPrivateAccess = "true"))
+	//float currentTimeOfDay;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Time", meta=(AllowPrivateAccess="true"))
 	bool hasDayNightCycle = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class ADirectionalLight* sunLight;
+
+	TObjectPtr<ULightComponent> sunComponent;
 
 	/*
 	* Curves are made in the editor and added to the blueprint we have there.
 	* TODO: The values in the curve needs investigating.
 	*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	UCurveLinearColor* dailySunRotation;
+	TObjectPtr<UCurveLinearColor> dailySunRotation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	UCurveLinearColor* annualSunRotation;
+	TObjectPtr<UCurveLinearColor> annualSunRotation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class ASkyLight* skyLight;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	UCurveLinearColor* skyLightDailyColor;
+	TObjectPtr<USkyLightComponent> skyLightComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float maxSunIntensity = 10.0f;
+	TObjectPtr<UCurveLinearColor> skyLightDailyColor;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	float maxSunIntensity = 20.0f;
 
 protected:
 	// Called when the game starts or when spawned
@@ -73,4 +80,7 @@ public:
 	void timeChangeUpdate(const FTimeData& timeData);
 	UFUNCTION()
 	void preciseTimeChangeUpdate(float preciseTime);
+
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 };
