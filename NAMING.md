@@ -1,6 +1,6 @@
 # Conventions
 
-A first attempt at putting down the Naming Conventions to be used in the project. 
+A first attempt at putting down the Coding Conventions to be used in the project. 
 Rules listed in no specific order. 
 
 ## Naming Rules
@@ -14,12 +14,13 @@ This just feels like a cheap way to avoid having to keep your code self-document
 
 ## Coding Rules 
 
-### Smart Pointers = Good Pointers
-Use the unreal engine smart pointers like TObjectPtr or TWeakPtr
-Also forgetting about this one a lot.
-
 ### (Almost) Always (const) Auto (reference) 
 Readability, maintainability, performance. This rule hits all of 'em. 
+Easy to forget about when following tutorials, so feel free to yell at me for this one.
+
+### Smart Pointers = Good Pointers
+Use the unreal engine smart pointers like TObjectPtr or TWeakPtr
+Also forgetting about this one a lot. 
 
 ### Order of private, protected and public
 Maintain the order in every class header. 
@@ -27,4 +28,4 @@ Maintain the order in every class header.
 ## Sources
 Inspirations to be added here
 
-The Github app decided to delete everything, so more will be added later. 
+### Unofficial coding style https://github.com/Allar/ue5-style-guide/tree/main
