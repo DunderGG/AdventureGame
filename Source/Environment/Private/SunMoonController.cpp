@@ -104,7 +104,7 @@ void ASunMoonController::updateSunLightPrecise()
 	if (annualSunRotation)
 	{
 		newLightIntensity += annualSunRotation->GetUnadjustedLinearColorValue(timeOfDayRef).A;
-		colorAsRotation += annualSunRotation->GetLinearColorValue(timeOfDayRef);
+		colorAsRotation += annualSunRotation->GetUnadjustedLinearColorValue(timeOfDayRef);
 	}
 	newLightIntensity = FMath::Clamp(newLightIntensity, 0.0f, maxSunIntensity);
 

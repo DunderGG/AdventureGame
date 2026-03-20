@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "FTimeData.h"
-#include "MessagingSubsystem.h"
+
 #include "EnvironmentManager.generated.h"
 
 /**
@@ -29,7 +29,10 @@ private:
 	int tickCounter = 0;
 
 	UPROPERTY()
-	TObjectPtr<UMessagingSubsystem> messageManager = nullptr;
+	TObjectPtr<class UMessagingSubsystem> messageManager = nullptr;
+
+	UPROPERTY()
+	TObjectPtr<class AAGWorldSettings> worldSettings = nullptr;
 
 	void updateTime(const float DeltaTime);
 	void advanceMinute();

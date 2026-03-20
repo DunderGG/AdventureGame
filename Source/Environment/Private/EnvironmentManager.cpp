@@ -1,11 +1,16 @@
 // Copyright (C) 2026 dunder.gg [GNU GPLv3]
 
 #include "EnvironmentManager.h"
+#include "MessagingSubsystem.h"
+#include "AGWorldSettings.h"
 #include "Logger.h"
 #include "Misc/DateTime.h"
 
 void UEnvironmentManager::Initialize(FSubsystemCollectionBase& Collection)
 {
+	// TODO: Not sure about this one. Tutorial needed it, but for me it seemed to be working anyway.
+	// Basically, this just makes sure the messaging subsystem is initialized before this.
+	Collection.InitializeDependency(UMessagingSubsystem::StaticClass());
 	Super::Initialize(Collection);
 
 	TObjectPtr<UWorld> world = GetWorld();
@@ -13,9 +18,19 @@ void UEnvironmentManager::Initialize(FSubsystemCollectionBase& Collection)
 	// TODO: Not sure about IsGameWorld().
 	if (IsValid(world) && world->IsGameWorld())
 	{
-		// Cache the messaging subsystem from the world game instance.
-		// TODO: Should we do this here, or in OnWorldBeginPlay()?
+		// Initializing the pointer like this seems to work fine, but if stuff starts breaking,
+		//  episode 20 has solutions.
+		// Cache the messaging subsystem and the world settings from the world game instance.
 		messageManager = UMessagingSubsystem::Get(this);
+		if (!IsValid(messageManager))
+		{
+			Logger::addMessage(TEXT("Environment Manager: Failed to find messaging subsystem."), SEVERITY::Error);
+		}
+		worldSettings = Cast<AAGWorldSettings>(world->GetWorldSettings());
+		if (!IsValid(worldSettings))
+		{
+			Logger::addMessage(TEXT("Environment Manager: Failed to find world settings."), SEVERITY::Error);
+		}
 
 		FString mapName = world->GetMapName();
 		mapName = world->RemovePIEPrefix(mapName);
