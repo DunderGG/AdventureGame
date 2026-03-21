@@ -48,11 +48,21 @@ private:
 
 	/*
 	* Curves are made in the editor and added to the blueprint we have there.
-	* TODO: The values in the curve needs investigating.
+	* TODO: The values in the curve needs investigating, they come from the tutorial.
 	*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UCurveLinearColor> dailySunRotation;
 
+	/* TODO: These are not up to date after trying to fix the rotation.
+	*			Don't think we need these tables though.
+	*	The values currently used:
+		Day (X)		Season		G (Pitch Offset)	B (Yaw Offset)	A (Intensity Offset)	Description
+		0			Jan 1st		-20.0				45.0			-0.2					Winter (Short/Dim days)
+		90			Spring		0.0					0.0				0.0						Equinox (Neutral)
+		172			Summer		+23.0				-45.0			+0.3					Solstice (Long/Hot days)
+		265			Autumn		0.0					0.0				0.0						Equinox (Neutral)
+		365			Dec 31st	-20.0				45.0			-0.2					Return to Winter
+	*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UCurveLinearColor> annualSunRotation;
 
@@ -61,6 +71,17 @@ private:
 
 	TObjectPtr<USkyLightComponent> skyLightComponent;
 
+	/*
+	*	The values currently used:
+		Time (X)	Clock	Color (R, G, B)		A (Intensity)	Description
+		0			00:00	0.05, 0.05, 0.1		0.1				Dark Night Blue
+		360			06:00	1.0, 0.4, 0.2		0.5				Firey Orange Sunrise
+		540			09:00	0.8, 0.9, 1.0		1.0				Bright Morning Blue
+		720			12:00	1.0, 1.0, 1.0		1.0				Clean White Noon
+		1080		18:00	1.0, 0.2, 0.1		0.6				Deep Red Sunset
+		1200		20:00	0.1, 0.1, 0.2		0.2				Twilight
+		1440		24:00	0.05, 0.05, 0.1		0.1				Night Loop
+	*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UCurveLinearColor> skyLightDailyColor;
 

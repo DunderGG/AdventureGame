@@ -47,6 +47,7 @@ void ASunMoonController::updateTimeOfDay(const FTimeData& newTime)
 		currentTime.hour, currentTime.minute, 
 		currentTime.dayOfMonth, currentTime.month, currentTime.year), 
 		SEVERITY::Info);
+	Logger::addMessage(FString::Printf(TEXT("SunMoonController: Day of year is now %d"), currentTime.dayOfYear), SEVERITY::Info);
 	Logger::addMessage(FString::Printf(TEXT("SunMoonController: Time of day ref is now %f"), timeOfDayRef), SEVERITY::Info);
 }
 
@@ -99,18 +100,29 @@ void ASunMoonController::updateSunLightPrecise()
 	}
 
 	float newLightIntensity = dailySunRotation->GetUnadjustedLinearColorValue(timeOfDayRef).A;
-	FLinearColor colorAsRotation = dailySunRotation->GetUnadjustedLinearColorValue(timeOfDayRef);
+	FLinearColor rotationValues = dailySunRotation->GetUnadjustedLinearColorValue(timeOfDayRef);
 
 	if (annualSunRotation)
 	{
-		newLightIntensity += annualSunRotation->GetUnadjustedLinearColorValue(timeOfDayRef).A;
-		colorAsRotation += annualSunRotation->GetUnadjustedLinearColorValue(timeOfDayRef);
+		newLightIntensity += annualSunRotation->GetUnadjustedLinearColorValue(currentTime.dayOfYear).A;
+		rotationValues += annualSunRotation->GetUnadjustedLinearColorValue(currentTime.dayOfYear);
 	}
-	newLightIntensity = FMath::Clamp(newLightIntensity, 0.0f, maxSunIntensity);
 
-	FRotator newLightRotation = FRotator(colorAsRotation.G, colorAsRotation.B, colorAsRotation.R);
+	/*
+	* A solution to the "Gimbal Lock" problem.
+	* The pitch of the sun is clamped to just under 90 degrees, to prevent weird rotation.
+	*/
+	float safePitch = rotationValues.G;
+	if (FMath::Abs(safePitch) > 89.9f)
+	{
+		safePitch = FMath::Sign(safePitch) * 89.9f;
+	}
+	FRotator newLightRotation = FRotator(safePitch, rotationValues.B, rotationValues.R);
 	sunLight->SetActorRotation(newLightRotation);
+	
+	newLightIntensity = FMath::Clamp(newLightIntensity, 0.0f, maxSunIntensity);
 	sunComponent->SetIntensity(newLightIntensity);
+	
 	sunComponent->UpdateColorAndBrightness();
 	//Logger::addMessage(FString::Printf(TEXT("SunMoonController: Precise time update - sun light intensity set to %f and rotation to "), newLightIntensity) + newLightRotation.ToString(), SEVERITY::Debug);
 }

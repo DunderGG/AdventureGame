@@ -229,7 +229,7 @@ void UEnvironmentManager::advanceYear()
 /*
 * The "overall" day of the year.
 */
-void UEnvironmentManager::setDayOfYear()
+void UEnvironmentManager::calculateDayOfYear()
 {
 	const bool isLeapYear = FDateTime::IsLeapYear(currentTime.year);
 	const int daysInFeb = (isLeapYear ? 29 : 28);
@@ -281,6 +281,7 @@ void UEnvironmentManager::OnWorldBeginPlay(UWorld& InWorld)
 	Super::OnWorldBeginPlay(InWorld);
 
 	calculateDayLength();
+	calculateDayOfYear();
 
 	Logger::addMessage(FString::Printf(TEXT(
 		"UEnvironmentManager::OnWorldBeginPlay: Minute length calculated to %f seconds per minute"), 

@@ -40,7 +40,7 @@ private:
 	void advanceDay();
 	void advanceMonth();
 	void advanceYear();
-	void setDayOfYear();
+	void calculateDayOfYear();
 	void calculateDayLength();
 	void updateTimeOfDayRef();
 	void updateLighting();
@@ -52,7 +52,7 @@ protected:
 
 	// Real-world minutes it takes for one full game day.
 	UPROPERTY(EditAnywhere, Category = "Environment | Time")
-	float gameDayLengthInRealMinutes = 20;
+	float gameDayLengthInRealMinutes = 1;
 
 public:
 	// UWorldSubsystem / FTickableGameObject overrides

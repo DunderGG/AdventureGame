@@ -16,13 +16,13 @@ struct FTimeData
 	int dayOfYear = 1;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, SaveGame)
-	int month = 1;
+	int month = 6;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, SaveGame)
 	int dayOfMonth = 1;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, SaveGame)
-	int hour = 8;
+	int hour = 5;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, SaveGame)
 	int minute = 0;
