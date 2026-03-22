@@ -5,6 +5,11 @@
 #include "AGCharacterAttributeSet.h"
 #include "AGPlayerState.h"
 
+void UAttributesWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+}
+
 /*
 * The logic for informing our widget about attribute value changes.
 */

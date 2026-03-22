@@ -243,6 +243,8 @@ void APlayerCharacter::initHUD() const
 {
 	if (const APlayerController* playerController = Cast<APlayerController>(GetController()))
 	{
+		// I assume this GetHUD() returns the HUD we told the GameMode blueprint to use,
+		//   which is BP_DefaultHUD which inherits from AGHud.
 		if (AAGHud* hud = Cast<AAGHud>(playerController->GetHUD()))
 		{
 			hud->init();

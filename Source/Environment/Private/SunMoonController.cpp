@@ -42,6 +42,7 @@ void ASunMoonController::preciseTimeChangeUpdate(float preciseTime)
 void ASunMoonController::updateTimeOfDay(const FTimeData& newTime)
 {
 	currentTime = newTime;
+	/*
 	Logger::addMessage(FString::Printf(TEXT("SunMoonController: Time updated to %d:%d" 
 											" on day %d of month %d, year %d"), 
 		currentTime.hour, currentTime.minute, 
@@ -49,6 +50,7 @@ void ASunMoonController::updateTimeOfDay(const FTimeData& newTime)
 		SEVERITY::Info);
 	Logger::addMessage(FString::Printf(TEXT("SunMoonController: Day of year is now %d"), currentTime.dayOfYear), SEVERITY::Info);
 	Logger::addMessage(FString::Printf(TEXT("SunMoonController: Time of day ref is now %f"), timeOfDayRef), SEVERITY::Info);
+	*/
 }
 
 /*

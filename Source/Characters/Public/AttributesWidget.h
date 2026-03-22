@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "UObject/Object.h"
 #include "AttributesWidget.generated.h"
 
 /**
@@ -18,6 +17,8 @@ class CHARACTERS_API UAttributesWidget : public UUserWidget
 private:
 
 protected:
+	virtual void NativeConstruct() override;
+
 	UPROPERTY(BlueprintReadOnly)
 	float healthPercent;
 	UPROPERTY(BlueprintReadOnly)

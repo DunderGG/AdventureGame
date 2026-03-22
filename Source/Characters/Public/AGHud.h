@@ -7,6 +7,7 @@
 #include "AGHud.generated.h"
 
 class UAttributesWidget;
+class UCompassWidget;
 
 /**
  * 
@@ -20,9 +21,15 @@ private:
 	UPROPERTY()
 	TObjectPtr<UAttributesWidget> attributesWidget;
 
+	UPROPERTY()
+	TObjectPtr<UCompassWidget> compassWidget;
+
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UAttributesWidget> attributesWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UCompassWidget> compassWidgetClass;
 
 public:
 	AAGHud();
