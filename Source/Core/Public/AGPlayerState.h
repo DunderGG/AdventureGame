@@ -5,24 +5,22 @@
 #include "AbilitySystemInterface.h"
 #include "AGPlayerState.generated.h"
 
-class UAGAbilitySystemComponent;
-class UAGCharacterAttributeSet;
+class UPlayerAbilitySystemComponent;
+class UPlayerAttributeSet;
 
 UCLASS()
-class CHARACTERS_API AAGPlayerState : public APlayerState, public IAbilitySystemInterface
+class COREDATA_API AAGPlayerState : public APlayerState, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
 private:
 
-
-
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GAS")
-	class UAGAbilitySystemComponent* abilitySystemComponent;
+	class UPlayerAbilitySystemComponent* abilitySystemComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attribute")
-	TObjectPtr<class UAGCharacterAttributeSet> attributeSet;
+	TObjectPtr<class UPlayerAttributeSet> attributeSet;
 
 	// Probably not needed?
 	//virtual void BeginPlay() override;
@@ -32,5 +30,5 @@ public:
 
 	// Implement IAbilitySystemInterface
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-	virtual UAGCharacterAttributeSet* GetAttributeSet() const;
+	virtual UPlayerAttributeSet* GetAttributeSet() const;
 };

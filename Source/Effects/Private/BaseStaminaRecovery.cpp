@@ -1,9 +1,9 @@
 // Copyright dunder.gg. All Rights Reserved.
 
 
-#include "Effects/BaseStaminaRecovery.h"
+#include "BaseStaminaRecovery.h"
 #include "GameplayEffectComponents/TargetTagsGameplayEffectComponent.h"
-#include "AGCharacterAttributeSet.h"
+#include "PlayerAttributeSet.h"
 
 void UBaseStaminaRecovery::PostInitProperties()
 {
@@ -21,7 +21,7 @@ void UBaseStaminaRecovery::PostInitProperties()
 	bExecutePeriodicEffectOnApplication = true;
 
 	FGameplayModifierInfo mod;
-	mod.Attribute = UAGCharacterAttributeSet::GetStaminaAttribute();
+	mod.Attribute = UPlayerAttributeSet::GetStaminaAttribute();
 	mod.ModifierOp = EGameplayModOp::Additive;
 	mod.ModifierMagnitude = FScalableFloat(recoveryRate);
 	Modifiers.Add(mod);

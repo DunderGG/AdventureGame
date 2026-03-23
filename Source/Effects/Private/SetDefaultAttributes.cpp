@@ -1,9 +1,8 @@
 // Copyright dunder.gg. All Rights Reserved.
 
-#include "Effects/SetDefaultAttributes.h"
+#include "SetDefaultAttributes.h"
 #include "GameplayEffectComponents/TargetTagsGameplayEffectComponent.h"
-#include "AGCharacterAttributeSet.h"
-#include "Effects/SetDefaultAttributes.h"
+#include "PlayerAttributeSet.h"
 
 /*
 * TODO: This works but its ugly... can it be fixed?
@@ -15,37 +14,37 @@ void USetDefaultAttributes::PostInitProperties()
 	DurationPolicy = EGameplayEffectDurationType::Instant;
 
 	FGameplayModifierInfo mod;
-	mod.Attribute = UAGCharacterAttributeSet::GetMaxHealthAttribute();
+	mod.Attribute = UPlayerAttributeSet::GetMaxHealthAttribute();
 	mod.ModifierOp = EGameplayModOp::Override;
 	mod.ModifierMagnitude = FScalableFloat(defaultHealth);
 	Modifiers.Add(mod);
 
-	mod.Attribute = UAGCharacterAttributeSet::GetHealthAttribute();
+	mod.Attribute = UPlayerAttributeSet::GetHealthAttribute();
 	mod.ModifierOp = EGameplayModOp::Override;
 	mod.ModifierMagnitude = FScalableFloat(defaultHealth/2);
 	Modifiers.Add(mod);
 
-	mod.Attribute = UAGCharacterAttributeSet::GetMaxStaminaAttribute();
+	mod.Attribute = UPlayerAttributeSet::GetMaxStaminaAttribute();
 	mod.ModifierOp = EGameplayModOp::Override;
 	mod.ModifierMagnitude = FScalableFloat(defaultStamina);
 	Modifiers.Add(mod);
 
-	mod.Attribute = UAGCharacterAttributeSet::GetStaminaAttribute();
+	mod.Attribute = UPlayerAttributeSet::GetStaminaAttribute();
 	mod.ModifierOp = EGameplayModOp::Override;
 	mod.ModifierMagnitude = FScalableFloat(defaultStamina/2);
 	Modifiers.Add(mod);
 
-	mod.Attribute = UAGCharacterAttributeSet::GetMaxStrengthAttribute();
+	mod.Attribute = UPlayerAttributeSet::GetMaxStrengthAttribute();
 	mod.ModifierOp = EGameplayModOp::Override;
 	mod.ModifierMagnitude = FScalableFloat(defaultStrength);
 	Modifiers.Add(mod);
 
-	mod.Attribute = UAGCharacterAttributeSet::GetStrengthAttribute();
+	mod.Attribute = UPlayerAttributeSet::GetStrengthAttribute();
 	mod.ModifierOp = EGameplayModOp::Override;
 	mod.ModifierMagnitude = FScalableFloat(defaultStrength);
 	Modifiers.Add(mod);
 
-	mod.Attribute = UAGCharacterAttributeSet::GetCharacterLevelAttribute();
+	mod.Attribute = UPlayerAttributeSet::GetCharacterLevelAttribute();
 	mod.ModifierOp = EGameplayModOp::Override;
 	mod.ModifierMagnitude = FScalableFloat(defaultLevel);
 	Modifiers.Add(mod);

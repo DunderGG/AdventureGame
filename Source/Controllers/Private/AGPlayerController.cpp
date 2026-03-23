@@ -11,7 +11,7 @@
 AAGPlayerController::AAGPlayerController()
 {
 	Logger::addMessage(TEXT("********** START OF LOGS **********"), SEVERITY::Info, true, true, false);
-	UE_LOG(LogTemp, Display, TEXT("1. AAGPlayerController::AAGPlayerController(): Constructing new AAGPlayerController"));
+	Logger::addMessage(TEXT("AAGPlayerController::AAGPlayerController(): Constructing new AAGPlayerController"), SEVERITY::Info);
 }
 
 void AAGPlayerController::BeginPlay()
@@ -31,23 +31,20 @@ void AAGPlayerController::SetupInputComponent()
 	{
 		if (IsLocalPlayerController())
 		{
-			//UE_LOG(LogTemp, Display, TEXT("AAGPlayerController::SetupPlayerInputComponent(): Is local player controller"));
-			//UE_LOG(LogTemp, Display, TEXT("AAGPlayerController::SetupPlayerInputComponent(): Clearing mappings and adding the defaults"));
 			subsystem->ClearAllMappings();
 			for (UInputMappingContext* CurrentContext : DefaultMappingContexts)
 			{
 				subsystem->AddMappingContext(CurrentContext, 0);
-				//UE_LOG(LogTemp, Display, TEXT("AAGPlayerController::SetupPlayerInputComponent(): Added mapping context %s"), *CurrentContext->GetName());
 			}
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("AAGPlayerController::SetupPlayerInputComponent(): Not a local player controller"));
+			Logger::addMessage(TEXT("AAGPlayerController::SetupPlayerInputComponent(): Not a local player controller"), SEVERITY::Warning);
 		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("AAGPlayerController::SetupPlayerInputComponent(): Failed finding Subsystem"));
+		Logger::addMessage(TEXT("AAGPlayerController::SetupPlayerInputComponent(): Failed finding Subsystem"), SEVERITY::Error);
 	}
 	
 	if (UEnhancedInputComponent* enhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
@@ -68,7 +65,7 @@ void AAGPlayerController::SetupInputComponent()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("AAGPlayerController::SetupPlayerInputComponent(): Failed finding an Enhanced Input Component"));
+		Logger::addMessage(TEXT("AAGPlayerController::SetupPlayerInputComponent(): Failed finding an Enhanced Input Component"), SEVERITY::Error);
 	}
 }
 

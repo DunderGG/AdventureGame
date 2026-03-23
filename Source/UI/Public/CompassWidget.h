@@ -10,16 +10,8 @@
  * 
  */
 UCLASS()
-class CHARACTERS_API UCompassWidget : public UUserWidget
+class UI_API UCompassWidget : public UUserWidget
 {
 	GENERATED_BODY()
-	
-private:
-
-
-protected:
-	virtual void NativeConstruct() override;
-
-public:
 	
 };

@@ -2,20 +2,22 @@
 
 
 #include "NPC.h"
-#include "AGAbilitySystemComponent.h"
-#include "AGCharacterAttributeSet.h"
+#include "PlayerAbilitySystemComponent.h"
+#include "PlayerAttributeSet.h"
+#include "Logger.h"
 
 ANPC::ANPC()
 {
-	UE_LOG(LogTemp, Display, TEXT("ANPC::ANPC(): Constructing new ANPC"));
+	Logger::addMessage(TEXT("ANPC::ANPC(): Constructing new ANPC"));
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Each character needs their own ASC
-	abilitySystemComponent = CreateDefaultSubobject<UAGAbilitySystemComponent>(TEXT("abilitySystemComponent"));
+	// TODO: Change this to another type of ASC and Attribute set
+	abilitySystemComponent = CreateDefaultSubobject<UPlayerAbilitySystemComponent>(TEXT("abilitySystemComponent"));
 	// TODO: Minimal means gameplay effects are neve replicated to anyone. Look into what this means?
 	abilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 
-	attributeSet = CreateDefaultSubobject<UAGCharacterAttributeSet>(TEXT("attributeSet"));
+	attributeSet = CreateDefaultSubobject<UPlayerAttributeSet>(TEXT("attributeSet"));
 }
 
 void ANPC::BeginPlay()

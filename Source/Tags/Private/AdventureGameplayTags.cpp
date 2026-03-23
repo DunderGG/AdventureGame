@@ -4,6 +4,7 @@
 
 #include "Engine/EngineTypes.h"
 #include "GameplayTagsManager.h"
+#include "Logger.h"
 
 namespace AdventureGameplayTags
 {
@@ -32,11 +33,16 @@ namespace AdventureGameplayTags
 			{
 				if (tag.ToString().Contains(TagString))
 				{
-					UE_LOG(LogTemp, Display, TEXT("Could not find exact match for tag [%s] but found partial match on tag [%s]."), *TagString, *tag.ToString());
+					Logger::addMessage(FString::Printf(TEXT("Could not find exact match for tag [%s] but found partial match on tag [%s]."), *TagString, *tag.ToString()), SEVERITY::Info);
 					foundTag = tag;
 					break;
 				}
 			}
+		}
+
+		if (!foundTag.IsValid())
+		{
+			Logger::addMessage(FString::Printf(TEXT("Could not find tag [%s]."), *TagString), SEVERITY::Error);
 		}
 
 		return foundTag;

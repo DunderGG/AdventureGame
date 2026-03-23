@@ -1,10 +1,6 @@
 
 
-
 #include "SeasonalEventLibrary.h"
-
-
-
 
 ESeasonalEventType USeasonalEventLibrary::convertDayOfYearToSeasonalEvent(const FDateTime& dateTime) const
 {

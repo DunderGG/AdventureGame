@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class CHARACTERS_API USetDefaultAttributes : public UGameplayEffect
+class EFFECTS_API USetDefaultAttributes : public UGameplayEffect
 {
 	GENERATED_BODY()
 

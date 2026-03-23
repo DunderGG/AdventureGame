@@ -46,6 +46,7 @@ void UEnvironmentManager::Initialize(FSubsystemCollectionBase& Collection)
 	}
 
 	Logger::addMessage(TEXT("Environment Manager Initialized"), SEVERITY::Debug);
+	Logger::addMessage(TEXT("EVERYTHING BEFORE THIS HAPPENS BEFORE WE EVEN START THE GAME"), SEVERITY::Debug);
 }
 
 void UEnvironmentManager::Deinitialize()

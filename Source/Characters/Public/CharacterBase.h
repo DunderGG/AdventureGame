@@ -5,14 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
-#include "Effects/BaseStaminaRecovery.h"
-#include "Effects/BaseHealthRecovery.h"
-#include "Effects/SetDefaultAttributes.h"
 #include "CharacterBase.generated.h"
 
 class UGameplayAbility;
-class UAGAbilitySystemComponent;
-class UAGCharacterAttributeSet;
+class UPlayerAbilitySystemComponent;
+class UPlayerAttributeSet;
 class UGameplayEffect;
 class UInventoryComponent;
 
@@ -64,10 +61,10 @@ protected:
 
 #pragma region GAS stuff
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS | ASC")
-	TObjectPtr<class UAGAbilitySystemComponent> abilitySystemComponent;
+	TObjectPtr<class UPlayerAbilitySystemComponent> abilitySystemComponent;
 
 	UPROPERTY()
-	TObjectPtr<UAGCharacterAttributeSet> attributeSet;
+	TObjectPtr<UPlayerAttributeSet> attributeSet;
 
 	// We put abilities into this array in the editor, using Gameplay Ability blueprints, like GA_Kick.
 	//   TODO: This can't be const for some reason? I guess because we are setting the value in the editor?
@@ -97,7 +94,7 @@ public:
 
 	// Implement the GetAbilitySystemComponent function from the IAbilitySystemInterface
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-	virtual UAGCharacterAttributeSet* GetAttributeSet() const;
+	virtual UPlayerAttributeSet* GetAttributeSet() const;
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 

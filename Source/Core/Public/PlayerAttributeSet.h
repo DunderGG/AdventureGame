@@ -1,14 +1,14 @@
-// Copyright dunder.gg. All Rights Reserved.
+// Copyright (C) 2026 dunder.gg [GNU GPLv3]
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "AttributeSet.h"
 #include "AbilitySystemComponent.h"
-#include "AGCharacterAttributeSet.generated.h"
+#include "PlayerAttributeSet.generated.h"
 
 /*
-* TODO: Understand these macro definitions. 
+* TODO: Understand these macro definitions.
 *		The ## in  "##PropertyName##"  is a token-pasting operator in C++.
 * Macro used in AttributesWidget.cpp
 */
@@ -16,12 +16,10 @@
 	AttributeSetName->Get##PropertyName##Attribute().GetNumericValue(AttributeSetName)
 
 /**
- *	I'm forced to do pascal case here, or the generated code from the macros get ugly... Sadge.
  * 
- * AttributeSet default values should be overriden by a Gameplay Effect that sets default values at startup.
  */
 UCLASS()
-class CHARACTERS_API UAGCharacterAttributeSet : public UAttributeSet
+class COREDATA_API UPlayerAttributeSet : public UAttributeSet
 {
 	GENERATED_BODY()
 	
@@ -30,14 +28,14 @@ private:
 protected:
 
 public:
-	UAGCharacterAttributeSet();
+	UPlayerAttributeSet();
 	// Called whenever an attribute is about to be modified.
 	//	It's meant to enforce things like "Health = Clamp(Health, 0, MaxHealth)" and NOT things like "trigger this extra thing if damage is applied, etc".
 	virtual void PreAttributeChange(const FGameplayAttribute& attribute, float& newValue) override;
 
 	// Handle attribute changes through gameplay effects.
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& data) override;
-	
+
 	// Whenever we replicate properties, we also have to override this function.
 	//   TODO: This has nothing to do with the GAS system???
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -98,11 +96,11 @@ public:
 	ATTRIBUTE_ACCESSORS_BASIC(ThisClass, CharacterLevel);
 #pragma endregion
 
-/* ADD NEW ATTRIBUTES HERE 
-*
-*	When adding new attributes, also update relevant functions in .cpp file, such as:
-*		GetLifetimeReplicatedProps
-*		OnRep_<attribute>
-*		getters in CharacterBase
-*/
+	/* ADD NEW ATTRIBUTES HERE
+	*
+	*	When adding new attributes, also update relevant functions in .cpp file, such as:
+	*		GetLifetimeReplicatedProps
+	*		OnRep_<attribute>
+	*		getters in CharacterBase
+	*/
 };

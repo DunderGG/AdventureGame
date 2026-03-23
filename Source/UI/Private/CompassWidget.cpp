@@ -3,7 +3,3 @@
 
 #include "CompassWidget.h"
 
-void UCompassWidget::NativeConstruct()
-{
-	Super::NativeConstruct();
-}

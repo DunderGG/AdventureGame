@@ -1,26 +1,21 @@
-// Copyright dunder.gg. All Rights Reserved.
+// Copyright (C) 2026 dunder.gg [GNU GPLv3]
 
 
-#include "AttributesWidget.h"
-#include "AGCharacterAttributeSet.h"
+#include "AttributeWidget.h"
+#include "PlayerAttributeSet.h"
 #include "AGPlayerState.h"
-
-void UAttributesWidget::NativeConstruct()
-{
-	Super::NativeConstruct();
-}
+#include "Logger.h"
 
 /*
 * The logic for informing our widget about attribute value changes.
 */
-void UAttributesWidget::bindToAttributes()
+void UAttributeWidget::bindToAttributes()
 {
 	const AAGPlayerState* playerState = Cast<AAGPlayerState>(GetOwningPlayerState());
 	if (playerState)
 	{
 		UAbilitySystemComponent* ASC = playerState->GetAbilitySystemComponent();
-		const UAGCharacterAttributeSet* attributeSet = playerState->GetAttributeSet();
-
+		const UPlayerAttributeSet* attributeSet = playerState->GetAttributeSet();
 		// Calculate our attribute values as percentages of maximum
 		healthPercent = NUMERIC_VALUE(attributeSet, Health) / NUMERIC_VALUE(attributeSet, MaxHealth);
 		staminaPercent = NUMERIC_VALUE(attributeSet, Stamina) / NUMERIC_VALUE(attributeSet, MaxStamina);
@@ -44,6 +39,6 @@ void UAttributesWidget::bindToAttributes()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("UAttributesWidget::bindToAttributes(): Failed cast of PlayerState"));
+		Logger::addMessage(TEXT("AttributeWidget: Failed to get player state."), SEVERITY::Error);
 	}
 }

@@ -1,39 +1,38 @@
-
+// Copyright (C) 2026 dunder.gg [GNU GPLv3]
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
-#include "AGHud.generated.h"
+#include "PlayerHUD.generated.h"
 
-class UAttributesWidget;
+class UAttributeWidget;
 class UCompassWidget;
 
 /**
  * 
  */
 UCLASS()
-class CHARACTERS_API AAGHud : public AHUD
+class UI_API APlayerHUD : public AHUD
 {
 	GENERATED_BODY()
 	
 private:
 	UPROPERTY()
-	TObjectPtr<UAttributesWidget> attributesWidget;
+	TObjectPtr<UAttributeWidget> attributesWidget;
 
 	UPROPERTY()
 	TObjectPtr<UCompassWidget> compassWidget;
 
 protected:
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<UAttributesWidget> attributesWidgetClass;
+	TSubclassOf<UAttributeWidget> attributesWidgetClass;
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UCompassWidget> compassWidgetClass;
 
 public:
-	AAGHud();
+	APlayerHUD();
 	void init();
-	
-	
+
 };

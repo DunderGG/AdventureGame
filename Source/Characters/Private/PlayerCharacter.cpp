@@ -6,15 +6,15 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "InputActionValue.h"
-#include "AGAbilitySystemComponent.h"
+#include "PlayerAbilitySystemComponent.h"
 #include "AGPlayerState.h"
-#include "AGHud.h"
+#include "PlayerHUD.h"
 #include "AdventureGameplayTags.h"
 #include "Logger.h"
 
 APlayerCharacter::APlayerCharacter()
 {
-	UE_LOG(LogTemp, Display, TEXT("10. APlayerCharacter::APlayerCharacter(): Constructing new APlayerCharacter"));
+	Logger::addMessage(TEXT("APlayerCharacter::APlayerCharacter(): Constructing new APlayerCharacter"));
 
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bTickEvenWhenPaused = false;
@@ -116,7 +116,7 @@ void APlayerCharacter::setupMetahuman()
 			firstPersonCamera->SetRelativeLocation(FVector(15, 20, 0));
 			// Setting rotation rotates the camera component but not actually the camera view, when we are using bUsePawnControlRotation = true
 			firstPersonCamera->SetRelativeRotation(FRotator(metaPitch, metaYaw, metaRoll));
-			UE_LOG(LogTemp, Display, TEXT("APlayerCharacter::setupMetahuman(): Successfully setup the Metahuman"));
+			Logger::addMessage(TEXT("APlayerCharacter::setupMetahuman(): Successfully setup the Metahuman"));
 			break;
 		}
 	}
@@ -148,7 +148,7 @@ void APlayerCharacter::move(const FInputActionValue& value)
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("APlayerCharacter::move(): Failed finding Controller"));
+		Logger::addMessage(TEXT("APlayerCharacter::move(): Failed finding Controller"), SEVERITY::Error);
 	}
 }
 
@@ -181,7 +181,7 @@ void APlayerCharacter::playerJump()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("APlayerCharacter::playerJump(): Not allowed to jump"));
+		Logger::addMessage(TEXT("APlayerCharacter::playerJump(): Not allowed to jump"), SEVERITY::Info);
 	}
 }
 
@@ -204,14 +204,13 @@ void APlayerCharacter::togglePerspective()
 	if (!isInFirstPersonView)
 	{
 		setToThirdPerson();
-		UE_LOG(LogTemp, Display, TEXT("APlayerCharacter::togglePerspective(): Now playing Third Person"));
+		Logger::addMessage(TEXT("APlayerCharacter::togglePerspective(): Now playing Third Person"), SEVERITY::Info);
 		return;
 	}
 
 	// Flip to first person camera
 	setToFirstPerson();
-	
-	UE_LOG(LogTemp, Display, TEXT("APlayerCharacter::togglePerspective(): Now playing First Person"));
+	Logger::addMessage(TEXT("APlayerCharacter::togglePerspective(): Now playing First Person"), SEVERITY::Info);
 	return;		// Not necessary, but makes it clear that the function ends here and nothing was accidentaly removed.
 }
 
@@ -226,14 +225,18 @@ void APlayerCharacter::initAbilitySystemComponent()
 	if (playerState)
 	{
 		// TODO: Should we use CastChecked or have an if-else to not crash the game?
-		abilitySystemComponent = CastChecked<UAGAbilitySystemComponent>(playerState->GetAbilitySystemComponent());
+		abilitySystemComponent = CastChecked<UPlayerAbilitySystemComponent>(playerState->GetAbilitySystemComponent());
 
 		abilitySystemComponent->InitAbilityActorInfo(playerState, this);
 
 		// TOOD: Should this really be inside initASC()?
 		attributeSet = playerState->GetAttributeSet();
 	}
-	UE_LOG(LogTemp, Display, TEXT("APlayerCharacter::initAbilitySystemComponent(): Finished"));
+	else
+	{
+		Logger::addMessage(TEXT("APlayerCharacter::initAbilitySystemComponent(): Failed finding PlayerState"), SEVERITY::Error);
+	}
+	Logger::addMessage(TEXT("APlayerCharacter::initAbilitySystemComponent(): Finished"), SEVERITY::Info);
 }
 
 /*
@@ -245,20 +248,27 @@ void APlayerCharacter::initHUD() const
 	{
 		// I assume this GetHUD() returns the HUD we told the GameMode blueprint to use,
 		//   which is BP_DefaultHUD which inherits from AGHud.
-		if (AAGHud* hud = Cast<AAGHud>(playerController->GetHUD()))
+		const auto controllerHUD = playerController->GetHUD();
+		if (controllerHUD)
 		{
-			hud->init();
+			if (APlayerHUD* hud = Cast<APlayerHUD>(controllerHUD))
+			{
+				hud->init();
+			}
+			else
+			{
+				Logger::addMessage(TEXT("APlayerCharacter::initHUD(): Failed cast of HUD"), SEVERITY::Error);
+			}
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("APlayerCharacter::initHUD(): Failed cast of HUD"));
+			Logger::addMessage(TEXT("APlayerCharacter::initHUD(): Failed finding HUD"), SEVERITY::Error);
 		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("APlayerCharacter::initHUD(): Failed finding Controller"));
+		Logger::addMessage(TEXT("APlayerCharacter::initHUD(): Failed finding Controller"), SEVERITY::Error);
 	}
-	UE_LOG(LogTemp, Display, TEXT("APlayerCharacter::initHUD(): Finished"));
 }
 
 /*
@@ -285,7 +295,7 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 
 	initHUD();
 
-	UE_LOG(LogTemp, Display, TEXT("APlayerCharacter::PossessedBy(): Finished"));
+	Logger::addMessage(TEXT("APlayerCharacter::PossessedBy(): Finished"), SEVERITY::Info);
 }
 /*
 * TODO: Dunno what this is for...
@@ -299,5 +309,5 @@ void APlayerCharacter::OnRep_PlayerState()
 	initAbilitySystemComponent();
 	initHUD();
 
-	UE_LOG(LogTemp, Display, TEXT("APlayerCharacter::OnRep_PlayerState(): Finished"));
+	Logger::addMessage(TEXT("APlayerCharacter::OnRep_PlayerState(): Finished"), SEVERITY::Info);
 }

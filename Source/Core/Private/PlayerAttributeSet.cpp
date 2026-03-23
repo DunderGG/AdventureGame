@@ -1,18 +1,21 @@
-// Copyright dunder.gg. All Rights Reserved.
+// Copyright (C) 2026 dunder.gg [GNU GPLv3]
 
-#include "AGCharacterAttributeSet.h"
+
+#include "PlayerAttributeSet.h"
 #include "AbilitySystemComponent.h"
 #include "GameplayEffectExtension.h"
 #include "Net/UnrealNetwork.h"
+#include "Logger.h"
 
-UAGCharacterAttributeSet::UAGCharacterAttributeSet()
+UPlayerAttributeSet::UPlayerAttributeSet()
 {
-	UE_LOG(LogTemp, Display, TEXT("4. UAGCharacterAttributeSet::UAGCharacterAttributeSet(): Constructing new UAGCharacterAttributeSet"));
+	Logger::addMessage(TEXT("THIS SHOULD BE THE START OF THE LOGS"), SEVERITY::Debug);
+	Logger::addMessage(TEXT("UPlayerAttributeSet::UPlayerAttributeSet(): Constructing new UPlayerAttributeSet"), SEVERITY::Info);
 }
 
 // This is used to "clean up" values for attribute changes.
 // It is not the right place to trigger in-game reactions to attribute changes, that is done in PostGameplayEffectExecute.
-void UAGCharacterAttributeSet::PreAttributeChange(const FGameplayAttribute& attribute, float& newValue)
+void UPlayerAttributeSet::PreAttributeChange(const FGameplayAttribute& attribute, float& newValue)
 {
 	Super::PreAttributeChange(attribute, newValue);
 
@@ -52,7 +55,7 @@ void UAGCharacterAttributeSet::PreAttributeChange(const FGameplayAttribute& attr
 // Apparently, sometimes periodic gameplay effects can skip the PreAttributeChange() function,
 //	so we have to make sure to clamp the values here as well.
 //     TODO: Is there even any point in clamping in PreAttributeChange() if we have to do it here anyway???
-void UAGCharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& data)
+void UPlayerAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& data)
 {
 	Super::PostGameplayEffectExecute(data);
 
@@ -68,9 +71,9 @@ void UAGCharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectMo
 	}
 	/*
 	* The data reference also gives us access to the target effect spec.
-	* Through the data reference, 
-		we can access the target actor (through data.Target), 
-		the instigator of the effect, 
+	* Through the data reference,
+		we can access the target actor (through data.Target),
+		the instigator of the effect,
 			its ASC, location, etc...
 	UAbilitySystemComponent* ASC = data.EffectSpec.GetContext().GetInstigatorAbilitySystemComponent();
 	AActor* ASCOwner = ASC->AbilityActorInfo->OwnerActor.Get();
@@ -78,54 +81,53 @@ void UAGCharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectMo
 	*/
 }
 
-void UAGCharacterAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void UPlayerAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	// Done in order to make the replication work. This comes from the UnrealNetwork header.
 	//	The property will only be replicated to connections where the None condition is met (i.e. always) and 
 	//		will trigger a REPNOTIFY when the second condition is met (i.e. always).
-	DOREPLIFETIME_CONDITION_NOTIFY(UAGCharacterAttributeSet, Health, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAGCharacterAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAGCharacterAttributeSet, Stamina, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAGCharacterAttributeSet, MaxStamina, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAGCharacterAttributeSet, Strength, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAGCharacterAttributeSet, MaxStrength, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAGCharacterAttributeSet, CharacterLevel, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UPlayerAttributeSet, Health, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UPlayerAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UPlayerAttributeSet, Stamina, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UPlayerAttributeSet, MaxStamina, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UPlayerAttributeSet, Strength, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UPlayerAttributeSet, MaxStrength, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UPlayerAttributeSet, CharacterLevel, COND_None, REPNOTIFY_Always);
 }
 
-void UAGCharacterAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth) const
+void UPlayerAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth) const
 {
 	// Here we inform the GAS system about the attribute change, so that it can do any necessary background stuff.
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UAGCharacterAttributeSet, Health, OldHealth);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UPlayerAttributeSet, Health, OldHealth);
 }
-void UAGCharacterAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth) const
+void UPlayerAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth) const
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UAGCharacterAttributeSet, MaxHealth, OldMaxHealth);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UPlayerAttributeSet, MaxHealth, OldMaxHealth);
 }
 
-void UAGCharacterAttributeSet::OnRep_Stamina(const FGameplayAttributeData& OldStamina) const
+void UPlayerAttributeSet::OnRep_Stamina(const FGameplayAttributeData& OldStamina) const
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UAGCharacterAttributeSet, Stamina, OldStamina);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UPlayerAttributeSet, Stamina, OldStamina);
 }
 
-void UAGCharacterAttributeSet::OnRep_MaxStamina(const FGameplayAttributeData& OldMaxStamina) const
+void UPlayerAttributeSet::OnRep_MaxStamina(const FGameplayAttributeData& OldMaxStamina) const
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UAGCharacterAttributeSet, MaxStamina, OldMaxStamina);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UPlayerAttributeSet, MaxStamina, OldMaxStamina);
 }
 
-void UAGCharacterAttributeSet::OnRep_Strength(const FGameplayAttributeData& OldStrength) const
+void UPlayerAttributeSet::OnRep_Strength(const FGameplayAttributeData& OldStrength) const
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UAGCharacterAttributeSet, Strength, OldStrength);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UPlayerAttributeSet, Strength, OldStrength);
 }
 
-void UAGCharacterAttributeSet::OnRep_MaxStrength(const FGameplayAttributeData& OldMaxStrength) const
+void UPlayerAttributeSet::OnRep_MaxStrength(const FGameplayAttributeData& OldMaxStrength) const
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UAGCharacterAttributeSet, MaxStrength, OldMaxStrength);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UPlayerAttributeSet, MaxStrength, OldMaxStrength);
 }
 
-void UAGCharacterAttributeSet::OnRep_CharacterLevel(const FGameplayAttributeData& OldCharacterLevel) const
+void UPlayerAttributeSet::OnRep_CharacterLevel(const FGameplayAttributeData& OldCharacterLevel) const
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UAGCharacterAttributeSet, CharacterLevel, OldCharacterLevel);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UPlayerAttributeSet, CharacterLevel, OldCharacterLevel);
 }
-

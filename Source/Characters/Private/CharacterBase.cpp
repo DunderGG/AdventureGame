@@ -1,15 +1,19 @@
 // Copyright dunder.gg. All Rights Reserved.
 
 #include "CharacterBase.h"
-#include "AGAbilitySystemComponent.h"
+#include "PlayerAbilitySystemComponent.h"
+#include "PlayerAttributeSet.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "AGCharacterAttributeSet.h"
 #include "InventoryComponent.h"
+#include "BaseStaminaRecovery.h"
+#include "BaseHealthRecovery.h"
+#include "SetDefaultAttributes.h"
+#include "Logger.h"
 
 // Sets default values
 ACharacterBase::ACharacterBase()
 {
-	UE_LOG(LogTemp, Display, TEXT("8. ACharacterBase::ACharacterBase(): Constructing new ACharacterBase"));
+	Logger::addMessage(TEXT("ACharacterBase::ACharacterBase(): Constructing new ACharacterBase"));
 
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
@@ -28,7 +32,7 @@ void ACharacterBase::BeginPlay()
 UAbilitySystemComponent* ACharacterBase::GetAbilitySystemComponent() const
 { return abilitySystemComponent.Get(); }
 
-UAGCharacterAttributeSet* ACharacterBase::GetAttributeSet() const
+UPlayerAttributeSet* ACharacterBase::GetAttributeSet() const
 { return attributeSet.Get(); }
 
 
@@ -128,7 +132,7 @@ int32 ACharacterBase::getCharacterLevel() const
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("ACharacterBase::getCharacterLevel(): AttributeSet not yet initialized"));
+		Logger::addMessage(TEXT("ACharacterBase::getCharacterLevel(): AttributeSet not yet initialized"), SEVERITY::Error);
 	}
 
 	return 0;
@@ -142,7 +146,7 @@ float ACharacterBase::getHealth() const
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("ACharacterBase::getHealth(): AttributeSet not yet initialized"));
+		Logger::addMessage(TEXT("ACharacterBase::getHealth(): AttributeSet not yet initialized"), SEVERITY::Error);
 	}
 
 	return 0.0f;
@@ -156,7 +160,7 @@ float ACharacterBase::getMaxHealth() const
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("ACharacterBase::getMaxHealth(): AttributeSet not yet initialized"));
+		Logger::addMessage(TEXT("ACharacterBase::getMaxHealth(): AttributeSet not yet initialized"), SEVERITY::Error);
 	}
 
 	return 0.0f;
@@ -170,7 +174,7 @@ float ACharacterBase::getStamina() const
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("ACharacterBase::getStamina(): AttributeSet not yet initialized"));
+		Logger::addMessage(TEXT("ACharacterBase::getStamina(): AttributeSet not yet initialized"), SEVERITY::Error);
 	}
 
 	return 0.0f;
@@ -184,7 +188,7 @@ float ACharacterBase::getMaxStamina() const
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("ACharacterBase::getMaxStamina(): AttributeSet not yet initialized"));
+		Logger::addMessage(TEXT("ACharacterBase::getMaxStamina(): AttributeSet not yet initialized"), SEVERITY::Error);
 	}
 
 	return 0.0f;
@@ -198,7 +202,7 @@ float ACharacterBase::getStrength() const
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("ACharacterBase::getStrength(): AttributeSet not yet initialized"));
+		Logger::addMessage(TEXT("ACharacterBase::getStrength(): AttributeSet not yet initialized"), SEVERITY::Error);
 	}
 
 	return 0.0f;
@@ -212,7 +216,7 @@ float ACharacterBase::getMaxStrength() const
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("ACharacterBase::getMaxStrength(): AttributeSet not yet initialized"));
+		Logger::addMessage(TEXT("ACharacterBase::getMaxStrength(): AttributeSet not yet initialized"), SEVERITY::Error);
 	}
 
 	return 0.0f;
@@ -228,12 +232,12 @@ void ACharacterBase::giveStartupEffects()
 	{
 		if (abilitySystemComponent->areStartupEffectsApplied)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("ACharacterBase::giveStartupEffects(): Startup effects have already been applied"));
+			Logger::addMessage(TEXT("ACharacterBase::giveStartupEffects(): Startup effects have already been applied"), SEVERITY::Warning);
 			return;
 		}
 		if (GetLocalRole() != ROLE_Authority)
 		{
-			UE_LOG(LogTemp, Display, TEXT("ACharacterBase::giveStartupEffects(): Don't have ROLE_Authority"));
+			Logger::addMessage(TEXT("ACharacterBase::giveStartupEffects(): Don't have ROLE_Authority"), SEVERITY::Error);
 			return;
 		}
 
@@ -249,14 +253,14 @@ void ACharacterBase::giveStartupEffects()
 			}
 			else
 			{
-				UE_LOG(LogTemp, Warning, TEXT("ACharacterBase::giveStartupEffects(): New effect not valid"));
+				Logger::addMessage(TEXT("ACharacterBase::giveStartupEffects(): New effect not valid"), SEVERITY::Error);
 			}
 		}
 		abilitySystemComponent->areStartupEffectsApplied = true;
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("ACharacterBase::giveStartupEffects(): AbilitySystemComponent not yet initialized"));
+		Logger::addMessage(TEXT("ACharacterBase::giveStartupEffects(): AbilitySystemComponent not yet initialized"), SEVERITY::Error);
 	}
 }
 
@@ -295,17 +299,17 @@ void ACharacterBase::giveDefaultAttributes()
 			}
 			else
 			{
-				UE_LOG(LogTemp, Error, TEXT("ACharacterBase::giveDefaultAttributes(): specHandle not valid"));
+				Logger::addMessage(TEXT("ACharacterBase::giveDefaultAttributes(): specHandle not valid"), SEVERITY::Error);
 			}
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("ACharacterBase::giveDefaultAttributes(): defaultAttributesEffect not initialized"));
+			Logger::addMessage(TEXT("ACharacterBase::giveDefaultAttributes(): defaultAttributesEffect not initialized"), SEVERITY::Error);
 		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("ACharacterBase::giveDefaultAttributes(): AbilitySystemComponent not yet initialized"));
+		Logger::addMessage(TEXT("ACharacterBase::giveDefaultAttributes(): AbilitySystemComponent not yet initialized"), SEVERITY::Error);
 	}
 }
 
@@ -338,12 +342,12 @@ void ACharacterBase::giveDefaultAbilities()
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("ACharacterBase::giveDefaultAbilities(): Don't have network authority"));
+			Logger::addMessage(TEXT("ACharacterBase::giveDefaultAbilities(): Don't have network authority"), SEVERITY::Error);
 		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("ACharacterBase::giveDefaultAbilities(): AbilitySystemComponent not yet initialized"));
+		Logger::addMessage(TEXT("ACharacterBase::giveDefaultAbilities(): AbilitySystemComponent not yet initialized"), SEVERITY::Error);
 	}
 }
 

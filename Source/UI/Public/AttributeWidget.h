@@ -1,23 +1,23 @@
-// Copyright dunder.gg. All Rights Reserved.
+// Copyright (C) 2026 dunder.gg [GNU GPLv3]
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "AttributesWidget.generated.h"
+#include "AttributeWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class CHARACTERS_API UAttributesWidget : public UUserWidget
+class UI_API UAttributeWidget : public UUserWidget
 {
 	GENERATED_BODY()
-
+	
 private:
 
 protected:
-	virtual void NativeConstruct() override;
+	//virtual void NativeConstruct() override;
 
 	UPROPERTY(BlueprintReadOnly)
 	float healthPercent;

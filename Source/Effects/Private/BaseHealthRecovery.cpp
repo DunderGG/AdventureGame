@@ -1,9 +1,9 @@
 // Copyright dunder.gg. All Rights Reserved.
 
 
-#include "Effects/BaseHealthRecovery.h"
+#include "BaseHealthRecovery.h"
 #include "GameplayEffectComponents/TargetTagsGameplayEffectComponent.h"
-#include "AGCharacterAttributeSet.h"
+#include "PlayerAttributeSet.h"
 
 void UBaseHealthRecovery::PostInitProperties()
 {
@@ -22,7 +22,7 @@ void UBaseHealthRecovery::PostInitProperties()
 	bExecutePeriodicEffectOnApplication = true;
 
 	FGameplayModifierInfo mod;
-	mod.Attribute = UAGCharacterAttributeSet::GetHealthAttribute();
+	mod.Attribute = UPlayerAttributeSet::GetHealthAttribute();
 	mod.ModifierOp = EGameplayModOp::Additive;
 	mod.ModifierMagnitude = FScalableFloat(recoveryRate);
 	Modifiers.Add(mod);

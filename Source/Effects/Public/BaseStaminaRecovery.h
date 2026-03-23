@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameplayEffect.h"
-#include "BaseHealthRecovery.generated.h"
+#include "BaseStaminaRecovery.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class CHARACTERS_API UBaseHealthRecovery : public UGameplayEffect
+class EFFECTS_API UBaseStaminaRecovery : public UGameplayEffect
 {
 	GENERATED_BODY()
 

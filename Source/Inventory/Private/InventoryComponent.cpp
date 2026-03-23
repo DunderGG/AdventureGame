@@ -1,12 +1,13 @@
 // Copyright dunder.gg. All Rights Reserved.
 
 #include "InventoryComponent.h"
+#include "Logger.h"
 
 // Sets default values
 UInventoryComponent::UInventoryComponent()
 	: totalNumberOfSlots{10}
 {
-	UE_LOG(LogTemp, Display, TEXT("9. UInventoryComponent::UInventoryComponent(): Constructing new UInventoryComponent"));
+	Logger::addMessage(TEXT("UInventoryComponent::UInventoryComponent(): Constructing new UInventoryComponent"), SEVERITY::Info);
 }
 
 /*
@@ -85,7 +86,7 @@ int UInventoryComponent::addItemToInventory(const FItemData& itemToAdd, const in
 	}
 
 	// 3. After checking all stacks and empty slots, if we still have more to add, log a warning and return the number we still have to add.
-	UE_LOG(LogTemp, Warning, TEXT("UInventory::addItemToInventory(): We still have %d items to add."), totalNumberToAdd);
+	Logger::addMessage(FString::Printf(TEXT("UInventory::addItemToInventory(): We still have %d items to add."), totalNumberToAdd), SEVERITY::Info);
 	updateWeight();
 	return totalNumberToAdd;
 }
@@ -102,7 +103,7 @@ int UInventoryComponent::addItemToSlot(const FItemData& itemData, const int quan
 	// 1. If the index is out of bounds, try adding the item to the inventory normally.
 	if (index < 0 || index >= inventory.Num())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UInventory::addItemToSlot(): Cannot add item to slot %d because it is out of bounds. Will try to add to other slots."), index);
+		Logger::addMessage(FString::Printf(TEXT("UInventory::addItemToSlot(): Cannot add item to slot %d because it is out of bounds. Will try to add to other slots."), index), SEVERITY::Info);
 		return addItemToInventory(itemData, quantity, durability);
 	}
 
@@ -200,7 +201,7 @@ bool UInventoryComponent::removeItemFromInventory(const FName itemId, const int 
 	//   Nothing removed yet, so no need to updateWeight().
 	if (totalNumberToRemove > 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UInventory::removeItemFromInventory(): Could not remove %d items because there were not enough in inventory."), totalNumberToRemove);
+		Logger::addMessage(FString::Printf(TEXT("UInventory::removeItemFromInventory(): Could not remove %d items because there were not enough in inventory."), totalNumberToRemove), SEVERITY::Info);
 		return false;
 	}
 
@@ -249,7 +250,7 @@ bool UInventoryComponent::setNumberOfInventorySlots(const int newNumber)
 {
 	if (newNumber < 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UInventory::setNumberOfInventorySlots(): Cannot set number of slots to a negative value."));
+		Logger::addMessage(TEXT("UInventory::setNumberOfInventorySlots(): Cannot set number of slots to a negative value."), SEVERITY::Warning);
 		return false;
 	}
 	totalNumberOfSlots = newNumber;
@@ -270,7 +271,7 @@ bool UInventoryComponent::transferItemFromInventory(UInventoryComponent* targetI
 	// Is the target inventory valid?
 	if (!IsValid(targetInventory))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UInventory::transferItemFromInventory(): Target inventory is not valid."));
+		Logger::addMessage(TEXT("UInventory::transferItemFromInventory(): Target inventory is not valid."), SEVERITY::Warning);
 		return false;
 	}
 
@@ -289,7 +290,7 @@ bool UInventoryComponent::transferItemFromInventory(UInventoryComponent* targetI
 	// Did we find the item?
 	if (sourceIndex == DEFAULT_INDEX)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UInventory::transferItemFromInventory(): Could not find item in inventory."));
+		Logger::addMessage(TEXT("UInventory::transferItemFromInventory(): Could not find item in inventory."), SEVERITY::Warning);
 		return false;
 	}
 
@@ -299,7 +300,7 @@ bool UInventoryComponent::transferItemFromInventory(UInventoryComponent* targetI
 	// Remove items from inventory, return false if there were not enough items to remove.
 	if (!removeItemFromInventory(itemId, quantity))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UInventory::transferItemFromInventory(): Failed to remove item from source inventory."));
+		Logger::addMessage(TEXT("UInventory::transferItemFromInventory(): Failed to remove item from source inventory."), SEVERITY::Warning);
 		return false;
 	}
 
@@ -345,20 +346,20 @@ void UInventoryComponent::resizeInventoryArray()
 		{
 			inventory.Add(FInventorySlot());
 		}
-		UE_LOG(LogTemp, Warning, TEXT("UInventory::resizeInventory(): Inventory resized to %d slots. Added empty slots."), totalNumberOfSlots);
+		Logger::addMessage(FString::Printf(TEXT("UInventory::resizeInventory(): Inventory resized to %d slots. Added empty slots."), totalNumberOfSlots), SEVERITY::Info);
 		return;
 	}
 	
 	// If we are over the size limit... drop stuff
 	if (inventory.Num() > totalNumberOfSlots)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UInventory::resizeInventory(): Inventory resized to %d slots. Dropping extra items."), totalNumberOfSlots);
+		Logger::addMessage(FString::Printf(TEXT("UInventory::resizeInventory(): Inventory resized to %d slots. Dropping extra items."), totalNumberOfSlots), SEVERITY::Info);
 		while (inventory.Num() > totalNumberOfSlots)
 		{
 			// TODO: Drop extra items on to the ground somehow instead of just deleting them... 
 			//	Maybe add a "drop item" function that can be called here?
 			FInventorySlot droppedItem = inventory.Pop();
-			UE_LOG(LogTemp, Warning, TEXT("UInventory::resizeInventory(): Dropping item %s "), *droppedItem.itemId.ToString());
+			Logger::addMessage(FString::Printf(TEXT("UInventory::resizeInventory(): Dropping item %s "), *droppedItem.itemId.ToString()), SEVERITY::Info);
 			dropItemFromSlotData(droppedItem);
 		}
 		updateWeight();
