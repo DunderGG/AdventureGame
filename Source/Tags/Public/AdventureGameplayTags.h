@@ -16,6 +16,7 @@ namespace AdventureGameplayTags
 	TAGS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Gameplay_Magnitude_Duration);
 	TAGS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Gameplay_State_IsBaseRecoveringHealth);
 	TAGS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Gameplay_State_IsBaseRecoveringStamina);
+	TAGS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Gameplay_State_IsSprinting);
 	TAGS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Gameplay_State_IsKicking);
 	TAGS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Gameplay_State_IsInAir);
 	TAGS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Kick);

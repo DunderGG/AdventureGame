@@ -6,19 +6,32 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "InventoryComponent.h"
 #include "BaseStaminaRecovery.h"
+#include "SprintStaminaExpense.h"
 #include "BaseHealthRecovery.h"
 #include "SetDefaultAttributes.h"
+#include "AdventureGameplayTags.h"
 #include "Logger.h"
 
 // Sets default values
 ACharacterBase::ACharacterBase()
 {
-	Logger::addMessage(TEXT("ACharacterBase::ACharacterBase(): Constructing new ACharacterBase"));
+	Logger::addMessage(TEXT("ACharacterBase::ACharacterBase(): Constructing new ACharacterBase"), SEVERITY::Debug, true, true, false);
 
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
 	inventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("inventory"));
+}
+
+void ACharacterBase::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (getStamina() <= 0 && isSprinting)
+	{
+		Logger::addMessage(TEXT("ACharacterBase::Tick(): Stamina depleted, stopping sprint"), SEVERITY::Info);
+		setSprinting(false);
+	}
 }
 
 // Called when the game starts or when spawned
@@ -62,13 +75,79 @@ float ACharacterBase::getSprintSpeed() const
 	return sprintSpeed;
 }
 
+void ACharacterBase::applyStaminaDepletion()
+{
+	// When sprinting, we want to stop stamina recovery and start stamina depletion.
+	if (abilitySystemComponent)
+	{
+		// Remove base stamina recovery effect
+		abilitySystemComponent->RemoveActiveGameplayEffectBySourceEffect(UBaseStaminaRecovery::StaticClass(), nullptr, -1);
+
+		// Apply sprint stamina depletion effect
+		FGameplayEffectContextHandle effectContext = abilitySystemComponent->MakeEffectContext();
+		effectContext.AddSourceObject(this);
+
+		FGameplayEffectSpecHandle depletionSpec = abilitySystemComponent->MakeOutgoingSpec(USprintStaminaExpense::StaticClass(), 1, effectContext);
+		if (depletionSpec.IsValid())
+		{
+			abilitySystemComponent->ApplyGameplayEffectSpecToSelf(*depletionSpec.Data.Get());
+		}
+		else
+		{
+			Logger::addMessage(TEXT("APlayerCharacter::sprintOn(): Failed to create SprintStaminaExpense spec"), SEVERITY::Error);
+		}
+	}
+}
+//TODO: We should probably refactor these two apply functions into separate apply/remove-functions.
+void ACharacterBase::applyStaminaRecovery()
+{
+	// When stopping sprinting, we want to stop stamina depletion and start stamina recovery again.
+	if (abilitySystemComponent)
+	{
+		// 1. Remove sprint stamina depletion effect
+		abilitySystemComponent->RemoveActiveGameplayEffectBySourceEffect(USprintStaminaExpense::StaticClass(), nullptr, -1);
+
+		// 2. Check if the base recovery effect gameplay tag is already active before adding another recovery effect
+		if (abilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("Gameplay.State.IsBaseRecoveringStamina"))))
+		{
+			Logger::addMessage(TEXT("APlayerCharacter::sprintOff(): Base stamina recovery effect already active, not applying another"), SEVERITY::Info);
+			return;
+		}
+
+		// 3. Re-apply base stamina recovery effect
+		FGameplayEffectContextHandle effectContext = abilitySystemComponent->MakeEffectContext();
+		effectContext.AddSourceObject(this);
+
+		FGameplayEffectSpecHandle recoverySpec = abilitySystemComponent->MakeOutgoingSpec(UBaseStaminaRecovery::StaticClass(), 1, effectContext);
+		if (recoverySpec.IsValid())
+		{
+			abilitySystemComponent->ApplyGameplayEffectSpecToSelf(*recoverySpec.Data.Get());
+		}
+		else
+		{
+			Logger::addMessage(TEXT("APlayerCharacter::sprintOff(): Failed to create BaseStaminaRecovery spec"), SEVERITY::Error);
+		}
+	}
+}
+
 void ACharacterBase::setSprinting(const bool newIsSprinting)
 {
 	if (newIsSprinting)
 	{
+		// Only allow sprinting if we have enough stamina
+		if (getStamina() < 10)
+		{
+			Logger::addMessage(TEXT("ACharacterBase::setSprinting(): Not enough stamina to start sprinting"), SEVERITY::Info);
+			return;
+		}
+		applyStaminaDepletion();
 		GetCharacterMovement()->MaxWalkSpeed = getSprintSpeed();
 		isSprinting = true;
 		return;
+	}
+	else
+	{
+		applyStaminaRecovery();
 	}
 	
 	// Take care of scenario where player is holding shift to sprint,

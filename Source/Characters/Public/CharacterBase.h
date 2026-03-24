@@ -41,6 +41,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInventoryComponent> inventoryComponent;
 
+	void applyStaminaDepletion();
+	void applyStaminaRecovery();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -91,6 +93,8 @@ protected:
 public:
 	// Sets default values for this character's properties
 	ACharacterBase();
+
+	virtual void Tick(float DeltaTime) override;
 
 	// Implement the GetAbilitySystemComponent function from the IAbilitySystemInterface
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;

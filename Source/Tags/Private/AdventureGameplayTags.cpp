@@ -14,6 +14,7 @@ namespace AdventureGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Gameplay_Magnitude_Duration, "Gameplay.Magnitude.Duration", "Don't remember what this is");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Gameplay_State_IsBaseRecoveringHealth, "Gameplay.State.IsBaseRecoveringHealth", "Is the base health recovery active or not.");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Gameplay_State_IsBaseRecoveringStamina, "Gameplay.State.IsBaseRecoveringStamina", "Is the base stamina recovery active or not.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Gameplay_State_IsSprinting, "Gameplay.State.IsSprinting", "Is the character currently sprinting?");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Gameplay_State_IsKicking, "Gameplay.State.IsKicking", "Are we currently Kicking?");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Gameplay_State_IsInAir, "Gameplay.State.IsInAir", "Are we currently in the air?");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(GameplayCue_Kick, "GameplayCue.Kick", "Don't remember...");
