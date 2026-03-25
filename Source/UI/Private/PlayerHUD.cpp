@@ -9,7 +9,7 @@
 
 APlayerHUD::APlayerHUD()
 {
-	UE_LOG(LogTemp, Display, TEXT("APlayerHUD::APlayerHUD(): Constructing new APlayerHUD"));
+	Logger::addMessage(TEXT("APlayerHUD::APlayerHUD(): Constructing new APlayerHUD"), SEVERITY::Debug, true, true, false);
 }
 
 void APlayerHUD::init()

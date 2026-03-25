@@ -10,8 +10,8 @@
 
 AAGPlayerController::AAGPlayerController()
 {
-	Logger::addMessage(TEXT("********** START OF LOGS **********"), SEVERITY::Info, true, true, false);
-	Logger::addMessage(TEXT("AAGPlayerController::AAGPlayerController(): Constructing new AAGPlayerController"), SEVERITY::Info);
+	Logger::addMessage(TEXT("********** START OF LOGS **********"), SEVERITY::Debug, true, true, false);
+	Logger::addMessage(TEXT("AAGPlayerController::AAGPlayerController(): Constructing new AAGPlayerController"), SEVERITY::Debug, true, true, false);
 }
 
 void AAGPlayerController::BeginPlay()

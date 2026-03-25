@@ -6,7 +6,8 @@
 
 UPlayerAbilitySystemComponent::UPlayerAbilitySystemComponent()
 {
-	Logger::addMessage(TEXT("UPlayerAbilitySystemComponent::UPlayerAbilitySystemComponent(): Constructing new UPlayerAbilitySystemComponent"), SEVERITY::Info);
+	Logger::addMessage(TEXT("UPlayerAbilitySystemComponent::UPlayerAbilitySystemComponent(): Constructing new UPlayerAbilitySystemComponent"), SEVERITY::Debug, true, true, false);
+
 	PrimaryComponentTick.bCanEverTick = true;
 	SetIsReplicated(true);
 }

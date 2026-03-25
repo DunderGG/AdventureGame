@@ -36,10 +36,10 @@ protected:
 
 public:
 	static void addMessage(const FString& message, 
-						   const SEVERITY severity = SEVERITY::Info,
-						   const float onScreenDuration = 5.0f,
+						   const SEVERITY severity = SEVERITY::Debug,
 						   const bool toUeLog = true, 
 						   const bool toFile = true, 
-						   const bool toScreen = true);
+						   const bool toScreen = true,
+						   const float onScreenDuration = 2.0f);
 
 };

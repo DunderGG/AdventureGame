@@ -14,7 +14,7 @@
 
 APlayerCharacter::APlayerCharacter()
 {
-	Logger::addMessage(TEXT("APlayerCharacter::APlayerCharacter(): Constructing new APlayerCharacter"));
+	Logger::addMessage(TEXT("APlayerCharacter::APlayerCharacter(): Constructing new APlayerCharacter"), SEVERITY::Debug, true, true, false);
 
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bTickEvenWhenPaused = false;

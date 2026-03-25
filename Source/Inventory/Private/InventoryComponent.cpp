@@ -7,7 +7,7 @@
 UInventoryComponent::UInventoryComponent()
 	: totalNumberOfSlots{10}
 {
-	Logger::addMessage(TEXT("UInventoryComponent::UInventoryComponent(): Constructing new UInventoryComponent"), SEVERITY::Info);
+	Logger::addMessage(TEXT("UInventoryComponent::UInventoryComponent(): Constructing new UInventoryComponent"), SEVERITY::Debug, true, true, false);
 }
 
 /*

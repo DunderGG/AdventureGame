@@ -5,7 +5,7 @@
 
 AAGPlayerState::AAGPlayerState()
 {
-	Logger::addMessage(TEXT("AAGPlayerState::AAGPlayerState(): Constructing new AAGPlayerState"), SEVERITY::Info);
+	Logger::addMessage(TEXT("AAGPlayerState::AAGPlayerState(): Constructing new AAGPlayerState"), SEVERITY::Debug, true, true, false);
 
 	// TODO: look into this. Player state update frequency = 100 times per second. The default is apparently too low and can cause a perceived lag when updating attributes?
 	SetNetUpdateFrequency(100.0f);

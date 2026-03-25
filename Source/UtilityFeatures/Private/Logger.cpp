@@ -52,10 +52,10 @@ FColor Logger::severityAsColor(const SEVERITY& severity)
 */
 void Logger::addMessage(const FString& message, 
 						const SEVERITY severity,
-						const float onScreenDuration,
 						const bool toUeLog,
 						const bool toFile,
-						const bool toScreen)
+						const bool toScreen,
+						const float onScreenDuration)
 {
 	const FDateTime dateTime = FDateTime::Now();
 	const FString date = dateTime.ToString(TEXT("%Y-%m-%d"));

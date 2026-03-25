@@ -8,7 +8,8 @@
 
 ANPC::ANPC()
 {
-	Logger::addMessage(TEXT("ANPC::ANPC(): Constructing new ANPC"));
+	Logger::addMessage(TEXT("ANPC::ANPC(): Constructing new ANPC"), SEVERITY::Debug, true, true, false);
+
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Each character needs their own ASC

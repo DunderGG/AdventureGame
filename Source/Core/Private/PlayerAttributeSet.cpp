@@ -10,7 +10,7 @@
 UPlayerAttributeSet::UPlayerAttributeSet()
 {
 	Logger::addMessage(TEXT("THIS SHOULD BE THE START OF THE LOGS"), SEVERITY::Debug);
-	Logger::addMessage(TEXT("UPlayerAttributeSet::UPlayerAttributeSet(): Constructing new UPlayerAttributeSet"), SEVERITY::Info);
+	Logger::addMessage(TEXT("UPlayerAttributeSet::UPlayerAttributeSet(): Constructing new UPlayerAttributeSet"), SEVERITY::Debug, true, true, false);
 }
 
 // This is used to "clean up" values for attribute changes.
