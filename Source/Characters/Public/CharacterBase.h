@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
+#include "AdventureGame/AdventureGame.h"
 #include "CharacterBase.generated.h"
 
 class UGameplayAbility;
@@ -62,6 +63,8 @@ protected:
 #pragma endregion
 
 #pragma region GAS stuff
+	// The PlayerCharacter will inherit this and initialise it in initAbilitySystemComponent() with 
+	//   what the PlayerState contains.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS | ASC")
 	TObjectPtr<class UPlayerAbilitySystemComponent> abilitySystemComponent;
 
@@ -69,25 +72,23 @@ protected:
 	TObjectPtr<UPlayerAttributeSet> attributeSet;
 
 	// We put abilities into this array in the editor, using Gameplay Ability blueprints, like GA_Kick.
-	//   TODO: This can't be const for some reason? I guess because we are setting the value in the editor?
-	//	TODO: Maybe the effects and abilities should be defined in editor instead?
-	virtual void giveDefaultAbilities();
 	UPROPERTY(EditDefaultsOnly, Category = "GAS | Ability")
 	TArray<TSubclassOf<UGameplayAbility>> defaultAbilities;
+	virtual void giveDefaultAbilities();
+	virtual void initDefaultAbilities();
 	
 	// Epic recommends to initialise attributes through a gameplay effect.
 	UPROPERTY(EditDefaultsOnly, Category = "GAS | Attribute")
 	TSubclassOf<UGameplayEffect> defaultAttributesEffect;
-	virtual void giveDefaultAttributes();
+	virtual void applyDefaultAttributes();
+	virtual void initDefaultAttributes();
 
 	// A list of effects that we apply to the character once at startup.
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GAS | Effect")
 	TArray<TSubclassOf<class UGameplayEffect>> startupEffects;
-	virtual void giveStartupEffects();
-
+	virtual void applyStartupEffects();
 	virtual void initStartupEffects();
-	virtual void initDefaultAttributes();
-	//virtual void initDefaultAbilities();
+
 
 #pragma endregion
 public:

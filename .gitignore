@@ -75,9 +75,13 @@ DerivedDataCache/*
 
 # DO NOT PUSH THESE FILES UNTIL WE KNOW WHAT IS NEEDED
 .vsconfig
-Config/*
 Content/*
 *.uproject
 *.cs
 *.BAK
 Plugins/*
+Config/DefaultEditorPerProjectUserSettings.ini
+Config/DefaultEditor.ini
+Config/DefaultEngine.ini
+Config/DefaultGame.ini
+Config/DefaultGameplayTags.ini

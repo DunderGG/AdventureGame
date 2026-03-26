@@ -104,7 +104,7 @@ void AAGPlayerController::sneakOff()
 void AAGPlayerController::playerJump()
 {
 	APlayerCharacter* PC = CastChecked<APlayerCharacter>(GetPawn());
-	PC->Jump();
+	PC->playerJump();
 }
 
 void AAGPlayerController::stopJump()

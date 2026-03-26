@@ -11,9 +11,12 @@ namespace AdventureGameplayTags
 	TAGS_API FGameplayTag FindTagByString(const FString& TagString, bool bMatchPartialString = false);
 
 	TAGS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_Kick);
+	TAGS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Gameplay_Ability_Jump);
 	TAGS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Gameplay_Ability_Kick);
 	TAGS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Gameplay_Cooldown_Kick);
 	TAGS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Gameplay_Magnitude_Duration);
+	TAGS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Gameplay_State_Dead);
+	TAGS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Gameplay_State_Debuff_Stun);
 	TAGS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Gameplay_State_IsBaseRecoveringHealth);
 	TAGS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Gameplay_State_IsBaseRecoveringStamina);
 	TAGS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Gameplay_State_IsSprinting);

@@ -5,10 +5,13 @@
 #include "PlayerAttributeSet.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "InventoryComponent.h"
+// TODO: This needs refactoring so we don't include loads of singular gameplay effects.
 #include "BaseStaminaRecovery.h"
 #include "SprintStaminaExpense.h"
 #include "BaseHealthRecovery.h"
 #include "SetDefaultAttributes.h"
+#include "GAJump.h"
+///////////////////
 #include "AdventureGameplayTags.h"
 #include "Logger.h"
 
@@ -52,7 +55,7 @@ UPlayerAttributeSet* ACharacterBase::GetAttributeSet() const
 bool ACharacterBase::canCharacterJump() const
 {
 	// CanJump() is an UE ACharacter function, may want to override it
-	return CanJump();
+	return ACharacter::CanJump();
 }
 
 void ACharacterBase::hasJumped()
@@ -305,7 +308,12 @@ float ACharacterBase::getMaxStrength() const
 /*
 * Apply the list of starting effects to the character once at startup.
 */
-void ACharacterBase::giveStartupEffects()
+void ACharacterBase::initStartupEffects()
+{
+	startupEffects.Add(UBaseStaminaRecovery::StaticClass());
+	startupEffects.Add(UBaseHealthRecovery::StaticClass());
+}
+void ACharacterBase::applyStartupEffects()
 {
 	if (abilitySystemComponent)
 	{
@@ -323,6 +331,8 @@ void ACharacterBase::giveStartupEffects()
 		FGameplayEffectContextHandle effectContext = abilitySystemComponent->MakeEffectContext();
 		effectContext.AddSourceObject(this);
 
+		int index = 0;
+		// The startupEffects array is populated in the editor.
 		for (TSubclassOf<UGameplayEffect> gameplayEffect : startupEffects)
 		{
 			FGameplayEffectSpecHandle newEffect = abilitySystemComponent->MakeOutgoingSpec(gameplayEffect, getCharacterLevel(), effectContext);
@@ -332,9 +342,11 @@ void ACharacterBase::giveStartupEffects()
 			}
 			else
 			{
-				Logger::addMessage(TEXT("ACharacterBase::giveStartupEffects(): New effect not valid"), SEVERITY::Error);
+				Logger::addMessage(FString::Printf(TEXT("ACharacterBase::giveStartupEffects(): New effect at index %d not valid"), index), SEVERITY::Error);
 			}
+			++index;
 		}
+		Logger::addMessage(FString::Printf(TEXT("ACharacterBase::giveStartupEffects(): %d Startup effects applied"), startupEffects.Num()), SEVERITY::Debug);
 		abilitySystemComponent->areStartupEffectsApplied = true;
 	}
 	else
@@ -343,18 +355,16 @@ void ACharacterBase::giveStartupEffects()
 	}
 }
 
-void ACharacterBase::initStartupEffects()
-{
-	// TODO: This is ugly... Maybe we shouldn't have separate classes and just combine them.
-	//	 Would also remove the for-loop in giveStartupEffects().
-	startupEffects.Add(UBaseStaminaRecovery::StaticClass());
-	startupEffects.Add(UBaseHealthRecovery::StaticClass());
-}
-
 /*
-* Use a gameplay effect to initialise default attribute values.
+* Defines a gameplay effect that sets all the default attribute values.
+* Recommended by Epic apparently.
+*    Very easy to do in the editor, not as easy to do in code, but it is what it is...
 */
-void ACharacterBase::giveDefaultAttributes()
+void ACharacterBase::initDefaultAttributes()
+{
+	defaultAttributesEffect = USetDefaultAttributes::StaticClass();
+}
+void ACharacterBase::applyDefaultAttributes()
 {
 	// Check that ASC and default values exist
 	if (abilitySystemComponent)
@@ -393,15 +403,17 @@ void ACharacterBase::giveDefaultAttributes()
 }
 
 /*
-* Defines a gameplay effect that sets all the default attribute values.
-* Recommended by Epic apparently.
-*    Very easy to do in the editor, not as easy to do in code, but it is what it is...
+* We have not created any abilities yet, 
+* but this is where we would give the character their default abilities, like "Kick".
+* 
+* Since abilities have animations and stuff, 
+* it is probably easier to create them in the editor as Gameplay Ability blueprints, 
+* and then add those blueprints to the defaultAbilities array in the editor.
 */
-void ACharacterBase::initDefaultAttributes()
+void ACharacterBase::initDefaultAbilities()
 {
-	defaultAttributesEffect = USetDefaultAttributes::StaticClass();
+	defaultAbilities.Add(UGAJump::StaticClass());
 }
-
 void ACharacterBase::giveDefaultAbilities()
 {
 	// Make sure the ASC has been initialised.
@@ -411,13 +423,25 @@ void ACharacterBase::giveDefaultAbilities()
 		// TODO: No idea what that means, look it up.
 		if (HasAuthority())
 		{
+			int index = 0;
 			// Loop through all the default abilities
 			for (TSubclassOf<UGameplayAbility>& startupAbility : defaultAbilities)
 			{
 				// Create a gameplay ability at level 1 and use the ASC to give that to the actor.
 				const FGameplayAbilitySpec abilitySpec(startupAbility, 1);
-				abilitySystemComponent->GiveAbility(abilitySpec);
+				if (abilitySpec.Ability)
+				{
+					abilitySystemComponent->GiveAbility(abilitySpec);
+				}
+				else
+				{
+					Logger::addMessage(FString::Printf(TEXT("ACharacterBase::giveDefaultAbilities(): Ability at index %d not valid"), index), SEVERITY::Error);
+				}
+				++index;
 			}
+			// TODO: Remember to set this to false in removeCharacterAbilities().
+			abilitySystemComponent->areStartupEffectsApplied = true;
+			Logger::addMessage(FString::Printf(TEXT("ACharacterBase::giveDefaultAbilities(): %d Default abilities given"), defaultAbilities.Num()), SEVERITY::Debug);
 		}
 		else
 		{
@@ -429,5 +453,3 @@ void ACharacterBase::giveDefaultAbilities()
 		Logger::addMessage(TEXT("ACharacterBase::giveDefaultAbilities(): AbilitySystemComponent not yet initialized"), SEVERITY::Error);
 	}
 }
-
-

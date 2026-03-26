@@ -9,9 +9,12 @@
 namespace AdventureGameplayTags
 {
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_Kick, "Event.Montage.Kick", "Playing montage Kick");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Gameplay_Ability_Jump, "Gameplay.Ability.Jump", "Using ability Jump");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Gameplay_Ability_Kick, "Gameplay.Ability.Kick", "Using ability Kick");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Gameplay_Cooldown_Kick, "Gameplay.Cooldown.Kick", "Ability Kick on cooldown");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Gameplay_Magnitude_Duration, "Gameplay.Magnitude.Duration", "Don't remember what this is");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Gameplay_State_Dead, "Gameplay.State.Dead", "Is the character dead?");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Gameplay_State_Debuff_Stun, "Gameplay.State.Debuff.Stun", "Is the character stunned?");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Gameplay_State_IsBaseRecoveringHealth, "Gameplay.State.IsBaseRecoveringHealth", "Is the base health recovery active or not.");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Gameplay_State_IsBaseRecoveringStamina, "Gameplay.State.IsBaseRecoveringStamina", "Is the base stamina recovery active or not.");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Gameplay_State_IsSprinting, "Gameplay.State.IsSprinting", "Is the character currently sprinting?");

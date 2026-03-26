@@ -50,7 +50,7 @@ private:
 #pragma region METAHUMAN
 	void setupMetahuman();
 	UPROPERTY(EditAnywhere)
-	bool isUsingMetahuman = true;
+	bool isUsingMetahuman = false;
 	/*
 	* THESE ARE POINTLESS WHEN WE USE bUsePawnControlRotation
 	* and I cannot get it working without it, so... Here we are.

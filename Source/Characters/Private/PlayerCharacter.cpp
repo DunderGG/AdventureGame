@@ -214,7 +214,8 @@ void APlayerCharacter::togglePerspective()
 	return;		// Not necessary, but makes it clear that the function ends here and nothing was accidentaly removed.
 }
 
-void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent){/* This is done in AGPlayerController now. */ }
+void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{/* This is done in AGPlayerController now. */ }
 
 /*
 * GAS stuff
@@ -289,13 +290,13 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 	if (HasAuthority())
 	{
 		giveDefaultAbilities();
-		giveDefaultAttributes();
-		giveStartupEffects();
+		applyDefaultAttributes();
+		applyStartupEffects();
 	}
 
 	initHUD();
 
-	Logger::addMessage(TEXT("APlayerCharacter::PossessedBy(): Finished"), SEVERITY::Info);
+	Logger::addMessage(TEXT("APlayerCharacter::PossessedBy(): Finished"), SEVERITY::Debug);
 }
 /*
 * TODO: Dunno what this is for...
@@ -309,5 +310,5 @@ void APlayerCharacter::OnRep_PlayerState()
 	initAbilitySystemComponent();
 	initHUD();
 
-	Logger::addMessage(TEXT("APlayerCharacter::OnRep_PlayerState(): Finished"), SEVERITY::Info);
+	Logger::addMessage(TEXT("APlayerCharacter::OnRep_PlayerState(): Finished"), SEVERITY::Debug);
 }
