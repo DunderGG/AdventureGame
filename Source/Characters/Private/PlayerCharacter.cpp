@@ -172,11 +172,23 @@ void APlayerCharacter::sneakOff()
 	Super::setSneaking(false);
 }
 
+/*
+* When we hit space, the PlayerController::playerJump() is triggered.
+* That calls this function. Then in CharacterBase::hasJumped(), we trigger our GameplayAbility GAJump.
+*/
 void APlayerCharacter::playerJump()
 {
+	// Checking the tag here is not really neccessary as the canCharacterJump() and IsFalling() checks
+	// already prevents jumping twice. 
+	// But maybe there is some functionality we can add later, to do something while jumping.
+	bool isAlreadyJumping = abilitySystemComponent && abilitySystemComponent->HasMatchingGameplayTag(AdventureGameplayTags::Gameplay_Ability_Jump);
+	if (isAlreadyJumping)
+	{
+		//Logger::addMessage(TEXT("APlayerCharacter::playerJump(): Already jumping!"), SEVERITY::Info);
+	}
+	
 	if (ACharacterBase::canCharacterJump() && !GetMovementComponent()->IsFalling())
 	{
-		abilitySystemComponent->AddLooseGameplayTag(AdventureGameplayTags::Gameplay_State_IsInAir);
 		ACharacterBase::hasJumped();
 	}
 	else
@@ -283,15 +295,16 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 	initAbilitySystemComponent();
 	initDefaultAttributes();
 	initStartupEffects();
+	initDefaultAbilities();
 
 	// Grant abilities and effects ONLY on the server
 	// The granted abilities and gameplay effects should automatically replicate to the client.
 	// We can see that this works by changing the default attributes in SetDefaultAttributes.cpp
 	if (HasAuthority())
 	{
-		giveDefaultAbilities();
 		applyDefaultAttributes();
 		applyStartupEffects();
+		giveDefaultAbilities();
 	}
 
 	initHUD();

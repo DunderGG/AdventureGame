@@ -60,7 +60,20 @@ bool ACharacterBase::canCharacterJump() const
 
 void ACharacterBase::hasJumped()
 {
-	ACharacter::Jump();
+	//Instead of the built-in jump functionality, we want to trigger our GAJump ability.
+	//ACharacter::Jump();
+	
+	if (abilitySystemComponent)
+	{
+		if (abilitySystemComponent->TryActivateAbilityByClass(UGAJump::StaticClass()))
+		{
+			//Logger::addMessage(TEXT("ACharacterBase::hasJumped(): Jump ability activated"), SEVERITY::Info);
+		}
+		else
+		{
+			Logger::addMessage(TEXT("ACharacterBase::hasJumped(): Failed to activate jump ability"), SEVERITY::Error);
+		}
+	}
 }
 
 float ACharacterBase::getSneakSpeed() const
@@ -310,8 +323,8 @@ float ACharacterBase::getMaxStrength() const
 */
 void ACharacterBase::initStartupEffects()
 {
-	startupEffects.Add(UBaseStaminaRecovery::StaticClass());
-	startupEffects.Add(UBaseHealthRecovery::StaticClass());
+	startupEffects.AddUnique(UBaseStaminaRecovery::StaticClass());
+	startupEffects.AddUnique(UBaseHealthRecovery::StaticClass());
 }
 void ACharacterBase::applyStartupEffects()
 {
@@ -403,8 +416,7 @@ void ACharacterBase::applyDefaultAttributes()
 }
 
 /*
-* We have not created any abilities yet, 
-* but this is where we would give the character their default abilities, like "Kick".
+* TODO: We should maybe move giving and removing abilities to the PlayerState.
 * 
 * Since abilities have animations and stuff, 
 * it is probably easier to create them in the editor as Gameplay Ability blueprints, 
@@ -412,7 +424,7 @@ void ACharacterBase::applyDefaultAttributes()
 */
 void ACharacterBase::initDefaultAbilities()
 {
-	defaultAbilities.Add(UGAJump::StaticClass());
+	defaultAbilities.AddUnique(UGAJump::StaticClass());
 }
 void ACharacterBase::giveDefaultAbilities()
 {
@@ -427,8 +439,13 @@ void ACharacterBase::giveDefaultAbilities()
 			// Loop through all the default abilities
 			for (TSubclassOf<UGameplayAbility>& startupAbility : defaultAbilities)
 			{
+				// Cast to the base class to get the Input Id
+				// TODO: Not sure if the inputId is actually needed.
+				const UGameplayAbilityBase* abilityCDO = Cast<UGameplayAbilityBase>(startupAbility->GetDefaultObject());
+				int32 inputId = abilityCDO ? static_cast<int32>(abilityCDO->abilityInputId) : -1;
+
 				// Create a gameplay ability at level 1 and use the ASC to give that to the actor.
-				const FGameplayAbilitySpec abilitySpec(startupAbility, 1);
+				const FGameplayAbilitySpec abilitySpec(startupAbility, 1, inputId);
 				if (abilitySpec.Ability)
 				{
 					abilitySystemComponent->GiveAbility(abilitySpec);
@@ -440,7 +457,7 @@ void ACharacterBase::giveDefaultAbilities()
 				++index;
 			}
 			// TODO: Remember to set this to false in removeCharacterAbilities().
-			abilitySystemComponent->areStartupEffectsApplied = true;
+			abilitySystemComponent->areDefaultAbilitiesGiven = true;
 			Logger::addMessage(FString::Printf(TEXT("ACharacterBase::giveDefaultAbilities(): %d Default abilities given"), defaultAbilities.Num()), SEVERITY::Debug);
 		}
 		else

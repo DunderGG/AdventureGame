@@ -18,6 +18,7 @@ public:
 	UPlayerAbilitySystemComponent();
 
 	bool areStartupEffectsApplied = false;
+	bool areDefaultAbilitiesGiven = false;
 
 protected:
 	virtual void BeginPlay() override;

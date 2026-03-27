@@ -23,6 +23,9 @@ public:
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle handle, const FGameplayAbilityActorInfo* actorInfo, const FGameplayAbilityActivationInfo activationInfo, const FGameplayEventData* triggerEventData) override;
 
+	UFUNCTION()
+	void onLandedCallback(EMovementMode newMovementMode);
+
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle handle, const FGameplayAbilityActorInfo* actorInfo, const FGameplayTagContainer* sourceTags, const FGameplayTagContainer* targetTags, OUT FGameplayTagContainer* optionalRelevantTags) const override;
 
 	virtual void CancelAbility(const FGameplayAbilitySpecHandle handle, const FGameplayAbilityActorInfo* actorInfo, const FGameplayAbilityActivationInfo activationInfo, bool bReplicateCancelAbility) override;

@@ -131,7 +131,7 @@ void UEnvironmentManager::advanceHour()
 {
 	timeWasUpdated = true;
 	currentTime.hour++;
-	Logger::addMessage(FString::Printf(TEXT("UEnvironmentManager::advanceHour: Advancing hour to %d"), currentTime.hour), SEVERITY::Debug);
+	Logger::addMessage(FString::Printf(TEXT("UEnvironmentManager::advanceHour: Advancing hour to %d"), currentTime.hour), SEVERITY::Debug, true, true, false);
 	if (currentTime.hour > 23)
 	{
 		currentTime.hour = 0;
