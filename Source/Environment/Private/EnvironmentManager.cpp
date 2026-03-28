@@ -92,6 +92,13 @@ void UEnvironmentManager::Tick(float DeltaTime)
 		messageManager->updateTimeOfDay(currentTime);
 		timeWasUpdated = false;
 	}
+
+	// Update temperature once per second.
+	temperatureTickCounter -= DeltaTime;
+	if (temperatureTickCounter <= 0)
+	{
+		updateTemperature();
+	}
 }
 
 /*
@@ -266,6 +273,75 @@ void UEnvironmentManager::updateLightRotation()
 {
 }
 
+// This might look like a real bumpy road ahead, but it's fine.... Right?
+// If we don't care about logging the error cases, it's much smoother.
+void UEnvironmentManager::updateTemperature()
+{
+	temperatureTickCounter += temperatureTickFrequency;
+
+	if (IsValid(worldSettings))
+	{
+		bool temperatureWasUpdated = false;
+		currentTemp = 0;
+
+		// Load the curves from our world settings.
+		TSoftObjectPtr<class UCurveFloat> dailyTemperatureCurve;
+		TSoftObjectPtr<class UCurveFloat> annualTemperatureCurve;
+		if (!worldSettings->dailyTemperatureCurve.IsNull())
+		{
+			dailyTemperatureCurve = worldSettings->dailyTemperatureCurve.LoadSynchronous();
+		}
+		if (!worldSettings->annualTemperatureCurve.IsNull())
+		{
+			annualTemperatureCurve = worldSettings->annualTemperatureCurve.LoadSynchronous();
+		}
+
+		// Make sure the curve is valid.
+		if (IsValid(dailyTemperatureCurve.Get()))
+		{
+			currentTemp += dailyTemperatureCurve.Get()->GetFloatValue(timeOfDayRef);
+			temperatureWasUpdated = true;
+
+			// Adding the annual offset to temperature only makes sense if we have a valid daily curve.
+			if (IsValid(annualTemperatureCurve.Get()))
+			{
+				currentTemp += annualTemperatureCurve.Get()->GetFloatValue(currentTime.dayOfYear);
+			}
+			else
+			{
+				Logger::addMessage(TEXT("Environment Manager: optional Annual temperature curve not found."), SEVERITY::Info);
+			}
+		}
+		else
+		{
+			Logger::addMessage(TEXT("Environment Manager: Daily temperature curve not found."), SEVERITY::Error);
+		}
+		
+		Logger::addMessage(FString::Printf(TEXT("UEnvironmentManager::updateTemperature: Current temperature is %f"), currentTemp), SEVERITY::Debug);
+
+		if (messageManager)
+		{
+			if (temperatureWasUpdated)
+			{
+				messageManager->updateTemperature(currentTemp);
+			}
+			else
+			{
+				Logger::addMessage(TEXT("Environment Manager: Temperature was not updated due to missing dailyTemperatureCurve, not sending update."), SEVERITY::Info);
+			}
+		}
+		else
+		{
+			Logger::addMessage(TEXT("Environment Manager: Messaging subsystem not found, cannot update temperature."), SEVERITY::Error);
+		}
+	}
+	else
+	{
+		Logger::addMessage(TEXT("Environment Manager: World settings not found, cannot update temperature."), SEVERITY::Error);
+	}
+	
+}
+
 /* 
 * Used for dynamic day length, i.e.the player decides how long the day should be.
 * 1440 minutes in a day, so we divide the total real-world seconds in a day by 1440 to get the length of each minute.
@@ -287,4 +363,5 @@ void UEnvironmentManager::OnWorldBeginPlay(UWorld& InWorld)
 	Logger::addMessage(FString::Printf(TEXT(
 		"UEnvironmentManager::OnWorldBeginPlay: Minute length calculated to %f seconds per minute"), 
 		minuteLength), SEVERITY::Debug);
+	Logger::addMessage(FString::Printf(TEXT("UEnvironmentManager::OnWorldBeginPlay: Day of year is %d"), currentTime.dayOfYear), SEVERITY::Debug);
 }

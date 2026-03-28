@@ -34,6 +34,10 @@ private:
 	UPROPERTY()
 	TObjectPtr<class AAGWorldSettings> worldSettings = nullptr;
 
+	const float temperatureTickFrequency = 1;
+	float temperatureTickCounter = temperatureTickFrequency;
+	float currentTemp = 0;
+
 	void updateTime(const float DeltaTime);
 	void advanceMinute();
 	void advanceHour();
@@ -45,6 +49,7 @@ private:
 	void updateTimeOfDayRef();
 	void updateLighting();
 	void updateLightRotation();
+	void updateTemperature();
 protected:
 	// Should the time advance? 
 	UPROPERTY(EditAnywhere, Category = "Environment|Time")
