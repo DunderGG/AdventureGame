@@ -23,15 +23,6 @@ class CHARACTERS_API ACharacterBase : public ACharacter,
 
 private:
 #pragma region Movement
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float sneakSpeed = 150.0f;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float walkSpeed = 400.0f;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float sprintSpeed = 800.0f;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	bool isSprinting= false;
 
@@ -44,19 +35,23 @@ private:
 
 	void applyStaminaDepletion();
 	void applyStaminaRecovery();
+
+	void applySprintEffect();
+	void removeSprintEffect();
+
+	void applySneakEffect();
+	void removeSneakEffect();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
 
 
 #pragma region MovementFunctions
 	bool canCharacterJump() const;
 	void hasJumped();
 
-	float getSneakSpeed() const;
-	float getWalkSpeed() const;
-	float getSprintSpeed() const;
+	float getMoveSpeed() const;
 
 	void setSprinting(const bool newIsSprinting);
 	void setSneaking(const bool newIsSneaking);

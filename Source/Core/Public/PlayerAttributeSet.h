@@ -96,6 +96,30 @@ public:
 	ATTRIBUTE_ACCESSORS_BASIC(ThisClass, CharacterLevel);
 #pragma endregion
 
+#pragma region ATTRIBUTE MOVESPEED
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MoveSpeed, Category = "Ability | Gameplay Attribute")
+	FGameplayAttributeData MoveSpeed;
+	UFUNCTION()
+	void OnRep_MoveSpeed(const FGameplayAttributeData& OldMoveSpeed) const;
+	ATTRIBUTE_ACCESSORS_BASIC(ThisClass, MoveSpeed);
+#pragma endregion
+
+#pragma region ATTRIBUTE SPRINTSPEED
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_SprintSpeed, Category = "Ability | Gameplay Attribute")
+	FGameplayAttributeData SprintSpeed;
+	UFUNCTION()
+	void OnRep_SprintSpeed(const FGameplayAttributeData& OldSprintSpeed) const;
+	ATTRIBUTE_ACCESSORS_BASIC(ThisClass, SprintSpeed);
+#pragma endregion
+
+#pragma region ATTRIBUTE SNEAKSPEED
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_SneakSpeed, Category = "Ability | Gameplay Attribute")
+	FGameplayAttributeData SneakSpeed;
+	UFUNCTION()
+	void OnRep_SneakSpeed(const FGameplayAttributeData& OldSneakSpeed) const;
+	ATTRIBUTE_ACCESSORS_BASIC(ThisClass, SneakSpeed);
+#pragma endregion
+
 	/* ADD NEW ATTRIBUTES HERE
 	*
 	*	When adding new attributes, also update relevant functions in .cpp file, such as:

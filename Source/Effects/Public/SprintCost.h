@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameplayEffect.h"
-#include "SprintStaminaExpense.generated.h"
+#include "SprintCost.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
-class EFFECTS_API USprintStaminaExpense : public UGameplayEffect
+class EFFECTS_API USprintCost : public UGameplayEffect
 {
 	GENERATED_BODY()
 
@@ -19,10 +19,10 @@ private:
 protected:
 	// TODO: Not sure what UPROPERTY specifiers I need here, or if I need any at all.
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GAS | Expense")
-	float expenseMagnitude = -1.0f;
+	float costMagnitude = -0.5f;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GAS | Expense")
-	float expensePeriod = 0.1f;
+	float costPeriod = 0.1f;
 public:
-	
+
 };

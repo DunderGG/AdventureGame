@@ -13,41 +13,65 @@ void USetDefaultAttributes::PostInitProperties()
 	Super::PostInitProperties();
 	DurationPolicy = EGameplayEffectDurationType::Instant;
 
-	FGameplayModifierInfo mod;
-	mod.Attribute = UPlayerAttributeSet::GetMaxHealthAttribute();
-	mod.ModifierOp = EGameplayModOp::Override;
-	mod.ModifierMagnitude = FScalableFloat(defaultHealth);
-	Modifiers.Add(mod);
+	FGameplayModifierInfo maxHealthMod;
+	maxHealthMod.Attribute = UPlayerAttributeSet::GetMaxHealthAttribute();
+	maxHealthMod.ModifierOp = EGameplayModOp::Override;
+	maxHealthMod.ModifierMagnitude = FScalableFloat(defaultHealth);
+	Modifiers.Add(maxHealthMod);
 
-	mod.Attribute = UPlayerAttributeSet::GetHealthAttribute();
-	mod.ModifierOp = EGameplayModOp::Override;
-	mod.ModifierMagnitude = FScalableFloat(defaultHealth/2);
-	Modifiers.Add(mod);
+	FGameplayModifierInfo healthMod;
+	healthMod.Attribute = UPlayerAttributeSet::GetHealthAttribute();
+	healthMod.ModifierOp = EGameplayModOp::Override;
+	healthMod.ModifierMagnitude = FScalableFloat(defaultHealth/2);
+	Modifiers.Add(healthMod);
 
-	mod.Attribute = UPlayerAttributeSet::GetMaxStaminaAttribute();
-	mod.ModifierOp = EGameplayModOp::Override;
-	mod.ModifierMagnitude = FScalableFloat(defaultStamina);
-	Modifiers.Add(mod);
+	FGameplayModifierInfo maxStaminaMod;
+	maxStaminaMod.Attribute = UPlayerAttributeSet::GetMaxStaminaAttribute();
+	maxStaminaMod.ModifierOp = EGameplayModOp::Override;
+	maxStaminaMod.ModifierMagnitude = FScalableFloat(defaultStamina);
+	Modifiers.Add(maxStaminaMod);
 
-	mod.Attribute = UPlayerAttributeSet::GetStaminaAttribute();
-	mod.ModifierOp = EGameplayModOp::Override;
-	mod.ModifierMagnitude = FScalableFloat(defaultStamina/2);
-	Modifiers.Add(mod);
+	FGameplayModifierInfo staminaMod;
+	staminaMod.Attribute = UPlayerAttributeSet::GetStaminaAttribute();
+	staminaMod.ModifierOp = EGameplayModOp::Override;
+	staminaMod.ModifierMagnitude = FScalableFloat(defaultStamina/2);
+	Modifiers.Add(staminaMod);
 
-	mod.Attribute = UPlayerAttributeSet::GetMaxStrengthAttribute();
-	mod.ModifierOp = EGameplayModOp::Override;
-	mod.ModifierMagnitude = FScalableFloat(defaultStrength);
-	Modifiers.Add(mod);
+	FGameplayModifierInfo maxStrengthMod;
+	maxStrengthMod.Attribute = UPlayerAttributeSet::GetMaxStrengthAttribute();
+	maxStrengthMod.ModifierOp = EGameplayModOp::Override;
+	maxStrengthMod.ModifierMagnitude = FScalableFloat(defaultStrength);
+	Modifiers.Add(maxStrengthMod);
 
-	mod.Attribute = UPlayerAttributeSet::GetStrengthAttribute();
-	mod.ModifierOp = EGameplayModOp::Override;
-	mod.ModifierMagnitude = FScalableFloat(defaultStrength);
-	Modifiers.Add(mod);
+	FGameplayModifierInfo strengthMod;
+	strengthMod.Attribute = UPlayerAttributeSet::GetStrengthAttribute();
+	strengthMod.ModifierOp = EGameplayModOp::Override;
+	strengthMod.ModifierMagnitude = FScalableFloat(defaultStrength);
+	Modifiers.Add(strengthMod);
 
-	mod.Attribute = UPlayerAttributeSet::GetCharacterLevelAttribute();
-	mod.ModifierOp = EGameplayModOp::Override;
-	mod.ModifierMagnitude = FScalableFloat(defaultLevel);
-	Modifiers.Add(mod);
+	FGameplayModifierInfo levelMod;
+	levelMod.Attribute = UPlayerAttributeSet::GetCharacterLevelAttribute();
+	levelMod.ModifierOp = EGameplayModOp::Override;
+	levelMod.ModifierMagnitude = FScalableFloat(defaultLevel);
+	Modifiers.Add(levelMod);
+
+	FGameplayModifierInfo moveSpeedMod;
+	moveSpeedMod.Attribute = UPlayerAttributeSet::GetMoveSpeedAttribute();
+	moveSpeedMod.ModifierOp = EGameplayModOp::Override;
+	moveSpeedMod.ModifierMagnitude = FScalableFloat(defaultMoveSpeed);
+	Modifiers.Add(moveSpeedMod);
+
+	FGameplayModifierInfo sprintSpeedMod;
+	sprintSpeedMod.Attribute = UPlayerAttributeSet::GetSprintSpeedAttribute();
+	sprintSpeedMod.ModifierOp = EGameplayModOp::Override;
+	sprintSpeedMod.ModifierMagnitude = FScalableFloat(defaultSprintSpeed);
+	Modifiers.Add(sprintSpeedMod);
+
+	FGameplayModifierInfo sneakSpeedMod;
+	sneakSpeedMod.Attribute = UPlayerAttributeSet::GetSneakSpeedAttribute();
+	sneakSpeedMod.ModifierOp = EGameplayModOp::Override;
+	sneakSpeedMod.ModifierMagnitude = FScalableFloat(defaultSneakSpeed);
+	Modifiers.Add(sneakSpeedMod);
 }
 
 

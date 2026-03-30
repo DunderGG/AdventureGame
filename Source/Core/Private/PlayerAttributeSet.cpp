@@ -45,6 +45,22 @@ void UPlayerAttributeSet::PreAttributeChange(const FGameplayAttribute& attribute
 	{
 		newValue = FMath::Max<float>(1.0f, newValue);
 	}
+	else if (attribute == GetCharacterLevelAttribute())
+	{
+		newValue = FMath::Max<float>(1.0f, newValue);
+	}
+	else if (attribute == GetMoveSpeedAttribute())
+	{
+		newValue = FMath::Max<float>(0.0f, newValue);
+	}
+	else if (attribute == GetSprintSpeedAttribute())
+	{
+		newValue = FMath::Max<float>(0.0f, newValue);
+	}
+	else if (attribute == GetSneakSpeedAttribute())
+	{
+		newValue = FMath::Max<float>(0.0f, newValue);
+	}
 
 	// TODO: It has been suggested to add a tag when attributes are "full" or "empty",
 	//         so it doesn't pointlessly try to add more when already full.
@@ -68,6 +84,18 @@ void UPlayerAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCall
 	else if (data.EvaluatedData.Attribute == GetStaminaAttribute())
 	{
 		SetStamina(FMath::Clamp(GetStamina(), 0.0f, GetMaxStamina()));
+	}
+	else if (data.EvaluatedData.Attribute == GetMoveSpeedAttribute())
+	{
+		SetMoveSpeed(FMath::Max<float>(0.0f, GetMoveSpeed()));
+	}
+	else if (data.EvaluatedData.Attribute == GetSprintSpeedAttribute())
+	{
+		SetSprintSpeed(FMath::Max<float>(0.0f, GetSprintSpeed()));
+	}
+	else if (data.EvaluatedData.Attribute == GetSneakSpeedAttribute())
+	{
+		SetSneakSpeed(FMath::Max<float>(0.0f, GetSneakSpeed()));
 	}
 	/*
 	* The data reference also gives us access to the target effect spec.
@@ -95,6 +123,9 @@ void UPlayerAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME_CONDITION_NOTIFY(UPlayerAttributeSet, Strength, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UPlayerAttributeSet, MaxStrength, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UPlayerAttributeSet, CharacterLevel, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UPlayerAttributeSet, MoveSpeed, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UPlayerAttributeSet, SprintSpeed, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UPlayerAttributeSet, SneakSpeed, COND_None, REPNOTIFY_Always);
 }
 
 void UPlayerAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth) const
@@ -130,4 +161,19 @@ void UPlayerAttributeSet::OnRep_MaxStrength(const FGameplayAttributeData& OldMax
 void UPlayerAttributeSet::OnRep_CharacterLevel(const FGameplayAttributeData& OldCharacterLevel) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UPlayerAttributeSet, CharacterLevel, OldCharacterLevel);
+}
+
+void UPlayerAttributeSet::OnRep_MoveSpeed(const FGameplayAttributeData& OldMoveSpeed) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UPlayerAttributeSet, MoveSpeed, OldMoveSpeed);
+}
+
+void UPlayerAttributeSet::OnRep_SprintSpeed(const FGameplayAttributeData& OldSprintSpeed) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UPlayerAttributeSet, SprintSpeed, OldSprintSpeed);
+}
+
+void UPlayerAttributeSet::OnRep_SneakSpeed(const FGameplayAttributeData& OldSneakSpeed) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UPlayerAttributeSet, SneakSpeed, OldSneakSpeed);
 }

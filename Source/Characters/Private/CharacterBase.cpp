@@ -7,10 +7,13 @@
 #include "InventoryComponent.h"
 // TODO: This needs refactoring so we don't include loads of singular gameplay effects.
 #include "BaseStaminaRecovery.h"
-#include "SprintStaminaExpense.h"
+#include "SprintEffect.h"
+#include "SprintCost.h"
+#include "SneakEffect.h"
 #include "BaseHealthRecovery.h"
 #include "SetDefaultAttributes.h"
 #include "GAJump.h"
+#include "GameplayEffectTypes.h"
 ///////////////////
 #include "AdventureGameplayTags.h"
 #include "Logger.h"
@@ -30,7 +33,7 @@ void ACharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (getStamina() <= 0 && isSprinting)
+	if (isSprinting && getStamina() <= 0)
 	{
 		Logger::addMessage(TEXT("ACharacterBase::Tick(): Stamina depleted, stopping sprint"), SEVERITY::Info);
 		setSprinting(false);
@@ -42,7 +45,26 @@ void ACharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GetCharacterMovement()->MaxWalkSpeed = getWalkSpeed();
+	if (abilitySystemComponent)
+	{
+		// When there is a change to the MoveSpeed in our AttributeSet, 
+		// we want to update the MaxWalkSpeed of our CharacterMovementComponent accordingly.
+		abilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UPlayerAttributeSet::GetMoveSpeedAttribute())
+			.AddLambda([this](const FOnAttributeChangeData& data) {
+			Logger::addMessage(FString::Printf(TEXT("ACharacterBase::MoveSpeedChangedLambda(): MoveSpeed changed to %f"), data.NewValue), SEVERITY::Info);
+				GetCharacterMovement()->MaxWalkSpeed = data.NewValue;
+			});
+	}
+	else
+	{
+		Logger::addMessage(TEXT("ACharacterBase::BeginPlay(): Failed to find AbilitySystemComponent, cannot bind MoveSpeed change delegate"), SEVERITY::Error);
+	}
+
+	if (attributeSet)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = attributeSet->GetMoveSpeed();
+	}
+	else {Logger::addMessage(TEXT("ACharacterBase::BeginPlay(): Failed to find AttributeSet, cannot initialize MoveSpeed"), SEVERITY::Error);}
 }
 
 UAbilitySystemComponent* ACharacterBase::GetAbilitySystemComponent() const
@@ -69,101 +91,95 @@ void ACharacterBase::hasJumped()
 		{
 			//Logger::addMessage(TEXT("ACharacterBase::hasJumped(): Jump ability activated"), SEVERITY::Info);
 		}
-		else
-		{
-			Logger::addMessage(TEXT("ACharacterBase::hasJumped(): Failed to activate jump ability"), SEVERITY::Error);
-		}
+		else {Logger::addMessage(TEXT("ACharacterBase::hasJumped(): Failed to activate jump ability"), SEVERITY::Error);}
 	}
 }
 
-float ACharacterBase::getSneakSpeed() const
+/*
+* Applies the Gameplay Effects for sprinting, and removes the base stamina recovery.
+*/
+void ACharacterBase::applySprintEffect()
 {
-	return sneakSpeed;
-}
-
-float ACharacterBase::getWalkSpeed() const
-{
-	return walkSpeed;
-}
-
-float ACharacterBase::getSprintSpeed() const
-{
-	return sprintSpeed;
-}
-
-void ACharacterBase::applyStaminaDepletion()
-{
-	// When sprinting, we want to stop stamina recovery and start stamina depletion.
 	if (abilitySystemComponent)
 	{
-		// Remove base stamina recovery effect
+		FGameplayEffectContextHandle effectContext = abilitySystemComponent->MakeEffectContext();
+		effectContext.AddSourceObject(this);
+
+		FGameplayEffectSpecHandle sprintSpec = abilitySystemComponent->MakeOutgoingSpec(USprintEffect::StaticClass(), 1, effectContext);
+		abilitySystemComponent->ApplyGameplayEffectSpecToSelf(*sprintSpec.Data.Get());
+		FGameplayEffectSpecHandle sprintCostSpec = abilitySystemComponent->MakeOutgoingSpec(USprintCost::StaticClass(), 1, effectContext);
+		abilitySystemComponent->ApplyGameplayEffectSpecToSelf(*sprintCostSpec.Data.Get());
+
 		abilitySystemComponent->RemoveActiveGameplayEffectBySourceEffect(UBaseStaminaRecovery::StaticClass(), nullptr, -1);
-
-		// Apply sprint stamina depletion effect
-		FGameplayEffectContextHandle effectContext = abilitySystemComponent->MakeEffectContext();
-		effectContext.AddSourceObject(this);
-
-		FGameplayEffectSpecHandle depletionSpec = abilitySystemComponent->MakeOutgoingSpec(USprintStaminaExpense::StaticClass(), 1, effectContext);
-		if (depletionSpec.IsValid())
-		{
-			abilitySystemComponent->ApplyGameplayEffectSpecToSelf(*depletionSpec.Data.Get());
-		}
-		else
-		{
-			Logger::addMessage(TEXT("APlayerCharacter::sprintOn(): Failed to create SprintStaminaExpense spec"), SEVERITY::Error);
-		}
 	}
+	else {Logger::addMessage(TEXT("ACharacterBase::applySprintingEffect(): Failed to find AbilitySystemComponent"), SEVERITY::Error);}
 }
-//TODO: We should probably refactor these two apply functions into separate apply/remove-functions.
-void ACharacterBase::applyStaminaRecovery()
+
+/*
+* Removes the Gameplay Effects for sprinting, and reapplies the base stamina recovery.
+*/
+void ACharacterBase::removeSprintEffect()
 {
-	// When stopping sprinting, we want to stop stamina depletion and start stamina recovery again.
 	if (abilitySystemComponent)
 	{
-		// 1. Remove sprint stamina depletion effect
-		abilitySystemComponent->RemoveActiveGameplayEffectBySourceEffect(USprintStaminaExpense::StaticClass(), nullptr, -1);
+		abilitySystemComponent->RemoveActiveGameplayEffectBySourceEffect(USprintEffect::StaticClass(), nullptr, -1);
+		abilitySystemComponent->RemoveActiveGameplayEffectBySourceEffect(USprintCost::StaticClass(), nullptr, -1);
 
-		// 2. Check if the base recovery effect gameplay tag is already active before adding another recovery effect
-		if (abilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("Gameplay.State.IsBaseRecoveringStamina"))))
-		{
-			Logger::addMessage(TEXT("APlayerCharacter::sprintOff(): Base stamina recovery effect already active, not applying another"), SEVERITY::Info);
-			return;
-		}
-
-		// 3. Re-apply base stamina recovery effect
 		FGameplayEffectContextHandle effectContext = abilitySystemComponent->MakeEffectContext();
 		effectContext.AddSourceObject(this);
 
-		FGameplayEffectSpecHandle recoverySpec = abilitySystemComponent->MakeOutgoingSpec(UBaseStaminaRecovery::StaticClass(), 1, effectContext);
-		if (recoverySpec.IsValid())
-		{
-			abilitySystemComponent->ApplyGameplayEffectSpecToSelf(*recoverySpec.Data.Get());
-		}
-		else
-		{
-			Logger::addMessage(TEXT("APlayerCharacter::sprintOff(): Failed to create BaseStaminaRecovery spec"), SEVERITY::Error);
-		}
+		FGameplayEffectSpecHandle staminaRecoverySpec = abilitySystemComponent->MakeOutgoingSpec(UBaseStaminaRecovery::StaticClass(), 1, effectContext);
+		abilitySystemComponent->ApplyGameplayEffectSpecToSelf(*staminaRecoverySpec.Data.Get());
 	}
+	else {Logger::addMessage(TEXT("ACharacterBase::removeSprintEffect(): Failed to find AbilitySystemComponent"), SEVERITY::Error);}
 }
 
+void ACharacterBase::applySneakEffect()
+{
+	if (abilitySystemComponent)
+	{
+		FGameplayEffectContextHandle effectContext = abilitySystemComponent->MakeEffectContext();
+		effectContext.AddSourceObject(this);
+
+		FGameplayEffectSpecHandle sneakSpec = abilitySystemComponent->MakeOutgoingSpec(USneakEffect::StaticClass(), 1, effectContext);
+		abilitySystemComponent->ApplyGameplayEffectSpecToSelf(*sneakSpec.Data.Get());
+	}
+	else {Logger::addMessage(TEXT("ACharacterBase::applySneakEffect(): Failed to find AbilitySystemComponent"), SEVERITY::Error);}
+}
+
+void ACharacterBase::removeSneakEffect()
+{
+	if (abilitySystemComponent)
+	{
+		abilitySystemComponent->RemoveActiveGameplayEffectBySourceEffect(USneakEffect::StaticClass(), nullptr, -1);
+	}
+	else {Logger::addMessage(TEXT("ACharacterBase::removeSneakEffect(): Failed to find AbilitySystemComponent"), SEVERITY::Error);}
+}
+
+/*
+* Not sure if we saved anything by refactoring sprint/sneak into separate gameplay effects...
+*    But it seems to be best-practice, and what you should do with GAS.
+* 
+* TODO: We should probably use the gameplay tags IsSprinting and IsSneaking instead of the booleans.
+*			And also maybe make those tags mutually exclusive, maybe using GrantedApplicationImmunityTags or UImmunityGameplayEffectComponent?
+*/
 void ACharacterBase::setSprinting(const bool newIsSprinting)
 {
 	if (newIsSprinting)
 	{
+		// Avoid applying the effect multiple times if already sprinting.
+		// Edge cases (like networking or combined state changes) can cause multiple applications.
+		if (isSprinting) return;
+
 		// Only allow sprinting if we have enough stamina
 		if (getStamina() < 10)
 		{
 			Logger::addMessage(TEXT("ACharacterBase::setSprinting(): Not enough stamina to start sprinting"), SEVERITY::Info);
 			return;
 		}
-		applyStaminaDepletion();
-		GetCharacterMovement()->MaxWalkSpeed = getSprintSpeed();
+		applySprintEffect();
 		isSprinting = true;
 		return;
-	}
-	else
-	{
-		applyStaminaRecovery();
 	}
 	
 	// Take care of scenario where player is holding shift to sprint,
@@ -174,20 +190,24 @@ void ACharacterBase::setSprinting(const bool newIsSprinting)
 	if (isSneaking)
 	{
 		// If we stop sprinting but still hold sneak button, resume sneaking.
-		GetCharacterMovement()->MaxWalkSpeed = getSneakSpeed();
+		removeSprintEffect();
+		applySneakEffect();
 		return;
 	}
 
-	GetCharacterMovement()->MaxWalkSpeed = getWalkSpeed();
+	removeSprintEffect();
 	return;		// Not needed of course, but it makes it clear that nothing was accidently removed from this function
 }
 
+// TODO: We need better state handling for all this, use gameplay tags better.
 void ACharacterBase::setSneaking(const bool newIsSneaking)
 {
 	if (newIsSneaking)
 	{
+		if (isSneaking) return;
+
+		applySneakEffect();
 		isSneaking = true;
-		GetCharacterMovement()->MaxWalkSpeed = getSneakSpeed();
 		return;
 	}
 
@@ -198,11 +218,11 @@ void ACharacterBase::setSneaking(const bool newIsSneaking)
 	if (isSprinting)
 	{
 		// If we stop sneaking but still hold sprint button, resume sprinting.
-		GetCharacterMovement()->MaxWalkSpeed = getSprintSpeed();
+		applySprintEffect();
 		return;
 	}
 	//TODO: Probably need another check for if we are jumping. Currently we are slowing down mid-air if we "sneak".
-	GetCharacterMovement()->MaxWalkSpeed = getWalkSpeed();
+	removeSneakEffect();
 	return;
 }
 
@@ -225,11 +245,7 @@ int32 ACharacterBase::getCharacterLevel() const
 	{
 		return static_cast<int32>(attributeSet->GetCharacterLevel());
 	}
-	else
-	{
-		Logger::addMessage(TEXT("ACharacterBase::getCharacterLevel(): AttributeSet not yet initialized"), SEVERITY::Error);
-	}
-
+	else {Logger::addMessage(TEXT("ACharacterBase::getCharacterLevel(): AttributeSet not yet initialized"), SEVERITY::Error);}
 	return 0;
 }
 
@@ -239,11 +255,7 @@ float ACharacterBase::getHealth() const
 	{
 		return attributeSet->GetHealth();
 	}
-	else
-	{
-		Logger::addMessage(TEXT("ACharacterBase::getHealth(): AttributeSet not yet initialized"), SEVERITY::Error);
-	}
-
+	else {Logger::addMessage(TEXT("ACharacterBase::getHealth(): AttributeSet not yet initialized"), SEVERITY::Error);}
 	return 0.0f;
 }
 
@@ -253,11 +265,7 @@ float ACharacterBase::getMaxHealth() const
 	{
 		return attributeSet->GetMaxHealth();
 	}
-	else
-	{
-		Logger::addMessage(TEXT("ACharacterBase::getMaxHealth(): AttributeSet not yet initialized"), SEVERITY::Error);
-	}
-
+	else {Logger::addMessage(TEXT("ACharacterBase::getMaxHealth(): AttributeSet not yet initialized"), SEVERITY::Error);}
 	return 0.0f;
 }
 
@@ -267,11 +275,7 @@ float ACharacterBase::getStamina() const
 	{
 		return attributeSet->GetStamina();
 	}
-	else
-	{
-		Logger::addMessage(TEXT("ACharacterBase::getStamina(): AttributeSet not yet initialized"), SEVERITY::Error);
-	}
-
+	else {Logger::addMessage(TEXT("ACharacterBase::getStamina(): AttributeSet not yet initialized"), SEVERITY::Error);}
 	return 0.0f;
 }
 
@@ -281,11 +285,7 @@ float ACharacterBase::getMaxStamina() const
 	{
 		return attributeSet->GetMaxStamina();
 	}
-	else
-	{
-		Logger::addMessage(TEXT("ACharacterBase::getMaxStamina(): AttributeSet not yet initialized"), SEVERITY::Error);
-	}
-
+	else {Logger::addMessage(TEXT("ACharacterBase::getMaxStamina(): AttributeSet not yet initialized"), SEVERITY::Error);}
 	return 0.0f;
 }
 
@@ -295,11 +295,7 @@ float ACharacterBase::getStrength() const
 	{
 		return attributeSet->GetStrength();
 	}
-	else
-	{
-		Logger::addMessage(TEXT("ACharacterBase::getStrength(): AttributeSet not yet initialized"), SEVERITY::Error);
-	}
-
+	else {Logger::addMessage(TEXT("ACharacterBase::getStrength(): AttributeSet not yet initialized"), SEVERITY::Error);}
 	return 0.0f;
 }
 
@@ -309,11 +305,17 @@ float ACharacterBase::getMaxStrength() const
 	{
 		return attributeSet->GetMaxStrength();
 	}
-	else
-	{
-		Logger::addMessage(TEXT("ACharacterBase::getMaxStrength(): AttributeSet not yet initialized"), SEVERITY::Error);
-	}
+	else {Logger::addMessage(TEXT("ACharacterBase::getMaxStrength(): AttributeSet not yet initialized"), SEVERITY::Error);}
+	return 0.0f;
+}
 
+float ACharacterBase::getMoveSpeed() const
+{
+	if (attributeSet)
+	{
+		return attributeSet->GetMoveSpeed();
+	}
+	else {Logger::addMessage(TEXT("ACharacterBase::getMoveSpeed(): AttributeSet not yet initialized"), SEVERITY::Error);}
 	return 0.0f;
 }
 #pragma endregion
