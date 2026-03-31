@@ -52,6 +52,8 @@ protected:
 	void hasJumped();
 
 	float getMoveSpeed() const;
+	float getSprintSpeed() const;
+	float getSneakSpeed() const;
 
 	void setSprinting(const bool newIsSprinting);
 	void setSneaking(const bool newIsSneaking);

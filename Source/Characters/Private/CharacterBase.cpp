@@ -318,6 +318,24 @@ float ACharacterBase::getMoveSpeed() const
 	else {Logger::addMessage(TEXT("ACharacterBase::getMoveSpeed(): AttributeSet not yet initialized"), SEVERITY::Error);}
 	return 0.0f;
 }
+float ACharacterBase::getSprintSpeed() const
+{
+	if (attributeSet)
+	{
+		return attributeSet->GetSprintSpeed();
+	}
+	else { Logger::addMessage(TEXT("ACharacterBase::getSprintSpeed(): AttributeSet not yet initialized"), SEVERITY::Error); }
+	return 0.0f;
+}
+float ACharacterBase::getSneakSpeed() const
+{
+	if (attributeSet)
+	{
+		return attributeSet->GetSneakSpeed();
+	}
+	else { Logger::addMessage(TEXT("ACharacterBase::getSneakSpeed(): AttributeSet not yet initialized"), SEVERITY::Error); }
+	return 0.0f;
+}
 #pragma endregion
 
 /*

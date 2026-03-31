@@ -56,7 +56,8 @@ APlayerCharacter::APlayerCharacter()
 	if (!isUsingMetahuman)
 	{
 		firstPersonCamera->SetupAttachment(GetMesh(), "head");
-		firstPersonCamera->SetRelativeLocation(FVector(-15, 20, 2.5));
+		// X is up-down, Y is forward-backwards, Z is left-right. Doesn't make sense, but what can you do.
+		firstPersonCamera->SetRelativeLocation(FVector(0, 10, 2.5));
 		// Setting rotation rotates the camera component, but not actually the camera view, when we are using bUsePawnControlRotation = true
 		firstPersonCamera->SetRelativeRotation(FRotator(0, -90, 90));
 	}

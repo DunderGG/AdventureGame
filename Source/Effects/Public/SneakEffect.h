@@ -19,6 +19,7 @@ private:
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float sneakSpeedMultiplier = 200; // Set speed to 200
+	//TODO Add a "noise" attribute which is modified by sneak and speed.
 public:
 	
 };
