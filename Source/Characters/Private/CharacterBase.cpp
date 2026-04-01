@@ -51,7 +51,6 @@ void ACharacterBase::BeginPlay()
 		// we want to update the MaxWalkSpeed of our CharacterMovementComponent accordingly.
 		abilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UPlayerAttributeSet::GetMoveSpeedAttribute())
 			.AddLambda([this](const FOnAttributeChangeData& data) {
-			Logger::addMessage(FString::Printf(TEXT("ACharacterBase::MoveSpeedChangedLambda(): MoveSpeed changed to %f"), data.NewValue), SEVERITY::Info);
 				GetCharacterMovement()->MaxWalkSpeed = data.NewValue;
 			});
 	}
@@ -334,6 +333,15 @@ float ACharacterBase::getSneakSpeed() const
 		return attributeSet->GetSneakSpeed();
 	}
 	else { Logger::addMessage(TEXT("ACharacterBase::getSneakSpeed(): AttributeSet not yet initialized"), SEVERITY::Error); }
+	return 0.0f;
+}
+float ACharacterBase::getNoise() const
+{
+	if (attributeSet)
+	{
+		return attributeSet->GetNoise();
+	}
+	else { Logger::addMessage(TEXT("ACharacterBase::getNoise(): AttributeSet not yet initialized"), SEVERITY::Error); }
 	return 0.0f;
 }
 #pragma endregion

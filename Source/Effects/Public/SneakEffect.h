@@ -18,8 +18,7 @@ private:
 	virtual void PostInitProperties() override;
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float sneakSpeedMultiplier = 200; // Set speed to 200
-	//TODO Add a "noise" attribute which is modified by sneak and speed.
+	float noiseMultiplier = 0.5f; // Half the amount of noise 
 public:
 	
 };

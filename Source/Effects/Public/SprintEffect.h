@@ -17,7 +17,8 @@ class EFFECTS_API USprintEffect : public UGameplayEffect
 private:
 	virtual void PostInitProperties() override;
 protected:
-
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float noiseMultiplier = 2.0f; // Double the amount of noise
 public:
 	
 };

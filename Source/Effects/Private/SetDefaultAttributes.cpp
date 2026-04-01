@@ -72,6 +72,12 @@ void USetDefaultAttributes::PostInitProperties()
 	sneakSpeedMod.ModifierOp = EGameplayModOp::Override;
 	sneakSpeedMod.ModifierMagnitude = FScalableFloat(defaultSneakSpeed);
 	Modifiers.Add(sneakSpeedMod);
+
+	FGameplayModifierInfo noiseMod;
+	noiseMod.Attribute = UPlayerAttributeSet::GetNoiseAttribute();
+	noiseMod.ModifierOp = EGameplayModOp::Override;
+	noiseMod.ModifierMagnitude = FScalableFloat(defaultNoise);
+	Modifiers.Add(noiseMod);
 }
 
 

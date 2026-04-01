@@ -61,6 +61,10 @@ void UPlayerAttributeSet::PreAttributeChange(const FGameplayAttribute& attribute
 	{
 		newValue = FMath::Max<float>(0.0f, newValue);
 	}
+	else if (attribute == GetNoiseAttribute())
+	{
+		newValue = FMath::Max<float>(0.0f, newValue);
+	}
 
 	// TODO: It has been suggested to add a tag when attributes are "full" or "empty",
 	//         so it doesn't pointlessly try to add more when already full.
@@ -97,6 +101,10 @@ void UPlayerAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCall
 	{
 		SetSneakSpeed(FMath::Max<float>(0.0f, GetSneakSpeed()));
 	}
+	else if (data.EvaluatedData.Attribute == GetNoiseAttribute())
+	{
+		SetNoise(FMath::Max<float>(0.0f, GetNoise()));
+	}
 	/*
 	* The data reference also gives us access to the target effect spec.
 	* Through the data reference,
@@ -126,6 +134,7 @@ void UPlayerAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME_CONDITION_NOTIFY(UPlayerAttributeSet, MoveSpeed, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UPlayerAttributeSet, SprintSpeed, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UPlayerAttributeSet, SneakSpeed, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UPlayerAttributeSet, Noise, COND_None, REPNOTIFY_Always);
 }
 
 void UPlayerAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth) const
@@ -176,4 +185,9 @@ void UPlayerAttributeSet::OnRep_SprintSpeed(const FGameplayAttributeData& OldSpr
 void UPlayerAttributeSet::OnRep_SneakSpeed(const FGameplayAttributeData& OldSneakSpeed) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UPlayerAttributeSet, SneakSpeed, OldSneakSpeed);
+}
+
+void UPlayerAttributeSet::OnRep_Noise(const FGameplayAttributeData& OldNoise) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UPlayerAttributeSet, Noise, OldNoise);
 }

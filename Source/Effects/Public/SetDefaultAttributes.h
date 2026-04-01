@@ -24,6 +24,8 @@ protected:
 	float defaultMoveSpeed = 400.0f;
 	float defaultSprintSpeed = 800.0f;
 	float defaultSneakSpeed = 200.0f;
+	//TODO Not sure how "Noise" is gonna be used, maybe as a percentage?
+	float defaultNoise = 100.0f;
 public:
 	void SetDefaultHealth(float newDefaultHealth) { defaultHealth = newDefaultHealth; }
 	void SetDefaultStamina(float newDefaultStamina) { defaultStamina = newDefaultStamina; }
@@ -32,4 +34,5 @@ public:
 	void SetDefaultMoveSpeed(float newDefaultMoveSpeed) { defaultMoveSpeed = newDefaultMoveSpeed; }
 	void SetDefaultSprintSpeed(float newDefaultSprintSpeed) { defaultSprintSpeed = newDefaultSprintSpeed; }
 	void SetDefaultSneakSpeed(float newDefaultSneakSpeed) { defaultSneakSpeed = newDefaultSneakSpeed; }
+	void SetDefaultNoise(float newDefaultNoise) { defaultNoise = newDefaultNoise; }
 };

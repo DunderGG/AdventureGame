@@ -120,6 +120,14 @@ public:
 	ATTRIBUTE_ACCESSORS_BASIC(ThisClass, SneakSpeed);
 #pragma endregion
 
+#pragma region ATTRIBUTE NOISE
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Noise, Category = "Ability | Gameplay Attribute")
+	FGameplayAttributeData Noise;
+	UFUNCTION()
+	void OnRep_Noise(const FGameplayAttributeData& OldNoise) const;
+	ATTRIBUTE_ACCESSORS_BASIC(ThisClass, Noise);
+#pragma endregion
+
 	/* ADD NEW ATTRIBUTES HERE
 	*
 	*	When adding new attributes, also update relevant functions in .cpp file, such as:

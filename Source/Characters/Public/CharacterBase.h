@@ -55,6 +55,8 @@ protected:
 	float getSprintSpeed() const;
 	float getSneakSpeed() const;
 
+	float getNoise() const;
+
 	void setSprinting(const bool newIsSprinting);
 	void setSneaking(const bool newIsSneaking);
 #pragma endregion

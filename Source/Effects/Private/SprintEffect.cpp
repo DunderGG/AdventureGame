@@ -19,6 +19,13 @@
 *	4.	When you call RemoveActiveGameplayEffectBySourceEffect, GAS stops the periodic timer, 
 *			but it does not undo the changes made to the base value because. 
 *			From GAS's perspective, those were "Instant" permanent updates.
+*
+* Two ways to create modifiers are shown here:
+*    1. speedMod uses an AttributeBasedFloat, taking the value to set MoveSpeed to from another attribute, SprintSpeed.
+*    2. noiseMod uses a simple ScalableFloat, multiplying the Noise attribute by a constant value.
+*
+* TODO: Investigate how the AttributeBasedFloat works when other movement speed effects are applied.
+*		It will probably need something else than a simple Override?
 */
 void USprintEffect::PostInitProperties()
 {
@@ -27,36 +34,30 @@ void USprintEffect::PostInitProperties()
 	// Periodic deduction for stamina
 	DurationPolicy = EGameplayEffectDurationType::Infinite;
 
-	// 2. The Modifier for Movement Speed
+	// The Modifier for Movement Speed
 	FGameplayModifierInfo speedMod;
 	speedMod.Attribute = UPlayerAttributeSet::GetMoveSpeedAttribute();
 	speedMod.ModifierOp = EGameplayModOp::Override;
-
-	// 1. Create and configure the AttributeBasedFloat struct
+	// Create and configure the AttributeBasedFloat struct
 	FAttributeBasedFloat AttributeBasedFloat;
-
 	// Define which attribute to capture
 	AttributeBasedFloat.BackingAttribute.AttributeToCapture = UPlayerAttributeSet::GetSprintSpeedAttribute();
-
 	// Define where to capture it from (Target is the character this effect is on)
 	AttributeBasedFloat.BackingAttribute.AttributeSource = EGameplayEffectAttributeCaptureSource::Target;
-
-	// Use the actual value of the attribute (rather than a change or delta)
-	AttributeBasedFloat.AttributeCalculationType = EAttributeBasedFloatCalculationType::AttributeMagnitude;
-
-	// In C++, the coefficient defaults to 0.0f, so we MUST set it to 1.0f 
-	// or the resulting value will always be zero (800 * 0 = 0).
-	AttributeBasedFloat.Coefficient = 1.0f;
-
-	// 2. Wrap the struct into the ModifierMagnitude using the appropriate constructor
+	// Wrap the struct into the ModifierMagnitude using the appropriate constructor
 	speedMod.ModifierMagnitude = FGameplayEffectModifierMagnitude(AttributeBasedFloat);
-
 	Modifiers.Add(speedMod);
+
+	// The Modifier for Noise
+	FGameplayModifierInfo noiseMod;
+	noiseMod.Attribute = UPlayerAttributeSet::GetNoiseAttribute();
+	noiseMod.ModifierOp = EGameplayModOp::MultiplyCompound;
+	noiseMod.ModifierMagnitude = FGameplayEffectModifierMagnitude(FScalableFloat(noiseMultiplier));
+	Modifiers.Add(noiseMod);
 
 	// Add the isSprinting tag to identify this state
 	FInheritedTagContainer tagContainer = FInheritedTagContainer();
 	UTargetTagsGameplayEffectComponent& component = this->FindOrAddComponent<UTargetTagsGameplayEffectComponent>();
-
 	tagContainer.Added.AddTag(AdventureGameplayTags::Gameplay_State_IsSprinting);
 	component.SetAndApplyTargetTagChanges(tagContainer);
 }
