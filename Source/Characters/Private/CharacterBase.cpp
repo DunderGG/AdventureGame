@@ -95,7 +95,7 @@ void ACharacterBase::hasJumped()
 }
 
 /*
-* Applies the Gameplay Effects for sprinting, and removes the base stamina recovery.
+* Applies the Gameplay Effects for sprinting.
 */
 void ACharacterBase::applySprintEffect()
 {
@@ -108,14 +108,12 @@ void ACharacterBase::applySprintEffect()
 		abilitySystemComponent->ApplyGameplayEffectSpecToSelf(*sprintSpec.Data.Get());
 		FGameplayEffectSpecHandle sprintCostSpec = abilitySystemComponent->MakeOutgoingSpec(USprintCost::StaticClass(), 1, effectContext);
 		abilitySystemComponent->ApplyGameplayEffectSpecToSelf(*sprintCostSpec.Data.Get());
-
-		abilitySystemComponent->RemoveActiveGameplayEffectBySourceEffect(UBaseStaminaRecovery::StaticClass(), nullptr, -1);
 	}
 	else {Logger::addMessage(TEXT("ACharacterBase::applySprintingEffect(): Failed to find AbilitySystemComponent"), SEVERITY::Error);}
 }
 
 /*
-* Removes the Gameplay Effects for sprinting, and reapplies the base stamina recovery.
+* Removes the Gameplay Effects for sprinting.
 */
 void ACharacterBase::removeSprintEffect()
 {
@@ -126,9 +124,6 @@ void ACharacterBase::removeSprintEffect()
 
 		FGameplayEffectContextHandle effectContext = abilitySystemComponent->MakeEffectContext();
 		effectContext.AddSourceObject(this);
-
-		FGameplayEffectSpecHandle staminaRecoverySpec = abilitySystemComponent->MakeOutgoingSpec(UBaseStaminaRecovery::StaticClass(), 1, effectContext);
-		abilitySystemComponent->ApplyGameplayEffectSpecToSelf(*staminaRecoverySpec.Data.Get());
 	}
 	else {Logger::addMessage(TEXT("ACharacterBase::removeSprintEffect(): Failed to find AbilitySystemComponent"), SEVERITY::Error);}
 }
@@ -159,70 +154,62 @@ void ACharacterBase::removeSneakEffect()
 * Not sure if we saved anything by refactoring sprint/sneak into separate gameplay effects...
 *    But it seems to be best-practice, and what you should do with GAS.
 * 
-* TODO: We should probably use the gameplay tags IsSprinting and IsSneaking instead of the booleans.
-*			And also maybe make those tags mutually exclusive, maybe using GrantedApplicationImmunityTags or UImmunityGameplayEffectComponent?
+*	The booleans isSprinting and isSneaking represent the last input state of sprint and sneak buttons,
+*	   i.e. the "intent",
+*	not whether the character is ACTUALLY sprinting or sneaking, which is handled by tags.
 */
 void ACharacterBase::setSprinting(const bool newIsSprinting)
 {
-	if (newIsSprinting)
-	{
-		// Avoid applying the effect multiple times if already sprinting.
-		// Edge cases (like networking or combined state changes) can cause multiple applications.
-		if (isSprinting) return;
+	isSprinting = newIsSprinting; // Toggle intent to sprint or not
 
-		// Only allow sprinting if we have enough stamina
-		if (getStamina() < 10)
-		{
-			Logger::addMessage(TEXT("ACharacterBase::setSprinting(): Not enough stamina to start sprinting"), SEVERITY::Info);
-			return;
-		}
-		applySprintEffect();
-		isSprinting = true;
-		return;
-	}
-	
-	// Take care of scenario where player is holding shift to sprint,
-	//	then presses ctrl to sneak while still holding shift,
-	//	and then lets go off shift, calling setSprinting(false).
-	//		We do not want MaxWalkSpeed to be set to our walk speed
-	isSprinting = false;
-	if (isSneaking)
-	{
-		// If we stop sprinting but still hold sneak button, resume sneaking.
-		removeSprintEffect();
-		applySneakEffect();
-		return;
-	}
+    if (newIsSprinting)
+    {
+		//Check the tag if we are already sprinting
+		if (abilitySystemComponent->HasMatchingGameplayTag(AdventureGameplayTags::Gameplay_State_IsSprinting)) return;
 
-	removeSprintEffect();
-	return;		// Not needed of course, but it makes it clear that nothing was accidently removed from this function
+		// Only allow sprinting if we have recovered enough stamina
+        if (getStamina() < 10) return;
+
+        applySprintEffect();
+    }
+    else
+    {
+        removeSprintEffect();
+
+        // If we stop sprinting but are still holding the sneak button, resume sneaking.
+        if (isSneaking)
+        {
+            applySneakEffect();
+        }
+    }
 }
 
-// TODO: We need better state handling for all this, use gameplay tags better.
+/*
+* TODO: Instead of switching between sprint and sneaking, maybe when hitting sneak button while sprinting we ground slide instead.
+*/
 void ACharacterBase::setSneaking(const bool newIsSneaking)
 {
-	if (newIsSneaking)
-	{
-		if (isSneaking) return;
+    isSneaking = newIsSneaking; // Toggle intent to sneak or not
 
-		applySneakEffect();
-		isSneaking = true;
-		return;
-	}
+    if (newIsSneaking)
+    {
+		//Check the tag if we are already sneaking
+		if (abilitySystemComponent->HasMatchingGameplayTag(AdventureGameplayTags::Gameplay_State_IsSneaking)) return;
 
-	// Same as the special scenario described in setSprinting()
-	//		We do not want MaxWalkSpeed to be set to our walk speed
-	//	TODO: For the future, this could be a sprint and slide functionality to add
-	isSneaking = false;
-	if (isSprinting)
-	{
-		// If we stop sneaking but still hold sprint button, resume sprinting.
-		applySprintEffect();
-		return;
-	}
-	//TODO: Probably need another check for if we are jumping. Currently we are slowing down mid-air if we "sneak".
-	removeSneakEffect();
-	return;
+        // Apply sneak. This will automatically kill the SprintEffect via the 
+        // RemoveOtherGameplayEffectComponent we added earlier.
+        applySneakEffect();
+    }
+    else
+    {
+        removeSneakEffect();
+
+        // If we stop sneaking and are still holding the sprint button, resume sprinting.
+        if (isSprinting && getStamina() >= 10)
+        {
+            applySprintEffect();
+        }
+    }
 }
 
 // Called to bind functionality to input

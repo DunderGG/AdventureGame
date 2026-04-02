@@ -22,8 +22,9 @@ protected:
 	float defaultStrength = 10.0f;
 	float defaultLevel = 1.0f;
 	float defaultMoveSpeed = 400.0f;
-	float defaultSprintSpeed = 800.0f;
-	float defaultSneakSpeed = 200.0f;
+	//TODO Try using multipliers instead of flat values. Not sure how this combines with other effects.
+	float defaultSprintSpeed = 2.0f;
+	float defaultSneakSpeed = 0.5f;
 	//TODO Not sure how "Noise" is gonna be used, maybe as a percentage?
 	float defaultNoise = 100.0f;
 public:

@@ -2,6 +2,8 @@
 
 #include "SprintEffect.h"
 #include "GameplayEffectComponents/TargetTagsGameplayEffectComponent.h"
+#include "GameplayEffectComponents/TargetTagRequirementsGameplayEffectComponent.h"
+#include "GameplayEffectComponents/RemoveOtherGameplayEffectComponent.h"
 #include "PlayerAttributeSet.h"
 #include "AdventureGameplayTags.h"
 
@@ -25,7 +27,9 @@
 *    2. noiseMod uses a simple ScalableFloat, multiplying the Noise attribute by a constant value.
 *
 * TODO: Investigate how the AttributeBasedFloat works when other movement speed effects are applied.
-*		It will probably need something else than a simple Override?
+*		It will probably need something else than a simple Override? Trying MultiplyCompound for now, 
+*			but it may need a custom calculation class to properly combine with other speed modifiers.
+*    Example: MultiplyCompound: 2.0x base speed. If a potion gives +10%, you get 400 * 2.0 * 1.1 = 880.
 */
 void USprintEffect::PostInitProperties()
 {
@@ -34,10 +38,13 @@ void USprintEffect::PostInitProperties()
 	// Periodic deduction for stamina
 	DurationPolicy = EGameplayEffectDurationType::Infinite;
 
+	StackingType = EGameplayEffectStackingType::AggregateByTarget;
+	StackLimitCount = 1;
+
 	// The Modifier for Movement Speed
 	FGameplayModifierInfo speedMod;
 	speedMod.Attribute = UPlayerAttributeSet::GetMoveSpeedAttribute();
-	speedMod.ModifierOp = EGameplayModOp::Override;
+	speedMod.ModifierOp = EGameplayModOp::MultiplyCompound;
 	// Create and configure the AttributeBasedFloat struct
 	FAttributeBasedFloat AttributeBasedFloat;
 	// Define which attribute to capture
@@ -55,9 +62,18 @@ void USprintEffect::PostInitProperties()
 	noiseMod.ModifierMagnitude = FGameplayEffectModifierMagnitude(FScalableFloat(noiseMultiplier));
 	Modifiers.Add(noiseMod);
 
-	// Add the isSprinting tag to identify this state
+	// Add the isSprinting tag to identify this state, 
+	// and remove the isSneaking tag to make sure they are mutually exclusive.
 	FInheritedTagContainer tagContainer = FInheritedTagContainer();
 	UTargetTagsGameplayEffectComponent& component = this->FindOrAddComponent<UTargetTagsGameplayEffectComponent>();
 	tagContainer.Added.AddTag(AdventureGameplayTags::Gameplay_State_IsSprinting);
 	component.SetAndApplyTargetTagChanges(tagContainer);
+
+	URemoveOtherGameplayEffectComponent& removalComponent = this->FindOrAddComponent<URemoveOtherGameplayEffectComponent>();
+
+	// Create a query that finds any active effect providing the "IsSneaking" tag
+	FGameplayEffectQuery sneakQuery = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(
+		FGameplayTagContainer(AdventureGameplayTags::Gameplay_State_IsSneaking)
+	);
+	removalComponent.RemoveGameplayEffectQueries.Add(sneakQuery);
 }

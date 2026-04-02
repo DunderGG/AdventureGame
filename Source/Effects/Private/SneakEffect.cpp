@@ -2,6 +2,8 @@
 
 #include "SneakEffect.h"
 #include "GameplayEffectComponents/TargetTagsGameplayEffectComponent.h"
+#include "GameplayEffectComponents/TargetTagRequirementsGameplayEffectComponent.h"
+#include "GameplayEffectComponents/RemoveOtherGameplayEffectComponent.h"
 #include "PlayerAttributeSet.h"
 #include "AdventureGameplayTags.h"
 
@@ -14,10 +16,13 @@ void USneakEffect::PostInitProperties()
 
 	DurationPolicy = EGameplayEffectDurationType::Infinite;
 
+	StackingType = EGameplayEffectStackingType::AggregateByTarget;
+	StackLimitCount = 1;
+
 	// The Modifier for Movement Speed
 	FGameplayModifierInfo speedMod;
 	speedMod.Attribute = UPlayerAttributeSet::GetMoveSpeedAttribute();
-	speedMod.ModifierOp = EGameplayModOp::Override;
+	speedMod.ModifierOp = EGameplayModOp::MultiplyCompound;
 	FAttributeBasedFloat AttributeBasedFloat;
 	AttributeBasedFloat.BackingAttribute.AttributeToCapture = UPlayerAttributeSet::GetSneakSpeedAttribute();
 	AttributeBasedFloat.BackingAttribute.AttributeSource = EGameplayEffectAttributeCaptureSource::Target;
@@ -31,9 +36,18 @@ void USneakEffect::PostInitProperties()
 	noiseMod.ModifierMagnitude = FGameplayEffectModifierMagnitude(FScalableFloat(noiseMultiplier));
 	Modifiers.Add(noiseMod);
 
-	// Add the isSneaking tag to identify this state
+	// Add the isSneaking tag to identify this state,
+	// and remove the isSprinting tag to make sure they are mutually exclusive.
 	FInheritedTagContainer tagContainer = FInheritedTagContainer();
 	UTargetTagsGameplayEffectComponent& component = this->FindOrAddComponent<UTargetTagsGameplayEffectComponent>();
 	tagContainer.Added.AddTag(AdventureGameplayTags::Gameplay_State_IsSneaking);
 	component.SetAndApplyTargetTagChanges(tagContainer);
+
+	URemoveOtherGameplayEffectComponent& removalComponent = this->FindOrAddComponent<URemoveOtherGameplayEffectComponent>();
+
+	// Create a query that finds any active effect providing the "IsSprinting" tag
+	FGameplayEffectQuery sprintQuery = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(
+		FGameplayTagContainer(AdventureGameplayTags::Gameplay_State_IsSprinting)
+	);
+	removalComponent.RemoveGameplayEffectQueries.Add(sprintQuery);
 }

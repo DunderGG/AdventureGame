@@ -19,7 +19,9 @@ private:
 protected:
 	// TODO: Not sure what UPROPERTY specifiers I need here, or if I need any at all.
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GAS | Recovery")
-	float recoveryRate = 5.0f;
+	float recoveryMagnitude = 0.5f;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GAS | Recovery")
+	float recoveryPeriod = 0.1f;
 public:
 	
 };
