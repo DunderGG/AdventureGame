@@ -346,14 +346,14 @@ void UInventoryComponent::resizeInventoryArray()
 		{
 			inventory.Add(FInventorySlot());
 		}
-		Logger::addMessage(FString::Printf(TEXT("UInventory::resizeInventory(): Inventory resized to %d slots. Added empty slots."), totalNumberOfSlots), SEVERITY::Info);
+		Logger::addMessage(FString::Printf(TEXT("UInventory::resizeInventory(): Inventory resized to %d slots. Added empty slots."), totalNumberOfSlots), SEVERITY::Info, true, true, false);
 		return;
 	}
 	
 	// If we are over the size limit... drop stuff
 	if (inventory.Num() > totalNumberOfSlots)
 	{
-		Logger::addMessage(FString::Printf(TEXT("UInventory::resizeInventory(): Inventory resized to %d slots. Dropping extra items."), totalNumberOfSlots), SEVERITY::Info);
+		Logger::addMessage(FString::Printf(TEXT("UInventory::resizeInventory(): Inventory resized to %d slots. Dropping extra items."), totalNumberOfSlots), SEVERITY::Info, true, true, false);
 		while (inventory.Num() > totalNumberOfSlots)
 		{
 			// TODO: Drop extra items on to the ground somehow instead of just deleting them... 

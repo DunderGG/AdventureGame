@@ -22,7 +22,7 @@ struct FTimeData
 	int dayOfMonth = 1;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, SaveGame)
-	int hour = 5;
+	int hour = 10;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, SaveGame)
 	int minute = 0;

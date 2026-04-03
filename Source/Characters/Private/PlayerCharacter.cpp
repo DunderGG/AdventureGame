@@ -25,14 +25,6 @@ APlayerCharacter::APlayerCharacter()
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, rotationRate, 0.0f);
-	GetCharacterMovement()->JumpZVelocity = jumpZVelocity;
-	GetCharacterMovement()->AirControl = airControl;
-	GetCharacterMovement()->MaxWalkSpeed = maxWalkSpeed;
-	GetCharacterMovement()->MinAnalogWalkSpeed = minAnalogWalkSpeed;
-	GetCharacterMovement()->BrakingDecelerationFalling = brakingDecelerationFalling;
-	GetCharacterMovement()->BrakingDecelerationWalking = brakingDecelerationWalking;
-
 	cameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("cameraBoom"));
 	cameraBoom->SetupAttachment(RootComponent);
 	// TODO: Can we modify cameraBoom->TargetArmLength to make a zoom in and out effect when scrolling the mouse wheel?
@@ -250,7 +242,7 @@ void APlayerCharacter::initAbilitySystemComponent()
 	{
 		Logger::addMessage(TEXT("APlayerCharacter::initAbilitySystemComponent(): Failed finding PlayerState"), SEVERITY::Error);
 	}
-	Logger::addMessage(TEXT("APlayerCharacter::initAbilitySystemComponent(): Finished"), SEVERITY::Info);
+	Logger::addMessage(TEXT("APlayerCharacter::initAbilitySystemComponent(): Finished"), SEVERITY::Debug, true, true, false);
 }
 
 /*
@@ -310,7 +302,7 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 
 	initHUD();
 
-	Logger::addMessage(TEXT("APlayerCharacter::PossessedBy(): Finished"), SEVERITY::Debug);
+	Logger::addMessage(TEXT("APlayerCharacter::PossessedBy(): Finished"), SEVERITY::Debug, true, true, false);
 }
 /*
 * TODO: Dunno what this is for...
@@ -324,5 +316,5 @@ void APlayerCharacter::OnRep_PlayerState()
 	initAbilitySystemComponent();
 	initHUD();
 
-	Logger::addMessage(TEXT("APlayerCharacter::OnRep_PlayerState(): Finished"), SEVERITY::Debug);
+	Logger::addMessage(TEXT("APlayerCharacter::OnRep_PlayerState(): Finished"), SEVERITY::Debug, true, true, false);
 }

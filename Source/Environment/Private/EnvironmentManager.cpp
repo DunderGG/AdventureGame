@@ -45,15 +45,15 @@ void UEnvironmentManager::Initialize(FSubsystemCollectionBase& Collection)
 		SetTickableTickType(ETickableTickType::Conditional);
 	}
 
-	Logger::addMessage(TEXT("Environment Manager Initialized"), SEVERITY::Debug);
-	Logger::addMessage(TEXT("EVERYTHING BEFORE THIS HAPPENS BEFORE WE EVEN START THE GAME"), SEVERITY::Debug);
+	Logger::addMessage(TEXT("Environment Manager Initialized"), SEVERITY::Debug, true, true, false);
+	Logger::addMessage(TEXT("EVERYTHING BEFORE THIS HAPPENS BEFORE WE EVEN START THE GAME"), SEVERITY::Debug, true, true, false);
 }
 
 void UEnvironmentManager::Deinitialize()
 {
 	Super::Deinitialize();
 	messageManager = nullptr;
-	Logger::addMessage(TEXT("Environment Manager Deinitialized"), SEVERITY::Debug);
+	Logger::addMessage(TEXT("Environment Manager Deinitialized"), SEVERITY::Debug, true, true, false);
 }
 
 bool UEnvironmentManager::IsTickable() const
@@ -81,7 +81,7 @@ void UEnvironmentManager::Tick(float DeltaTime)
 		updateTimeOfDayRef();
 		if (messageManager)
 		{
-			//Logger::addMessage(TEXT("Environment Manager: Sending precise time update"), SEVERITY::Debug);
+			//Logger::addMessage(TEXT("Environment Manager: Sending precise time update"), SEVERITY::Debug, true, true, false);
 			messageManager->updatePreciseTime(timeOfDayRef);
 		}
 	}
@@ -317,7 +317,7 @@ void UEnvironmentManager::updateTemperature()
 			Logger::addMessage(TEXT("Environment Manager: Daily temperature curve not found."), SEVERITY::Error);
 		}
 		
-		Logger::addMessage(FString::Printf(TEXT("UEnvironmentManager::updateTemperature: Current temperature is %f"), currentTemp), SEVERITY::Debug);
+		Logger::addMessage(FString::Printf(TEXT("UEnvironmentManager::updateTemperature: Current temperature is %f"), currentTemp), SEVERITY::Debug, true, true, false);
 
 		if (messageManager)
 		{
@@ -362,6 +362,6 @@ void UEnvironmentManager::OnWorldBeginPlay(UWorld& InWorld)
 
 	Logger::addMessage(FString::Printf(TEXT(
 		"UEnvironmentManager::OnWorldBeginPlay: Minute length calculated to %f seconds per minute"), 
-		minuteLength), SEVERITY::Debug);
-	Logger::addMessage(FString::Printf(TEXT("UEnvironmentManager::OnWorldBeginPlay: Day of year is %d"), currentTime.dayOfYear), SEVERITY::Debug);
+		minuteLength), SEVERITY::Debug, true, true, false);
+	Logger::addMessage(FString::Printf(TEXT("UEnvironmentManager::OnWorldBeginPlay: Day of year is %d"), currentTime.dayOfYear), SEVERITY::Debug, true, true, false);
 }

@@ -126,7 +126,7 @@ void ASunMoonController::updateSunLightPrecise()
 	sunComponent->SetIntensity(newLightIntensity);
 	
 	sunComponent->UpdateColorAndBrightness();
-	//Logger::addMessage(FString::Printf(TEXT("SunMoonController: Precise time update - sun light intensity set to %f and rotation to "), newLightIntensity) + newLightRotation.ToString(), SEVERITY::Debug);
+	//Logger::addMessage(FString::Printf(TEXT("SunMoonController: Precise time update - sun light intensity set to %f and rotation to "), newLightIntensity) + newLightRotation.ToString(), SEVERITY::Debug, true, true, false);
 }
 
 void ASunMoonController::updateSkyLight()
@@ -166,7 +166,7 @@ void ASunMoonController::BeginPlay()
 
 	if (hasDayNightCycle)
 	{
-		Logger::addMessage(TEXT("SunMoonController: Day/Night cycle enabled"), SEVERITY::Info);
+		Logger::addMessage(TEXT("SunMoonController: Day/Night cycle enabled"), SEVERITY::Info, true, true, false);
 		TObjectPtr<UWorld> world = GetWorld();
 		if (IsValid(world) && world->IsGameWorld())
 		{
@@ -177,7 +177,7 @@ void ASunMoonController::BeginPlay()
 			{
 				messageManager->onTimeChange.AddDynamic(this, &ASunMoonController::timeChangeUpdate);
 				messageManager->onPreciseTimeChange.AddDynamic(this, &ASunMoonController::preciseTimeChangeUpdate);
-				Logger::addMessage(TEXT("SunMoonController: Subscribed to time change delegate"), SEVERITY::Debug);
+				Logger::addMessage(TEXT("SunMoonController: Subscribed to time change delegate"), SEVERITY::Debug, true, true, false);
 			}
 			else
 			{
