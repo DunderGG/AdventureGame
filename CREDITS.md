@@ -5,7 +5,6 @@ Will try and add all the sources and useful links I've been using for the projec
 
 ### General
 
-
 * Used the [*Code a First-Person Adventure Game*](https://dev.epicgames.com/documentation/en-us/unreal-engine/code-a-firstperson-adventure-game-in-unreal-engine) tutorial to start implementing basic functionality.
 
 * The above tutorial has plenty of issues, so the [*forums*](https://forums.unrealengine.com/categories?tag=unreal-engine) were very helpful.
@@ -13,6 +12,8 @@ Will try and add all the sources and useful links I've been using for the projec
 * [*Play Audio in C++ for Unreal Engine in 4 Minutes!*](https://www.youtube.com/watch?v=VsAPj4IDN0Y)
 
 * https://www.youtube.com/@GasCityGames
+
+* https://www.unrealcode.net/
 
 ### GAS
 * https://github.com/tranek/GASDocumentation/tree/master
@@ -24,6 +25,11 @@ Will try and add all the sources and useful links I've been using for the projec
 
 ### Animations 
 * https://www.youtube.com/watch?v=o23kQRj3zd4
+
+### Compass 
+* https://www.youtube.com/watch?v=o-pgOvQlI6I
+* https://fontmeme.com/fallout-font/
+* https://forums.dfworkshop.net/viewtopic.php?t=630
 
 ## Contributors
 None so far. 
