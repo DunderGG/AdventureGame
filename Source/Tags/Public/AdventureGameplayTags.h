@@ -22,7 +22,8 @@ namespace AdventureGameplayTags
 	TAGS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Gameplay_State_IsSprinting);
 	TAGS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Gameplay_State_IsSneaking);
 	TAGS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Gameplay_State_IsKicking);
-	TAGS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Gameplay_State_IsInAir);
+	TAGS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Gameplay_State_IsAirborne);
+	TAGS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Gameplay_State_IsMoving);
 	TAGS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Kick);
 	
 	// Declare all of the custom native tags that AdventureGame will use

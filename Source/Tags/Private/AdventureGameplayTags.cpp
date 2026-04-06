@@ -20,7 +20,8 @@ namespace AdventureGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Gameplay_State_IsSprinting, "Gameplay.State.IsSprinting", "Is the character currently sprinting?");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Gameplay_State_IsSneaking, "Gameplay.State.IsSneaking", "Is the character currently sneaking?");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Gameplay_State_IsKicking, "Gameplay.State.IsKicking", "Are we currently Kicking?");
-	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Gameplay_State_IsInAir, "Gameplay.State.IsInAir", "Are we currently in the air?");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Gameplay_State_IsAirborne, "Gameplay.State.IsAirborne", "Are we currently in the air?");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Gameplay_State_IsMoving, "Gameplay.State.IsMoving", "Is the character currently moving?");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(GameplayCue_Kick, "GameplayCue.Kick", "Don't remember...");
 
 	FGameplayTag FindTagByString(const FString& TagString, bool bMatchPartialString)

@@ -13,7 +13,9 @@
 *   2. DO NOT SET A PERIOD. When an effect has a Period > 0, GAS treats all modifiers as INSTANT,
 *      which means they will change the attributes BASE VALUE, not the CURRENT VALUE.
 *   3. This means that for sprinting with a stamina cost, we need a separate SprintCost effect that is periodic.
-* 
+*
+* Understanding the difference between BASE and CURRENT values, and what affects what, is CRUCIAL.
+*
 * In other words:
 *	1.	When you apply the effect, it immediately performs an Instant override of your MoveSpeed base value to 800.
 *	2.	Every X seconds, it does it again.
@@ -35,13 +37,13 @@ void USprintEffect::PostInitProperties()
 {
 	Super::PostInitProperties();
 
-	// Periodic deduction for stamina
 	DurationPolicy = EGameplayEffectDurationType::Infinite;
 
+	// Only allow one instance of the effect, so that we don't move faster and faster.
 	StackingType = EGameplayEffectStackingType::AggregateByTarget;
 	StackLimitCount = 1;
 
-	// The Modifier for Movement Speed
+	// The Modifier for Movement Speed   (AttributeBasedFloat)
 	FGameplayModifierInfo speedMod;
 	speedMod.Attribute = UPlayerAttributeSet::GetMoveSpeedAttribute();
 	speedMod.ModifierOp = EGameplayModOp::MultiplyCompound;
@@ -55,7 +57,7 @@ void USprintEffect::PostInitProperties()
 	speedMod.ModifierMagnitude = FGameplayEffectModifierMagnitude(AttributeBasedFloat);
 	Modifiers.Add(speedMod);
 
-	// The Modifier for Noise
+	// The Modifier for Noise   (ScalableFloat)
 	FGameplayModifierInfo noiseMod;
 	noiseMod.Attribute = UPlayerAttributeSet::GetNoiseAttribute();
 	noiseMod.ModifierOp = EGameplayModOp::MultiplyCompound;
@@ -63,17 +65,21 @@ void USprintEffect::PostInitProperties()
 	Modifiers.Add(noiseMod);
 
 	// Add the isSprinting tag to identify this state, 
-	// and remove the isSneaking tag to make sure they are mutually exclusive.
 	FInheritedTagContainer tagContainer = FInheritedTagContainer();
 	UTargetTagsGameplayEffectComponent& component = this->FindOrAddComponent<UTargetTagsGameplayEffectComponent>();
 	tagContainer.Added.AddTag(AdventureGameplayTags::Gameplay_State_IsSprinting);
 	component.SetAndApplyTargetTagChanges(tagContainer);
 
-	URemoveOtherGameplayEffectComponent& removalComponent = this->FindOrAddComponent<URemoveOtherGameplayEffectComponent>();
-
 	// Create a query that finds any active effect providing the "IsSneaking" tag
+	// so that it can be removed when sprinting, to make sure they are mutually exclusive.
+	URemoveOtherGameplayEffectComponent& removalComponent = this->FindOrAddComponent<URemoveOtherGameplayEffectComponent>();
 	FGameplayEffectQuery sneakQuery = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(
 		FGameplayTagContainer(AdventureGameplayTags::Gameplay_State_IsSneaking)
 	);
 	removalComponent.RemoveGameplayEffectQueries.Add(sneakQuery);
+
+	// The IsSprinting tag should only be active on the character whenever the character IsMoving.
+	UTargetTagRequirementsGameplayEffectComponent& requirements =
+		this->FindOrAddComponent<UTargetTagRequirementsGameplayEffectComponent>();
+	requirements.OngoingTagRequirements.RequireTags.AddTag(AdventureGameplayTags::Gameplay_State_IsMoving);
 }

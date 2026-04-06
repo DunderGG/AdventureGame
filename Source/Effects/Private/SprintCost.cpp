@@ -33,5 +33,9 @@ void USprintCost::PostInitProperties()
 	UTargetTagRequirementsGameplayEffectComponent& requirements =
 		this->FindOrAddComponent<UTargetTagRequirementsGameplayEffectComponent>();
 
+	// The effect only "ticks" if both tags are present.
 	requirements.OngoingTagRequirements.RequireTags.AddTag(AdventureGameplayTags::Gameplay_State_IsSprinting);
+	requirements.OngoingTagRequirements.RequireTags.AddTag(AdventureGameplayTags::Gameplay_State_IsMoving);
+
+	requirements.OngoingTagRequirements.IgnoreTags.AddTag(AdventureGameplayTags::Gameplay_State_IsAirborne);
 }

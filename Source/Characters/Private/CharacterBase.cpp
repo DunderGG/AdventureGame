@@ -27,16 +27,36 @@ ACharacterBase::ACharacterBase()
 	PrimaryActorTick.bCanEverTick = false;
 
 	inventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("inventory"));
+
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, rotationRate, 0.0f);
+	GetCharacterMovement()->JumpZVelocity = jumpZVelocity;
+	GetCharacterMovement()->AirControl = airControl;
+	GetCharacterMovement()->MaxWalkSpeed = maxWalkSpeed;
+	GetCharacterMovement()->MinAnalogWalkSpeed = minAnalogWalkSpeed;
+	GetCharacterMovement()->BrakingDecelerationFalling = brakingDecelerationFalling;
+	GetCharacterMovement()->BrakingDecelerationWalking = brakingDecelerationWalking;
+
+	if (GetMovementComponent())
+	{
+		GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true; // Allow crouching, which we will use for sneaking.
+	}
 }
 
 void ACharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (isSprinting && getStamina() <= 0)
+	if (abilitySystemComponent)
 	{
-		Logger::addMessage(TEXT("ACharacterBase::Tick(): Stamina depleted, stopping sprint"), SEVERITY::Info);
-		setSprinting(false);
+		// We need to know if the character is actually moving or not, not just whether the sprint button is being pressed.
+		// TODO Investigate a reasonable acceleration threshold. 0.01 was too low. 1 seems to work with keyboard. 
+		//		For controllers, probably need much higher.
+		isMoving = GetCharacterMovement()->GetCurrentAcceleration().SizeSquared() > 1;
+		// If we are physically moving, add the IsMoving tag, if not, remove it.
+		abilitySystemComponent->SetLooseGameplayTagCount(AdventureGameplayTags::Gameplay_State_IsMoving, isMoving ? 1 : 0);
+
+		isAirborne = GetCharacterMovement()->IsFalling();
+		abilitySystemComponent->SetLooseGameplayTagCount(AdventureGameplayTags::Gameplay_State_IsAirborne, isAirborne ? 1 : 0);
 	}
 }
 
@@ -52,11 +72,43 @@ void ACharacterBase::BeginPlay()
 		abilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UPlayerAttributeSet::GetMoveSpeedAttribute())
 			.AddLambda([this](const FOnAttributeChangeData& data) {
 				GetCharacterMovement()->MaxWalkSpeed = data.NewValue;
+
+				// Map Rotation Rate to Move Speed. Higher Move Speed means lower Rotation Rate.
+				// TODO Not sure if this actually makes any difference in first person. Needs more work.
+				float newRotationYaw = FMath::GetMappedRangeValueClamped(
+					FVector2D(getSneakSpeed(), getSprintSpeed()),   // The Input Range (MoveSpeed)
+					FVector2D(720.0f, 360.0f),						// The Output Range (RotationRate)
+					data.NewValue									// The value we want to map (current MoveSpeed)
+				);
+				GetCharacterMovement()->RotationRate.Yaw = newRotationYaw;
 			});
+
+		// Listen for changes to the IsSneaking tag, and when it changes, call Crouch() or UnCrouch() accordingly.
+		abilitySystemComponent->RegisterGameplayTagEvent(AdventureGameplayTags::Gameplay_State_IsSneaking, EGameplayTagEventType::NewOrRemoved)
+			.AddLambda([this](const FGameplayTag callbackTag, int32 newCount) {
+					if (newCount > 0) { Crouch(); }
+					else { UnCrouch(); }
+			});
+
+		// Listen for changes to the Stamina attribute, and stop sprinting when it hits 0
+		abilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UPlayerAttributeSet::GetStaminaAttribute())
+			.AddLambda([this](const FOnAttributeChangeData& data) {
+				if (data.NewValue <= 0 && isSprinting)
+				{
+					Logger::addMessage(TEXT("ACharacterBase::BeginPlay(): Stamina depleted, stopping sprint"), SEVERITY::Info);
+					setSprinting(false);
+				}
+			});
+
+		// Listen for changes to the MoveSpeed attribute, and update Character Rotation Rate accordingly
+		// At 1200 move speed or above, rotation rate is reduced to 30% of base value, at 0 move speed, rotation rate is at 100% of base value.
+		// Example: If speed is 800 (sprint), set rotation rate to 360. 
+		// If speed is 400 (walk), set it to 720.
+	
 	}
 	else
 	{
-		Logger::addMessage(TEXT("ACharacterBase::BeginPlay(): Failed to find AbilitySystemComponent, cannot bind MoveSpeed change delegate"), SEVERITY::Error);
+		Logger::addMessage(TEXT("ACharacterBase::BeginPlay(): Failed to find AbilitySystemComponent, cannot bind ASC change delegates"), SEVERITY::Error);
 	}
 
 	if (attributeSet)
@@ -151,12 +203,11 @@ void ACharacterBase::removeSneakEffect()
 }
 
 /*
-* Not sure if we saved anything by refactoring sprint/sneak into separate gameplay effects...
-*    But it seems to be best-practice, and what you should do with GAS.
-* 
 *	The booleans isSprinting and isSneaking represent the last input state of sprint and sneak buttons,
 *	   i.e. the "intent",
 *	not whether the character is ACTUALLY sprinting or sneaking, which is handled by tags.
+* 
+* TODO: We may want to prioritize one over the other in case both buttons are held. Maybe look at how other games handle this.
 */
 void ACharacterBase::setSprinting(const bool newIsSprinting)
 {
@@ -166,7 +217,6 @@ void ACharacterBase::setSprinting(const bool newIsSprinting)
     {
 		//Check the tag if we are already sprinting
 		if (abilitySystemComponent->HasMatchingGameplayTag(AdventureGameplayTags::Gameplay_State_IsSprinting)) return;
-
 		// Only allow sprinting if we have recovered enough stamina
         if (getStamina() < 10) return;
 
@@ -374,7 +424,7 @@ void ACharacterBase::applyStartupEffects()
 			}
 			++index;
 		}
-		Logger::addMessage(FString::Printf(TEXT("ACharacterBase::giveStartupEffects(): %d Startup effects applied"), startupEffects.Num()), SEVERITY::Debug);
+		Logger::addMessage(FString::Printf(TEXT("ACharacterBase::giveStartupEffects(): %d Startup effects applied"), startupEffects.Num()), SEVERITY::Debug, true, true, false);
 		abilitySystemComponent->areStartupEffectsApplied = true;
 	}
 	else
@@ -473,7 +523,7 @@ void ACharacterBase::giveDefaultAbilities()
 			}
 			// TODO: Remember to set this to false in removeCharacterAbilities().
 			abilitySystemComponent->areDefaultAbilitiesGiven = true;
-			Logger::addMessage(FString::Printf(TEXT("ACharacterBase::giveDefaultAbilities(): %d Default abilities given"), defaultAbilities.Num()), SEVERITY::Debug);
+			Logger::addMessage(FString::Printf(TEXT("ACharacterBase::giveDefaultAbilities(): %d Default abilities given"), defaultAbilities.Num()), SEVERITY::Debug, true, true, false);
 		}
 		else
 		{

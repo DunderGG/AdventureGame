@@ -45,7 +45,7 @@ void USneakEffect::PostInitProperties()
 
 	URemoveOtherGameplayEffectComponent& removalComponent = this->FindOrAddComponent<URemoveOtherGameplayEffectComponent>();
 
-	// Create a query that finds any active effect providing the "IsSprinting" tag
+	// Create a query that finds any active effect providing the "IsSprinting" tag and remove it.
 	FGameplayEffectQuery sprintQuery = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(
 		FGameplayTagContainer(AdventureGameplayTags::Gameplay_State_IsSprinting)
 	);
