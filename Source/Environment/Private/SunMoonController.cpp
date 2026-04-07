@@ -175,7 +175,10 @@ void ASunMoonController::BeginPlay()
 
 			if (IsValid(messageManager))
 			{
+				// Make sure no duplicate subscriptions are happening, then subscribe to the time change delegates.
+				messageManager->onTimeChange.RemoveAll(this);
 				messageManager->onTimeChange.AddDynamic(this, &ASunMoonController::timeChangeUpdate);
+				messageManager->onPreciseTimeChange.RemoveAll(this);
 				messageManager->onPreciseTimeChange.AddDynamic(this, &ASunMoonController::preciseTimeChangeUpdate);
 				Logger::addMessage(TEXT("SunMoonController: Subscribed to time change delegate"), SEVERITY::Debug, true, true, false);
 			}

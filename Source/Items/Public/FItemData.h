@@ -4,9 +4,34 @@
 #include "Engine/DataTable.h"
 #include "FItemData.generated.h"
 
+class UItemDefinition;
+
 // By default, items do not use durability.
 const float DEFAULT_DURABILITY = -1.0f;
 
+UENUM(BlueprintType)
+enum class EItemQuality : uint8
+{
+	Poor UMETA(DisplayName = "Poor"),
+	Common UMETA(DisplayName = "Common"),
+	Uncommon UMETA(DisplayName = "Uncommon"),
+	Rare UMETA(DisplayName = "Rare"),
+	Epic UMETA(DisplayName = "Epic"),
+	Legendary UMETA(DisplayName = "Legendary")
+};
+
+UENUM(BlueprintType)
+enum class EItemType : uint8
+{
+	Consumable UMETA(DisplayName = "Consumable"),
+	Equipment UMETA(DisplayName = "Equipment"),
+	Material UMETA(DisplayName = "Material"),
+	Miscellaneous UMETA(DisplayName = "Miscellaneous")
+};
+
+/*
+* If adding new properties, make sure to update the constructor and clear() function to set default values.
+*/
 USTRUCT(BlueprintType)
 struct FItemData : public FTableRowBase
 {
@@ -25,16 +50,7 @@ struct FItemData : public FTableRowBase
 	float maxDurability = DEFAULT_DURABILITY; // 0-1 as percentile, <0 does not use durability
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 quality;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UTexture2D> icon = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSoftObjectPtr<UStaticMesh> mesh = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSoftObjectPtr<USkeletalMesh> skeletalMesh = nullptr;
+	EItemQuality quality;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool useStaticMesh = true;
@@ -45,18 +61,23 @@ struct FItemData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText description = FText::GetEmpty();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EItemType type;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<UItemDefinition> itemDefinition = nullptr;
+
 	FItemData() :
 		id{NAME_None},
 		maxStackSize{0},
 		weight{1.0f},
 		maxDurability{ DEFAULT_DURABILITY },
-		quality{0},
-		icon{nullptr},
-		mesh{nullptr},
-		skeletalMesh{nullptr},
+		quality{EItemQuality::Common},
 		useStaticMesh{true},
 		name{FText::GetEmpty()},
-		description{FText::GetEmpty()}
+		description{FText::GetEmpty()},
+		type{EItemType::Miscellaneous},
+		itemDefinition{nullptr}
 	{
 	}
 	
@@ -70,12 +91,13 @@ struct FItemData : public FTableRowBase
 	{
 		id = NAME_None;
 		maxStackSize = 0;
-		maxDurability = DEFAULT_DURABILITY;
-		icon = nullptr;
-		mesh = nullptr;
-		skeletalMesh = nullptr;
-		name = FText::GetEmpty();
-		FText::GetEmpty();
 		weight = 1.0f;
+		maxDurability = DEFAULT_DURABILITY;
+		quality = EItemQuality::Common;
+		useStaticMesh = true;
+		name = FText::GetEmpty();
+		description = FText::GetEmpty();
+		type = EItemType::Miscellaneous;
+		itemDefinition = nullptr;
 	}
 };
