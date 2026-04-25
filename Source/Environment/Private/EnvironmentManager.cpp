@@ -5,6 +5,7 @@
 #include "AGWorldSettings.h"
 #include "Logger.h"
 #include "Misc/DateTime.h"
+#include "Curves/CurveFloat.h"
 
 void UEnvironmentManager::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -285,8 +286,8 @@ void UEnvironmentManager::updateTemperature()
 		currentTemp = 0;
 
 		// Load the curves from our world settings.
-		TSoftObjectPtr<class UCurveFloat> dailyTemperatureCurve;
-		TSoftObjectPtr<class UCurveFloat> annualTemperatureCurve;
+		TSoftObjectPtr<UCurveFloat> dailyTemperatureCurve;
+		TSoftObjectPtr<UCurveFloat> annualTemperatureCurve;
 		if (!worldSettings->dailyTemperatureCurve.IsNull())
 		{
 			dailyTemperatureCurve = worldSettings->dailyTemperatureCurve.LoadSynchronous();

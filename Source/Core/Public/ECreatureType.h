@@ -2,8 +2,8 @@
  
 #pragma once
 
-//#include "CoreMinimal.h"
-//#include ECreatureType.generated.h
+#include "CoreMinimal.h"
+#include "ECreatureType.generated.h"
 
 UENUM(BlueprintType)
 enum class ECreatureType : uint8

@@ -6,6 +6,8 @@
 #include "GameFramework/WorldSettings.h"
 #include "AGWorldSettings.generated.h"
 
+class UCurveFloat;
+
 /**
  * 
  */
@@ -30,7 +32,7 @@ public:
 		1440		Midnight	15.0		Loops back to match start.
 	*/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true", ToolTip = "Daily Temperature Curve"), Category = "Temperature")
-	TSoftObjectPtr<class UCurveFloat> dailyTemperatureCurve;
+	TSoftObjectPtr<UCurveFloat> dailyTemperatureCurve;
 
 	/*
 	*	The values currently used:
@@ -47,5 +49,5 @@ public:
 		currentTemp = dailyCurve->GetFloatValue(TimeMinutes) + annualCurve->GetFloatValue(DayOfYear);
 	*/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true", ToolTip = "Annual Temperature Curve, an offset to the daily curve"), Category = "Temperature")
-	TSoftObjectPtr<class UCurveFloat> annualTemperatureCurve;
+	TSoftObjectPtr<UCurveFloat> annualTemperatureCurve;
 };

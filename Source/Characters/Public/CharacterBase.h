@@ -83,7 +83,7 @@ protected:
 	// The PlayerCharacter will inherit this and initialise it in initAbilitySystemComponent() with 
 	//   what the PlayerState contains.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS | ASC")
-	TObjectPtr<class UPlayerAbilitySystemComponent> abilitySystemComponent;
+	TObjectPtr<UPlayerAbilitySystemComponent> abilitySystemComponent;
 
 	UPROPERTY()
 	TObjectPtr<UPlayerAttributeSet> attributeSet;
@@ -102,7 +102,7 @@ protected:
 
 	// A list of effects that we apply to the character once at startup.
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GAS | Effect")
-	TArray<TSubclassOf<class UGameplayEffect>> startupEffects;
+	TArray<TSubclassOf<UGameplayEffect>> startupEffects;
 	virtual void applyStartupEffects();
 	virtual void initStartupEffects();
 

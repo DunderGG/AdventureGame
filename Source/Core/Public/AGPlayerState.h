@@ -20,7 +20,7 @@ protected:
 	class UPlayerAbilitySystemComponent* abilitySystemComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attribute")
-	TObjectPtr<class UPlayerAttributeSet> attributeSet;
+	TObjectPtr<UPlayerAttributeSet> attributeSet;
 
 	// Probably not needed?
 	//virtual void BeginPlay() override;
