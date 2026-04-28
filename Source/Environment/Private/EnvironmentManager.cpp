@@ -90,7 +90,7 @@ void UEnvironmentManager::Tick(float DeltaTime)
 	updateTime(DeltaTime);
 	if (timeWasUpdated && messageManager)
 	{
-		messageManager->updateTimeOfDay(currentTime);
+		//messageManager->updateTimeOfDay(currentTime);
 		timeWasUpdated = false;
 	}
 
@@ -286,11 +286,15 @@ void UEnvironmentManager::updateTemperature()
 		currentTemp = 0;
 
 		// Load the curves from our world settings.
-		TSoftObjectPtr<UCurveFloat> dailyTemperatureCurve;
-		TSoftObjectPtr<UCurveFloat> annualTemperatureCurve;
+		UCurveFloat* dailyTemperatureCurve = nullptr;
+		UCurveFloat* annualTemperatureCurve = nullptr;
 		if (!worldSettings->dailyTemperatureCurve.IsNull())
 		{
 			dailyTemperatureCurve = worldSettings->dailyTemperatureCurve.LoadSynchronous();
+		}
+		else
+		{
+			Logger::addMessage(TEXT("EnvironmentManager: dailyTemperatureCurve soft ref IS NULL - not assigned in World Settings"), SEVERITY::Error);
 		}
 		if (!worldSettings->annualTemperatureCurve.IsNull())
 		{
@@ -298,15 +302,15 @@ void UEnvironmentManager::updateTemperature()
 		}
 
 		// Make sure the curve is valid.
-		if (IsValid(dailyTemperatureCurve.Get()))
+		if (IsValid(dailyTemperatureCurve))
 		{
-			currentTemp += dailyTemperatureCurve.Get()->GetFloatValue(timeOfDayRef);
+			currentTemp += dailyTemperatureCurve->GetFloatValue(timeOfDayRef);
 			temperatureWasUpdated = true;
 
 			// Adding the annual offset to temperature only makes sense if we have a valid daily curve.
-			if (IsValid(annualTemperatureCurve.Get()))
+			if (IsValid(annualTemperatureCurve))
 			{
-				currentTemp += annualTemperatureCurve.Get()->GetFloatValue(currentTime.dayOfYear);
+				currentTemp += annualTemperatureCurve->GetFloatValue(currentTime.dayOfYear);
 			}
 			else
 			{

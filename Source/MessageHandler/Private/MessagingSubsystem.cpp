@@ -12,11 +12,12 @@ void UMessagingSubsystem::updatePreciseTime(float preciseTime)
 * These are basically passthrough functions
 *	When the time changes, we want to trigger the delegate, which will notify all subscribers that the time has changed.
 */
+/*
 void UMessagingSubsystem::updateTimeOfDay(const FTimeData& newTime)
 {
 	onTimeChange.Broadcast(newTime);
 }
-
+*/
 void UMessagingSubsystem::updateHourOfDay(const int newHour)
 {
 	onHourChange.Broadcast(newHour);

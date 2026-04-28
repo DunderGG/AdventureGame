@@ -9,7 +9,9 @@
 #include "PickupBase.generated.h"
 
 class UItemDefinition;
-
+/*
+TODO Look into if this is the same as PickUpActor in episode 22  ~40 mins.
+*/
 UCLASS(BlueprintType, Blueprintable)
 class PICKUPS_API APickupBase : public AActor
 {

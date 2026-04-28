@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FTimeData.h"
+//#include "FTimeData.h"
 #include "MessagingSubsystem.generated.h"
 
 class UGameInstance;
@@ -14,7 +14,7 @@ class UGameInstance;
 * all the subscribers will be notified.
 */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPreciseTimeChangeDelegate, float, preciseTime);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTimeChangeDelegate, const FTimeData&, timeData);
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTimeChangeDelegate, const FTimeData&, timeData);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHourChangeDelegate, const int, hour);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDayOfYearChangeDelegate, const int, dayOfYear);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMonthChangeDelegate, const int, month);
@@ -37,8 +37,8 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "MessageManager | Time")
 	FPreciseTimeChangeDelegate onPreciseTimeChange;
 
-	UPROPERTY(BlueprintAssignable, Category = "MessageManager | Time")
-	FTimeChangeDelegate onTimeChange;
+	//UPROPERTY(BlueprintAssignable, Category = "MessageManager | Time")
+	//FTimeChangeDelegate onTimeChange;
 
 	UPROPERTY(BlueprintAssignable, Category = "MessageManager | Time")
 	FHourChangeDelegate onHourChange;
@@ -58,7 +58,7 @@ public:
 
 #pragma region TRIGGERS
 	void updatePreciseTime(float preciseTime);
-	void updateTimeOfDay(const FTimeData& newTime);
+	//void updateTimeOfDay(const FTimeData& newTime);
 	void updateHourOfDay(const int newHour);
 	void updateDayOfYear(const int newDayOfYear);
 	void updateMonth(const int newMonth);

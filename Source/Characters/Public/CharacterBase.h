@@ -38,6 +38,8 @@ private:
 	float brakingDecelerationWalking = 2000.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float rotationRate = 250.0f;
+	
+	//TODO These can be removed now that we are using tags i guess?
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	bool isMoving = false;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))

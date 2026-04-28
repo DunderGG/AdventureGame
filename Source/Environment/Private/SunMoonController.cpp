@@ -38,6 +38,7 @@ void ASunMoonController::preciseTimeChangeUpdate(float preciseTime)
 * currentTime is currently not used, as we are using the more precise timeOfDayRef instead.
 * 
 * TODO: Maybe just delete this function and move the contents to timeChangeUpdate() instead.
+*		If we need it again, FTimeData has been moved to Environment Module.
 */ 
 void ASunMoonController::updateTimeOfDay(const FTimeData& newTime)
 {
@@ -176,8 +177,8 @@ void ASunMoonController::BeginPlay()
 			if (IsValid(messageManager))
 			{
 				// Make sure no duplicate subscriptions are happening, then subscribe to the time change delegates.
-				messageManager->onTimeChange.RemoveAll(this);
-				messageManager->onTimeChange.AddDynamic(this, &ASunMoonController::timeChangeUpdate);
+				//messageManager->onTimeChange.RemoveAll(this);
+				//messageManager->onTimeChange.AddDynamic(this, &ASunMoonController::timeChangeUpdate);
 				messageManager->onPreciseTimeChange.RemoveAll(this);
 				messageManager->onPreciseTimeChange.AddDynamic(this, &ASunMoonController::preciseTimeChangeUpdate);
 				Logger::addMessage(TEXT("SunMoonController: Subscribed to time change delegate"), SEVERITY::Debug, true, true, false);
@@ -202,7 +203,7 @@ void ASunMoonController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	if (messageManager)
 	{
-		messageManager->onTimeChange.RemoveDynamic(this, &ASunMoonController::timeChangeUpdate);
+		//messageManager->onTimeChange.RemoveDynamic(this, &ASunMoonController::timeChangeUpdate);
 		messageManager->onPreciseTimeChange.RemoveDynamic(this, &ASunMoonController::preciseTimeChangeUpdate);
 	}
 	Super::EndPlay(EndPlayReason);
